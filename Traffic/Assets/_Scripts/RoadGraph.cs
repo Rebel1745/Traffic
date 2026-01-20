@@ -34,8 +34,9 @@ public class RoadGraph : MonoBehaviour
         Road road = new Road(roadIDCounter++, startIntersection, endIntersection, laneCount);
 
         // Create lanes for both directions
-        CreateLanesForDirection(road, startIntersection, endIntersection, laneCount, road.LanesAtoB);
-        CreateLanesForDirection(road, endIntersection, startIntersection, laneCount, road.LanesBtoA);
+        CreateLanesForDirection(road, startIntersection, endIntersection, laneCount, road.LanesAtoB, true);
+
+        CreateLanesForDirection(road, endIntersection, startIntersection, laneCount, road.LanesBtoA, false);
 
         Roads.Add(road);
         startIntersection.ConnectedRoads.Add(road);
@@ -47,12 +48,12 @@ public class RoadGraph : MonoBehaviour
     /// <summary>
     /// Create lanes for a specific direction on a road
     /// </summary>
-    private void CreateLanesForDirection(Road road, Intersection start, Intersection end, int laneCount, List<Lane> laneList)
+    private void CreateLanesForDirection(Road road, Intersection start, Intersection end, int laneCount, List<Lane> laneList, bool isForward)
     {
         for (int i = 0; i < laneCount; i++)
         {
             Lane lane = new Lane(laneIDCounter++, start, end);
-            lane.Waypoints = GenerateWaypoints(start.Position, end.Position, i, laneCount);
+            lane.Waypoints = GenerateWaypoints(start.Position, end.Position, i, laneCount, isForward);
             laneList.Add(lane);
         }
     }
@@ -60,16 +61,31 @@ public class RoadGraph : MonoBehaviour
     /// <summary>
     /// Generate waypoints along a lane with proper offset for lane positioning
     /// </summary>
-    private List<Vector3> GenerateWaypoints(Vector3 start, Vector3 end, int laneIndex, int totalLanes)
+    private List<Vector3> GenerateWaypoints(Vector3 start, Vector3 end, int laneIndex, int totalLanes, bool isForward)
     {
         List<Vector3> waypoints = new List<Vector3>();
 
         Vector3 direction = (end - start).normalized;
-        float roadLength = Vector3.Distance(start, end);
 
-        // Calculate lane offset (perpendicular to road direction)
+        // Calculate perpendicular vector (to the right of the direction)
         Vector3 perpendicular = Vector3.Cross(direction, Vector3.up).normalized;
-        float laneOffset = (laneIndex - (totalLanes - 1) * 0.5f) * LaneWidth;
+
+        // Calculate offset for this lane
+        float laneOffset = -(laneIndex + 0.5f) * LaneWidth;
+
+        // For backward lanes, we need to offset them to the opposite side of the road
+        // But we need to know how many forward lanes there are to position them correctly
+        if (!isForward)
+        {
+            // For backward lanes, we want them on the opposite side of the road
+            // So we reverse the perpendicular vector
+            perpendicular = -perpendicular;
+
+            // Also, we need to offset them by the total width of forward lanes
+            // This ensures backward lanes are on the opposite side
+            laneOffset = -laneOffset;
+        }
+
         Vector3 offset = perpendicular * laneOffset;
 
         // Generate waypoints along the lane
@@ -165,25 +181,6 @@ public class RoadGraph : MonoBehaviour
         }
 
         return outgoingLanes;
-    }
-
-    /// <summary>
-    /// Get a lane by its ID
-    /// </summary>
-    public Lane GetLaneByID(int laneID)
-    {
-        foreach (Road road in Roads)
-        {
-            foreach (Lane lane in road.LanesAtoB)
-            {
-                if (lane.LaneID == laneID) return lane;
-            }
-            foreach (Lane lane in road.LanesBtoA)
-            {
-                if (lane.LaneID == laneID) return lane;
-            }
-        }
-        return null;
     }
 
     /// <summary>

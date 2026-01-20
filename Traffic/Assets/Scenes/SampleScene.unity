@@ -302,7 +302,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1be2d7098085c95458b59bb0c42506fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TrafficSimulationSetup
-  networkType: 0
+  networkType: 1
   gridSize: 3
   gridSpacing: 20
 --- !u!114 &408653820

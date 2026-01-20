@@ -58,36 +58,36 @@ public class TrafficSimulationSetup : MonoBehaviour
         Intersection west = roadGraph.CreateIntersection(new Vector3(-20, 0, 0));
 
         // Create roads (2 lanes in each direction)
-        Road roadNorth = roadGraph.CreateRoad(center, north, 2);
-        Road roadSouth = roadGraph.CreateRoad(center, south, 2);
-        Road roadEast = roadGraph.CreateRoad(center, east, 2);
-        Road roadWest = roadGraph.CreateRoad(center, west, 2);
+        Road roadNorth = roadGraph.CreateRoad(center, north, 1);
+        Road roadSouth = roadGraph.CreateRoad(center, south, 1);
+        Road roadEast = roadGraph.CreateRoad(center, east, 1);
+        Road roadWest = roadGraph.CreateRoad(center, west, 1);
 
         // Get INCOMING lanes (vehicles approaching the center intersection)
         Lane northIncoming0 = roadNorth.LanesBtoA[0];  // From north to center
-        Lane northIncoming1 = roadNorth.LanesBtoA[1];
+        // Lane northIncoming1 = roadNorth.LanesBtoA[1];
 
         Lane southIncoming0 = roadSouth.LanesBtoA[0];  // From south to center
-        Lane southIncoming1 = roadSouth.LanesBtoA[1];
+        // Lane southIncoming1 = roadSouth.LanesBtoA[1];
 
         Lane eastIncoming0 = roadEast.LanesBtoA[0];    // From east to center
-        Lane eastIncoming1 = roadEast.LanesBtoA[1];
+        // Lane eastIncoming1 = roadEast.LanesBtoA[1];
 
         Lane westIncoming0 = roadWest.LanesBtoA[0];    // From west to center
-        Lane westIncoming1 = roadWest.LanesBtoA[1];
+        // Lane westIncoming1 = roadWest.LanesBtoA[1];
 
         // Get OUTGOING lanes (vehicles leaving the center intersection)
         Lane northOutgoing0 = roadNorth.LanesAtoB[0];  // From center to north
-        Lane northOutgoing1 = roadNorth.LanesAtoB[1];
+        // Lane northOutgoing1 = roadNorth.LanesAtoB[1];
 
         Lane southOutgoing0 = roadSouth.LanesAtoB[0];  // From center to south
-        Lane southOutgoing1 = roadSouth.LanesAtoB[1];
+        // Lane southOutgoing1 = roadSouth.LanesAtoB[1];
 
         Lane eastOutgoing0 = roadEast.LanesAtoB[0];    // From center to east
-        Lane eastOutgoing1 = roadEast.LanesAtoB[1];
+        // Lane eastOutgoing1 = roadEast.LanesAtoB[1];
 
         Lane westOutgoing0 = roadWest.LanesAtoB[0];    // From center to west
-        Lane westOutgoing1 = roadWest.LanesAtoB[1];
+        // Lane westOutgoing1 = roadWest.LanesAtoB[1];
 
         // Add lane connections at center intersection
 
@@ -99,10 +99,10 @@ public class TrafficSimulationSetup : MonoBehaviour
         roadGraph.AddLaneConnection(northIncoming0, southOutgoing0);
 
         // Left turn: North → West
-        roadGraph.AddLaneConnection(northIncoming1, westOutgoing1);
+        //roadGraph.AddLaneConnection(northIncoming1, westOutgoing1);
 
         // Straight: North → South (lane 1)
-        roadGraph.AddLaneConnection(northIncoming1, southOutgoing1);
+        //roadGraph.AddLaneConnection(northIncoming1, southOutgoing1);
 
         // === Vehicles coming FROM EAST ===
         // Right turn: East → South
@@ -112,10 +112,10 @@ public class TrafficSimulationSetup : MonoBehaviour
         roadGraph.AddLaneConnection(eastIncoming0, westOutgoing0);
 
         // Left turn: East → North
-        roadGraph.AddLaneConnection(eastIncoming1, northOutgoing1);
+        //roadGraph.AddLaneConnection(eastIncoming1, northOutgoing1);
 
         // Straight: East → West (lane 1)
-        roadGraph.AddLaneConnection(eastIncoming1, westOutgoing0);
+        //roadGraph.AddLaneConnection(eastIncoming1, westOutgoing0);
 
         // === Vehicles coming FROM SOUTH ===
         // Right turn: South → West
@@ -125,10 +125,10 @@ public class TrafficSimulationSetup : MonoBehaviour
         roadGraph.AddLaneConnection(southIncoming0, northOutgoing0);
 
         // Left turn: South → East
-        roadGraph.AddLaneConnection(southIncoming1, eastOutgoing1);
+        //roadGraph.AddLaneConnection(southIncoming1, eastOutgoing1);
 
         // Straight: South → North (lane 1)
-        roadGraph.AddLaneConnection(southIncoming1, northOutgoing0);
+        //roadGraph.AddLaneConnection(southIncoming1, northOutgoing0);
 
         // === Vehicles coming FROM WEST ===
         // Right turn: West → North
@@ -138,10 +138,10 @@ public class TrafficSimulationSetup : MonoBehaviour
         roadGraph.AddLaneConnection(westIncoming0, eastOutgoing0);
 
         // Left turn: West → South
-        roadGraph.AddLaneConnection(westIncoming1, southOutgoing1);
+        //roadGraph.AddLaneConnection(westIncoming1, southOutgoing1);
 
         // Straight: West → East (lane 1)
-        roadGraph.AddLaneConnection(westIncoming1, eastOutgoing0);
+        //roadGraph.AddLaneConnection(westIncoming1, eastOutgoing0);
 
         Debug.Log($"Created {roadGraph.Roads.Count} roads and {roadGraph.Intersections.Count} intersections");
         Debug.Log("Lane connections configured for 4-way intersection");
