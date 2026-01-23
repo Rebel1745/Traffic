@@ -136,7 +136,7 @@ public class RoadGraph : MonoBehaviour
             }
         }
 
-        Debug.Log($"Connected {incomingLanes.Count} incoming lanes to {outgoingLanes.Count} outgoing lanes at intersection {intersection.IntersectionID}");
+        //Debug.Log($"Connected {incomingLanes.Count} incoming lanes to {outgoingLanes.Count} outgoing lanes at intersection {intersection.IntersectionID}");
     }
 
     /// <summary>

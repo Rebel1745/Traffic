@@ -48,7 +48,7 @@ public class TrafficSimulationSetup : MonoBehaviour
     /// </summary>
     void BuildSimpleNetwork()
     {
-        Debug.Log("Building simple 4-way intersection...");
+        //Debug.Log("Building simple 4-way intersection...");
 
         // Create intersections
         Intersection center = roadGraph.CreateIntersection(Vector3.zero);
@@ -143,8 +143,8 @@ public class TrafficSimulationSetup : MonoBehaviour
         // Straight: West → East (lane 1)
         //roadGraph.AddLaneConnection(westIncoming1, eastOutgoing0);
 
-        Debug.Log($"Created {roadGraph.Roads.Count} roads and {roadGraph.Intersections.Count} intersections");
-        Debug.Log("Lane connections configured for 4-way intersection");
+        //Debug.Log($"Created {roadGraph.Roads.Count} roads and {roadGraph.Intersections.Count} intersections");
+        //Debug.Log("Lane connections configured for 4-way intersection");
     }
 
     /// <summary>
@@ -152,7 +152,7 @@ public class TrafficSimulationSetup : MonoBehaviour
     /// </summary>
     void BuildGridNetwork()
     {
-        Debug.Log($"Building {gridSize}x{gridSize} grid network...");
+        //Debug.Log($"Building {gridSize}x{gridSize} grid network...");
 
         Intersection[,] grid = new Intersection[gridSize, gridSize];
 
@@ -190,8 +190,8 @@ public class TrafficSimulationSetup : MonoBehaviour
             roadGraph.ConnectAllLanes(intersection);
         }
 
-        Debug.Log($"Created grid with {roadGraph.Roads.Count} roads and {roadGraph.Intersections.Count} intersections");
-        Debug.Log("All lane connections configured automatically");
+        //Debug.Log($"Created grid with {roadGraph.Roads.Count} roads and {roadGraph.Intersections.Count} intersections");
+        //Debug.Log("All lane connections configured automatically");
     }
 
     /// <summary>
