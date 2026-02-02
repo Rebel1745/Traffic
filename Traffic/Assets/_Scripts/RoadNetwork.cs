@@ -34,6 +34,7 @@ public class RoadNetwork : MonoBehaviour
 
     public void AddRoadSegment(Vector3 start, Vector3 end)
     {
+        Debug.Log($"{start.x - end.x}");
         // Determine direction
         RoadDirection direction = Mathf.Abs(end.x - start.x) > Mathf.Abs(end.z - start.z)
             ? RoadDirection.EastWest

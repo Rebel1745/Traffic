@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BaseRoadConfig
   m_EditorClassIdentifier: Assembly-CSharp::RoadConfig
   laneWidth: 3.5
-  pavementWidth: 1
+  pavementWidth: 2
   cornerSegments: 8
   roadHeight: 0.5
   pavementHeight: 1

@@ -125,12 +125,12 @@ public class MeshData
         triangles.Add(startIndex + 7);
 
         // Left
-        triangles.Add(startIndex);
-        triangles.Add(startIndex + 4);
         triangles.Add(startIndex + 3);
+        triangles.Add(startIndex + 4);
+        triangles.Add(startIndex);
 
         triangles.Add(startIndex + 3);
-        triangles.Add(startIndex + 4);
         triangles.Add(startIndex + 7);
+        triangles.Add(startIndex + 4);
     }
 }

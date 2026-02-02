@@ -5,6 +5,8 @@ public class RoadMeshGenerator
 {
     private RoadConfig config;
 
+    private const float GRID_WIDTH = 2.5f;
+
     public RoadMeshGenerator(RoadConfig config)
     {
         this.config = config;
@@ -13,6 +15,8 @@ public class RoadMeshGenerator
     public MeshData GenerateRoadNetwork(List<RoadSegment> segments, List<RoadNode> nodes)
     {
         MeshData meshData = new MeshData();
+
+        Debug.Log($"{segments.Count} segments. {nodes.Count} nodes");
 
         // Generate straight segments
         foreach (RoadSegment segment in segments)
@@ -50,14 +54,14 @@ public class RoadMeshGenerator
 
     private void GenerateRoadSegment(MeshData meshData, RoadSegment segment)
     {
+        //return;
         float halfWidth = config.GetHalfRoadWidth(segment.lanesPerDirection);
         Vector3 direction = (segment.endPos - segment.startPos).normalized;
         Vector3 perpendicular = Vector3.Cross(direction, Vector3.up);
 
-        // Calculate segment endpoints (shortened to account for junctions)
-        float junctionOffset = config.GetHalfTotalWidth(segment.lanesPerDirection);
-        Vector3 start = segment.startPos + direction * junctionOffset;
-        Vector3 end = segment.endPos - direction * junctionOffset;
+        // Calculate segment endpoints (shortened to account for junctions (segments are 1.0f))
+        Vector3 start = segment.startPos + direction * GRID_WIDTH;
+        Vector3 end = segment.endPos - direction * GRID_WIDTH;
 
         // Only generate if segment is long enough
         if (Vector3.Distance(start, end) < 0.1f) return;
@@ -85,15 +89,15 @@ public class RoadMeshGenerator
 
     private void GeneratePavementSegment(MeshData meshData, RoadSegment segment)
     {
+        //return;
         float halfRoadWidth = config.GetHalfRoadWidth(segment.lanesPerDirection);
         float halfTotalWidth = config.GetHalfTotalWidth(segment.lanesPerDirection);
         Vector3 direction = (segment.endPos - segment.startPos).normalized;
         Vector3 perpendicular = Vector3.Cross(direction, Vector3.up);
 
         // Calculate segment endpoints
-        float junctionOffset = halfTotalWidth;
-        Vector3 start = segment.startPos + direction * junctionOffset;
-        Vector3 end = segment.endPos - direction * junctionOffset;
+        Vector3 start = segment.startPos + direction * GRID_WIDTH;
+        Vector3 end = segment.endPos - direction * GRID_WIDTH;
 
         // Only generate if segment is long enough
         if (Vector3.Distance(start, end) < 0.1f) return;
@@ -171,52 +175,61 @@ public class RoadMeshGenerator
 
         Vector3 perpendicular = Vector3.Cross(direction, Vector3.up);
 
+        float halfRoadWidth = config.GetHalfRoadWidth(lanes);
+        float halfTotalWidth = config.GetHalfTotalWidth(lanes);
+
+        // Dead end extends GRID_WIDTH away from the road
+        Vector3 center = node.position;
+        Vector3 back = center - direction * GRID_WIDTH;
+
         if (isRoadSurface)
         {
-            float halfWidth = config.GetHalfRoadWidth(lanes);
-            Vector3 center = node.position;
-            Vector3 back = center + direction * halfWidth;
+            float roadHeight = config.roadHeight;
+            float roadThickness = config.roadThickness;
 
-            Vector3 v0 = back - perpendicular * halfWidth;
-            Vector3 v1 = back + perpendicular * halfWidth;
-            Vector3 v2 = center + perpendicular * halfWidth;
-            Vector3 v3 = center - perpendicular * halfWidth;
+            // Road surface - same width as normal road
+            Vector3 v0 = center - perpendicular * halfRoadWidth + Vector3.up * roadHeight;
+            Vector3 v1 = center + perpendicular * halfRoadWidth + Vector3.up * roadHeight;
+            Vector3 v2 = back + perpendicular * halfRoadWidth + Vector3.up * roadHeight;
+            Vector3 v3 = back - perpendicular * halfRoadWidth + Vector3.up * roadHeight;
 
-            meshData.AddQuad(v0, v1, v2, v3,
+            meshData.AddRect(v0, v1, v2, v3,
                 new Vector2(0, 0), new Vector2(1, 0),
-                new Vector2(1, 1), new Vector2(0, 1));
+                new Vector2(1, 1), new Vector2(0, 1),
+                roadThickness);
         }
         else
         {
-            // Pavement caps at dead end
-            float halfRoadWidth = config.GetHalfRoadWidth(lanes);
-            float halfTotalWidth = config.GetHalfTotalWidth(lanes);
-            Vector3 center = node.position;
+            float pavementHeight = config.pavementHeight;
+            float pavementThickness = config.pavementThickness;
 
             // Left pavement cap
-            Vector3 leftInner = center - perpendicular * halfRoadWidth;
-            Vector3 leftOuter = center - perpendicular * halfTotalWidth;
-            Vector3 leftInnerBack = leftInner + direction * halfTotalWidth;
-            Vector3 leftOuterBack = leftOuter + direction * halfTotalWidth;
+            Vector3 leftInner0 = center - perpendicular * halfRoadWidth + Vector3.up * pavementHeight;
+            Vector3 leftOuter0 = center - perpendicular * halfTotalWidth + Vector3.up * pavementHeight;
+            Vector3 leftInner1 = back - perpendicular * halfRoadWidth + Vector3.up * pavementHeight;
+            Vector3 leftOuter1 = back - perpendicular * halfTotalWidth + Vector3.up * pavementHeight;
 
-            meshData.AddQuad(leftOuterBack, leftInnerBack, leftInner, leftOuter,
+            meshData.AddRect(leftOuter0, leftInner0, leftInner1, leftOuter1,
                 new Vector2(0, 0), new Vector2(1, 0),
-                new Vector2(1, 1), new Vector2(0, 1));
+                new Vector2(1, 1), new Vector2(0, 1),
+                pavementThickness);
 
             // Right pavement cap
-            Vector3 rightInner = center + perpendicular * halfRoadWidth;
-            Vector3 rightOuter = center + perpendicular * halfTotalWidth;
-            Vector3 rightInnerBack = rightInner + direction * halfTotalWidth;
-            Vector3 rightOuterBack = rightOuter + direction * halfTotalWidth;
+            Vector3 rightInner0 = center + perpendicular * halfRoadWidth + Vector3.up * pavementHeight;
+            Vector3 rightOuter0 = center + perpendicular * halfTotalWidth + Vector3.up * pavementHeight;
+            Vector3 rightInner1 = back + perpendicular * halfRoadWidth + Vector3.up * pavementHeight;
+            Vector3 rightOuter1 = back + perpendicular * halfTotalWidth + Vector3.up * pavementHeight;
 
-            meshData.AddQuad(rightInnerBack, rightOuterBack, rightOuter, rightInner,
+            meshData.AddRect(rightInner0, rightOuter0, rightOuter1, rightInner1,
                 new Vector2(0, 0), new Vector2(1, 0),
-                new Vector2(1, 1), new Vector2(0, 1));
+                new Vector2(1, 1), new Vector2(0, 1),
+                pavementThickness);
 
-            // End cap
-            meshData.AddQuad(leftOuter, rightOuter, rightOuterBack, leftOuterBack,
-                new Vector2(0, 0), new Vector2(1, 0),
-                new Vector2(1, 1), new Vector2(0, 1));
+            // End cap (closes the dead end at the far end)
+            // meshData.AddRect(leftInner1, rightInner1, rightInner0, leftInner0,
+            //     new Vector2(0, 0), new Vector2(1, 0),
+            //     new Vector2(1, 1), new Vector2(0, 1),
+            //     pavementThickness);
         }
     }
 
