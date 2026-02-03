@@ -40,35 +40,35 @@ public class MeshData
         Vector3 min = Vector3.Min(v0, v1);
         Vector3 max = Vector3.Max(v0, v1);
 
-        // Front face corners (z = 0)
-        Vector3 fbl = new Vector3(min.x, min.y, 0);
-        Vector3 fbr = new Vector3(max.x, min.y, 0);
-        Vector3 ftr = new Vector3(max.x, max.y, 0);
-        Vector3 ftl = new Vector3(min.x, max.y, 0);
+        // Bottom quad corners (y = 0)
+        Vector3 bbl = new Vector3(min.x, 0, min.z);           // bottom-bottom-left
+        Vector3 bbr = new Vector3(max.x, 0, min.z);           // bottom-bottom-right
+        Vector3 btr = new Vector3(max.x, 0, max.z);           // bottom-top-right
+        Vector3 btl = new Vector3(min.x, 0, max.z);           // bottom-top-left
 
-        // Back face corners (z = thickness)
-        Vector3 bbl = new Vector3(min.x, min.y, thickness);
-        Vector3 bbr = new Vector3(max.x, min.y, thickness);
-        Vector3 btr = new Vector3(max.x, max.y, thickness);
-        Vector3 btl = new Vector3(min.x, max.y, thickness);
+        // Top quad corners (y = thickness)
+        Vector3 tbl = new Vector3(min.x, thickness, min.z);   // top-bottom-left
+        Vector3 tbr = new Vector3(max.x, thickness, min.z);   // top-bottom-right
+        Vector3 ttr = new Vector3(max.x, thickness, max.z);   // top-top-right
+        Vector3 ttl = new Vector3(min.x, thickness, max.z);   // top-top-left
 
-        // Front face (facing -Z)
-        AddQuad(ftl, ftr, fbr, fbl);
+        // Bottom face (y = 0, facing -Y)
+        AddQuad(bbl, bbr, btr, btl);
 
-        // Back face (facing +Z)
-        AddQuad(btl, bbl, bbr, btr);
+        // Top face (y = thickness, facing +Y)
+        AddQuad(tbl, ttl, ttr, tbr);
 
-        // Bottom face (facing -Y)
-        AddQuad(fbl, fbr, bbr, bbl);
+        // Front face (z = min.z, facing -Z)
+        AddQuad(bbl, tbl, tbr, bbr);
 
-        // Top face (facing +Y)
-        AddQuad(btl, btr, ftr, ftl);
+        // Back face (z = max.z, facing +Z)
+        AddQuad(btr, ttr, ttl, btl);
 
-        // Left face (facing -X)
-        AddQuad(ftl, fbl, bbl, btl);
+        // Left face (x = min.x, facing -X)
+        AddQuad(btl, ttl, tbl, bbl);
 
-        // Right face (facing +X)
-        AddQuad(fbr, ftr, btr, bbr);
+        // Right face (x = max.x, facing +X)
+        AddQuad(bbr, tbr, ttr, btr);
     }
 
     public void AddTrapezium(Vector3 v0, Vector3 v1, Vector3 v2, Vector3 v3)
