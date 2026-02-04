@@ -12,8 +12,6 @@ public class RoadConfig : ScriptableObject
     public int cornerSegments = 8;
 
     [Header("Elevation")]
-    public float roadHeight = 0.1f; // Height of road surface above ground
-    public float pavementHeight = 0.2f; // Height of pavement surface above ground
     public float roadThickness = 0.2f; // Thickness of road material (below ground)
     public float pavementThickness = 0.1f; // Thickness of pavement material (below ground)
 
