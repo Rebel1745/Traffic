@@ -97,7 +97,6 @@ public class RoadGrid : MonoBehaviour
         if (hitPoint.HasValue)
         {
             dragStartPosition = hitPoint.Value;
-            previewLine.enabled = true;
             cellsAlongDragLine.Clear();
         }
     }
@@ -112,6 +111,7 @@ public class RoadGrid : MonoBehaviour
 
             previewLine.SetPosition(0, dragStartPosition.Value);
             previewLine.SetPosition(1, alignedEnd);
+            previewLine.enabled = true;
 
             // Calculate cells along the drag line
             cellsAlongDragLine = GetCellsAlongLine(dragStartPosition.Value, alignedEnd);
@@ -123,33 +123,39 @@ public class RoadGrid : MonoBehaviour
         Vector3? hitPoint = GetGroundHitPoint();
         if (hitPoint.HasValue)
         {
+            Vector3 snappedStart = SnapToGrid(dragStartPosition.Value);
             Vector3 snappedEnd = SnapToGrid(hitPoint.Value);
-            Vector3 alignedEnd = AlignToCardinalDirection(dragStartPosition.Value, snappedEnd);
+            Vector3 alignedEnd = AlignToCardinalDirection(snappedStart, snappedEnd);
 
-            float distance = Vector3.Distance(dragStartPosition.Value, alignedEnd);
+            float distance = Vector3.Distance(snappedStart, alignedEnd);
 
             if (distance <= dragThreshold)
             {
-                // Single click - place a road segment in the east direction
-                Vector3 endPoint = dragStartPosition.Value + new Vector3(cellSize, 0, 0);
-                cellsAlongDragLine = GetCellsAlongLine(dragStartPosition.Value, endPoint);
-            }
-            else
-            {
-                // Drag - place road along the dragged path
-                cellsAlongDragLine = GetCellsAlongLine(dragStartPosition.Value, alignedEnd);
-            }
-
-            // Place roads for all cells along the line
-            foreach (Vector3Int gridPos in cellsAlongDragLine)
-            {
+                // Single click - place a single road cell at the clicked position
+                Vector3Int gridPos = WorldToGridPosition(snappedStart);
                 if (IsValidGridPosition(gridPos))
                 {
                     grid[gridPos.x, gridPos.z].CellType = CellType.Road;
                     UpdateRoadTypes(gridPos);
                 }
             }
+            else
+            {
+                // Drag - place road along the dragged path
+                cellsAlongDragLine = GetCellsAlongLine(snappedStart, alignedEnd);
 
+                // Place roads for all cells along the line
+                foreach (Vector3Int gridPos in cellsAlongDragLine)
+                {
+                    if (IsValidGridPosition(gridPos))
+                    {
+                        grid[gridPos.x, gridPos.z].CellType = CellType.Road;
+                        UpdateRoadTypes(gridPos);
+                    }
+                }
+            }
+
+            DebugGrid();
             RegenerateMesh();
 
             dragStartPosition = null;
@@ -200,24 +206,42 @@ public class RoadGrid : MonoBehaviour
     {
         List<Vector3Int> cells = new List<Vector3Int>();
 
-        // Calculate the direction of the line
-        Vector3 direction = (end - start).normalized;
-        float distance = Vector3.Distance(start, end);
+        Vector3Int startGrid = WorldToGridPosition(start);
+        Vector3Int endGrid = WorldToGridPosition(end);
 
-        // Calculate the number of cells along the line
-        int numCells = (int)(distance / cellSize) + 1;
+        // Use Bresenham-like algorithm for grid traversal
+        int x0 = startGrid.x;
+        int z0 = startGrid.z;
+        int x1 = endGrid.x;
+        int z1 = endGrid.z;
 
-        // Calculate the step size
-        Vector3 step = direction * cellSize;
+        int dx = Mathf.Abs(x1 - x0);
+        int dz = Mathf.Abs(z1 - z0);
+        int sx = x0 < x1 ? 1 : -1;
+        int sz = z0 < z1 ? 1 : -1;
 
-        // Add cells along the line
-        for (int i = 0; i < numCells; i++)
+        if (dx > dz)
         {
-            Vector3 position = start + step * i;
-            Vector3Int gridPos = WorldToGridPosition(position);
-            if (IsValidGridPosition(gridPos))
+            // Traverse along X axis
+            for (int x = x0; x != x1 + sx; x += sx)
             {
-                cells.Add(gridPos);
+                Vector3Int gridPos = new Vector3Int(x, 0, z0);
+                if (IsValidGridPosition(gridPos))
+                {
+                    cells.Add(gridPos);
+                }
+            }
+        }
+        else
+        {
+            // Traverse along Z axis
+            for (int z = z0; z != z1 + sz; z += sz)
+            {
+                Vector3Int gridPos = new Vector3Int(x0, 0, z);
+                if (IsValidGridPosition(gridPos))
+                {
+                    cells.Add(gridPos);
+                }
             }
         }
 
@@ -338,6 +362,10 @@ public class RoadGrid : MonoBehaviour
 
     private RoadType GetRoadType(int x, int z)
     {
+        // First check if this cell is even a road
+        if (grid[x, z].CellType != CellType.Road)
+            return RoadType.Empty;
+
         int roadCount = 0;
         List<Vector3Int> adjacentRoads = new List<Vector3Int>();
 
@@ -358,11 +386,10 @@ public class RoadGrid : MonoBehaviour
         }
 
         // Classify road type based on count and positions
-        if (roadCount == 0) return RoadType.Empty;
+        if (roadCount == 0) return RoadType.Single;  // Changed from Empty to Single
         if (roadCount == 1) return RoadType.DeadEnd;
         if (roadCount == 2)
         {
-            // Check if adjacent roads are in a straight line
             if (IsStraightLine(adjacentRoads))
                 return RoadType.Straight;
             else
@@ -423,6 +450,18 @@ public class RoadGrid : MonoBehaviour
     public float GetCellSize()
     {
         return cellSize;
+    }
+
+    private void DebugGrid()
+    {
+        for (int x = 0; x < grid.GetLength(0); x++)
+        {
+            for (int z = 0; z < grid.GetLength(1); z++)
+            {
+                if (grid[x, z].CellType != CellType.Empty)
+                    Debug.Log($"({x}, {z}) - {grid[x, z].CellType} - {grid[x, z].RoadType}");
+            }
+        }
     }
 }
 
