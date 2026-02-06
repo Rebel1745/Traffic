@@ -12,8 +12,8 @@ public class RoadGrid : MonoBehaviour
     [SerializeField] private Material highlightMaterial;
     [SerializeField] private LineRenderer previewLine;
     [SerializeField] private float dragThreshold = 0.5f;
-    [SerializeField] private float singleClickRoadLength = 5f;
     [SerializeField] private LayerMask planeLayer;
+    [SerializeField] private float previewLineWidthMultiplier = 0.75f;
 
     private GridCell[,] grid;
     private GameObject highlightedCell;
@@ -46,11 +46,11 @@ public class RoadGrid : MonoBehaviour
             GameObject previewObj = new GameObject("RoadPreview");
             previewObj.transform.parent = transform;
             previewLine = previewObj.AddComponent<LineRenderer>();
-            previewLine.startWidth = cellSize;
-            previewLine.endWidth = cellSize;
+            previewLine.startWidth = cellSize * previewLineWidthMultiplier;
+            previewLine.endWidth = cellSize * previewLineWidthMultiplier;
             previewLine.material = new Material(Shader.Find("Sprites/Default"));
-            previewLine.startColor = Color.yellow;
-            previewLine.endColor = Color.yellow;
+            previewLine.startColor = Color.dimGray;
+            previewLine.endColor = Color.dimGray;
             previewLine.enabled = false;
         }
 
@@ -89,6 +89,11 @@ public class RoadGrid : MonoBehaviour
         {
             HandleMouseUp();
         }
+
+        if (Input.GetMouseButtonUp(1))
+        {
+            HandleRightClick();
+        }
     }
 
     private void HandleMouseDown()
@@ -109,12 +114,44 @@ public class RoadGrid : MonoBehaviour
             Vector3 snappedEnd = SnapToGrid(currentPoint.Value);
             Vector3 alignedEnd = AlignToCardinalDirection(dragStartPosition.Value, snappedEnd);
 
-            previewLine.SetPosition(0, dragStartPosition.Value);
-            previewLine.SetPosition(1, alignedEnd);
-            previewLine.enabled = true;
-
             // Calculate cells along the drag line
             cellsAlongDragLine = GetCellsAlongLine(dragStartPosition.Value, alignedEnd);
+
+            // Calculate the actual preview line endpoints based on cells
+            if (cellsAlongDragLine.Count > 0)
+            {
+                Vector3Int firstCell = cellsAlongDragLine[0];
+                Vector3Int lastCell = cellsAlongDragLine[cellsAlongDragLine.Count - 1];
+
+                Vector3 firstCellCenter = GridToWorldPosition(firstCell.x, firstCell.z);
+                Vector3 lastCellCenter = GridToWorldPosition(lastCell.x, lastCell.z);
+
+                // Determine the direction of the line
+                Vector3 direction = (lastCellCenter - firstCellCenter).normalized;
+
+                // If single cell, show no line or a point
+                if (cellsAlongDragLine.Count == 1)
+                {
+                    direction = Vector3.right; // Default direction for single cell
+                }
+
+                // Extend to the edges of the cells
+                float halfCell = cellSize / 2f;
+                Vector3 previewStart = firstCellCenter - direction * halfCell;
+                previewStart.y = 0.5f;
+                Vector3 previewEnd = lastCellCenter + direction * halfCell;
+                previewEnd.y = 0.5f;
+
+                previewLine.SetPosition(0, previewStart);
+                previewLine.SetPosition(1, previewEnd);
+                previewLine.enabled = true;
+            }
+            else
+            {
+                // If no cells, just show a point at the start
+                previewLine.SetPosition(0, dragStartPosition.Value);
+                previewLine.SetPosition(1, dragStartPosition.Value);
+            }
         }
     }
 
@@ -135,6 +172,7 @@ public class RoadGrid : MonoBehaviour
                 Vector3Int gridPos = WorldToGridPosition(snappedStart);
                 if (IsValidGridPosition(gridPos))
                 {
+                    Debug.Log(gridPos);
                     grid[gridPos.x, gridPos.z].CellType = CellType.Road;
                     UpdateRoadTypes(gridPos);
                 }
@@ -155,12 +193,29 @@ public class RoadGrid : MonoBehaviour
                 }
             }
 
-            DebugGrid();
+            //DebugGrid();
             RegenerateMesh();
 
             dragStartPosition = null;
             previewLine.enabled = false;
             cellsAlongDragLine.Clear();
+        }
+    }
+
+    private void HandleRightClick()
+    {
+        Vector3? hitPoint = GetGroundHitPoint();
+        if (hitPoint.HasValue)
+        {
+            Vector3 snappedStart = SnapToGrid(hitPoint.Value);
+            Vector3Int gridPos = WorldToGridPosition(snappedStart);
+            if (IsValidGridPosition(gridPos))
+            {
+                Debug.Log(gridPos);
+                grid[gridPos.x, gridPos.z].CellType = CellType.Empty;
+                UpdateRoadTypes(gridPos);
+                RegenerateMesh();
+            }
         }
     }
 
@@ -331,8 +386,15 @@ public class RoadGrid : MonoBehaviour
 
     private void UpdateRoadTypes(Vector3Int placedCell)
     {
-        // Update the placed cell
-        grid[placedCell.x, placedCell.z].RoadType = GetRoadType(placedCell.x, placedCell.z);
+        if (grid[placedCell.x, placedCell.z].CellType == CellType.Empty)
+        {
+            grid[placedCell.x, placedCell.z].RoadType = RoadType.Empty;
+        }
+        else
+        {
+            // Update the placed cell
+            grid[placedCell.x, placedCell.z].RoadType = GetRoadType(placedCell.x, placedCell.z);
+        }
 
         // Create a list of cells to update
         List<Vector3Int> cellsToUpdate = new List<Vector3Int>();
