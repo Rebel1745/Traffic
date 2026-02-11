@@ -1,8 +1,11 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 public class RoadGrid : MonoBehaviour
 {
+    public static RoadGrid Instance { get; private set; }
+
     [SerializeField] private RoadConfig config;
     [SerializeField] private MeshFilter roadMeshFilter;
     [SerializeField] private MeshFilter pavementMeshFilter;
@@ -21,7 +24,20 @@ public class RoadGrid : MonoBehaviour
     private Vector3? dragStartPosition;
     private List<Vector3Int> cellsAlongDragLine = new List<Vector3Int>();
 
+    private LaneGenerator laneGenerator;
+    private LaneConnectionBuilder connectionBuilder;
+
+    public void Awake()
+    {
+        if (Instance == null) Instance = this;
+    }
+
     private void Start()
+    {
+        Initialise();
+    }
+
+    private void Initialise()
     {
         if (roadMeshFilter == null)
         {
@@ -64,11 +80,14 @@ public class RoadGrid : MonoBehaviour
             {
                 grid[x, z] = new GridCell
                 {
-                    Position = new Vector3(x, 0, z),
+                    Position = new Vector3Int(x, 0, z),
                     CellType = CellType.Empty
                 };
             }
         }
+
+        laneGenerator = new LaneGenerator();
+        connectionBuilder = new LaneConnectionBuilder();
     }
 
     private void Update()
@@ -172,7 +191,6 @@ public class RoadGrid : MonoBehaviour
                 Vector3Int gridPos = WorldToGridPosition(snappedStart);
                 if (IsValidGridPosition(gridPos))
                 {
-                    Debug.Log(gridPos);
                     grid[gridPos.x, gridPos.z].CellType = CellType.Road;
                     UpdateRoadTypes(gridPos);
                 }
@@ -194,7 +212,7 @@ public class RoadGrid : MonoBehaviour
             }
 
             //DebugGrid();
-            RegenerateMesh();
+            UpdateRoadGrid();
 
             dragStartPosition = null;
             previewLine.enabled = false;
@@ -211,10 +229,9 @@ public class RoadGrid : MonoBehaviour
             Vector3Int gridPos = WorldToGridPosition(snappedStart);
             if (IsValidGridPosition(gridPos))
             {
-                Debug.Log(gridPos);
                 grid[gridPos.x, gridPos.z].CellType = CellType.Empty;
                 UpdateRoadTypes(gridPos);
-                RegenerateMesh();
+                UpdateRoadGrid();
             }
         }
     }
@@ -448,7 +465,7 @@ public class RoadGrid : MonoBehaviour
         }
 
         // Classify road type based on count and positions
-        if (roadCount == 0) return RoadType.Single;  // Changed from Empty to Single
+        if (roadCount == 0) return RoadType.Single;
         if (roadCount == 1) return RoadType.DeadEnd;
         if (roadCount == 2)
         {
@@ -473,6 +490,13 @@ public class RoadGrid : MonoBehaviour
 
         // Check if they are in the same row or column
         return first.x == second.x || first.z == second.z;
+    }
+
+    private void UpdateRoadGrid()
+    {
+        laneGenerator.GenerateAllLanes(grid);
+        connectionBuilder.BuildAllConnections(grid);
+        RegenerateMesh();
     }
 
     private void RegenerateMesh()
@@ -514,26 +538,141 @@ public class RoadGrid : MonoBehaviour
         return cellSize;
     }
 
-    private void DebugGrid()
+    public float GetLaneWidth()
     {
+        return config.laneWidth;
+    }
+
+    public Vector3 GetCellCentre(GridCell cell)
+    {
+        return gridOrigin + new Vector3(cell.Position.x * cellSize, 0, cell.Position.z * cellSize);
+    }
+
+    public bool HasRoadNeighbor(GridCell cell, RoadDirection direction)
+    {
+        int newX = cell.Position.x;
+        int newZ = cell.Position.z;
+
+        switch (direction)
+        {
+            case RoadDirection.North: newZ--; break;
+            case RoadDirection.East: newX++; break;
+            case RoadDirection.South: newZ++; break;
+            case RoadDirection.West: newX--; break;
+        }
+
+        if (!IsValidGridPosition(new Vector3Int(newX, 0, newZ)))
+            return false;
+
+        return grid[newX, newZ].CellType == CellType.Road;
+    }
+
+    public GridCell GetNeighborInDirection(GridCell cell, RoadDirection direction)
+    {
+        int newX = cell.Position.x;
+        int newZ = cell.Position.z;
+
+        switch (direction)
+        {
+            case RoadDirection.North: newZ--; break;
+            case RoadDirection.East: newX++; break;
+            case RoadDirection.South: newZ++; break;
+            case RoadDirection.West: newX--; break;
+        }
+
+        if (!IsValidGridPosition(new Vector3Int(newX, 0, newZ)))
+            return null;
+
+        return grid[newX, newZ];
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (grid == null || grid.Length == 0)
+            return;
+
+        // Draw all lane waypoints and connections
         for (int x = 0; x < grid.GetLength(0); x++)
         {
             for (int z = 0; z < grid.GetLength(1); z++)
             {
-                if (grid[x, z].CellType != CellType.Empty)
-                    Debug.Log($"({x}, {z}) - {grid[x, z].CellType} - {grid[x, z].RoadType}");
+                GridCell cell = grid[x, z];
+
+                if (cell.CellType != CellType.Road || cell.LaneData == null)
+                    continue;
+
+                DrawCellLanes(cell);
             }
         }
+    }
+
+    private void DrawCellLanes(GridCell cell)
+    {
+        foreach (var lane in cell.LaneData.Lanes)
+        {
+            // Draw the lane waypoint as a line
+            Gizmos.color = GetColorForDirection(lane.Direction);
+            Gizmos.DrawLine(lane.StartWaypoint, lane.EndWaypoint);
+
+            // Draw start waypoint as a sphere
+            Gizmos.color = Color.green;
+            Gizmos.DrawSphere(lane.StartWaypoint, 0.1f);
+
+            // Draw end waypoint as a sphere
+            Gizmos.color = Color.red;
+            Gizmos.DrawSphere(lane.EndWaypoint, 0.1f);
+
+            // Draw connections to other lanes
+            Gizmos.color = Color.yellow;
+            foreach (var connection in lane.OutgoingConnections)
+            {
+                // Draw an arrow from this lane's end to the connected lane's start
+                DrawArrow(lane.EndWaypoint, connection.TargetLane.StartWaypoint, Color.yellow);
+            }
+        }
+    }
+
+    private Color GetColorForDirection(RoadDirection direction)
+    {
+        switch (direction)
+        {
+            case RoadDirection.North:
+                return Color.blue;
+            case RoadDirection.East:
+                return Color.red;
+            case RoadDirection.South:
+                return Color.cyan;
+            case RoadDirection.West:
+                return Color.magenta;
+            default:
+                return Color.white;
+        }
+    }
+
+    private void DrawArrow(Vector3 from, Vector3 to, Color color)
+    {
+        Gizmos.color = color;
+        Gizmos.DrawLine(from, to);
+
+        // Draw arrowhead
+        Vector3 direction = (to - from).normalized;
+        Vector3 arrowSize = direction * 0.2f;
+
+        Vector3 arrowLeft = from + arrowSize + Vector3.Cross(direction, Vector3.up) * 0.1f;
+        Vector3 arrowRight = from + arrowSize - Vector3.Cross(direction, Vector3.up) * 0.1f;
+
+        Gizmos.DrawLine(to, arrowLeft);
+        Gizmos.DrawLine(to, arrowRight);
     }
 }
 
 public enum RoadType
 {
-    Empty,
-    Single,
-    DeadEnd,
-    Straight,
-    Corner,
-    TJunction,
-    Crossroads
+    Empty, // no road in the cell
+    Single, // single square of road, surrounded on all four sides by pavement
+    DeadEnd, // road only connected to one road, pavement on three sides
+    Straight, // standard straight road, pavement on two sides
+    Corner, // joins two perpendicular roads
+    TJunction, // joins three straight roads with a perpendicular road in the middle
+    Crossroads // joins four straight roads
 }
