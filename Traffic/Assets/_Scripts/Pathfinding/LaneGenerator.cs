@@ -5,6 +5,7 @@ public class LaneGenerator
     private Vector3 cellCentre;
     private float laneCentre;
     private float halfCellSize;
+    private float quarterCellSize;
 
     public void GenerateAllLanes(GridCell[,] grid)
     {
@@ -31,6 +32,7 @@ public class LaneGenerator
         cellCentre = RoadGrid.Instance.GetCellCentre(cell);
         laneCentre = RoadGrid.Instance.GetLaneWidth() / 2f;
         halfCellSize = RoadGrid.Instance.GetCellSize() / 2f;
+        quarterCellSize = halfCellSize / 2f;
 
         switch (cell.RoadType)
         {
@@ -70,78 +72,140 @@ public class LaneGenerator
         bool hasEast = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.East);
         bool hasWest = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.West);
 
-        Vector3 cellCentre = RoadGrid.Instance.GetCellCentre(cell);
-
         if (hasNorth)
         {
-            // Lane going out (North)
+            // Lane coming in (South)
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
-                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
+                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, 0),
+                Direction = RoadDirection.South
+            });
+
+            // turn from south to centre of dead end
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, 0),
+                EndWaypoint = cellCentre + new Vector3(0, 0, -quarterCellSize),
+                Direction = RoadDirection.South
+            });
+
+            // turn from centre to north lane
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(0, 0, -quarterCellSize),
+                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, 0),
                 Direction = RoadDirection.North
             });
 
-            // Lane coming in (South) - allows for U-turn
+            // Lane going out (North)
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, halfCellSize),
-                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
-                Direction = RoadDirection.South
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, 0),
+                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, halfCellSize),
+                Direction = RoadDirection.North
             });
         }
         else if (hasEast)
         {
-            // Lane going out (East)
+            // Lane coming in (West)
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
-                EndWaypoint = cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
+                StartWaypoint = cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
+                EndWaypoint = cellCentre + new Vector3(0, 0, -laneCentre),
+                Direction = RoadDirection.West
+            });
+
+            // turn from west to centre of dead end
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(0, 0, -laneCentre),
+                EndWaypoint = cellCentre + new Vector3(-quarterCellSize, 0, 0),
+                Direction = RoadDirection.West
+            });
+
+            // turn from centre to east lane
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-quarterCellSize, 0, 0),
+                EndWaypoint = cellCentre + new Vector3(0, 0, laneCentre),
                 Direction = RoadDirection.East
             });
 
-            // Lane coming in (West) - allows for U-turn
+            // Lane going out (East)
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(halfCellSize, 0, laneCentre),
-                EndWaypoint = cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
-                Direction = RoadDirection.West
+                StartWaypoint = cellCentre + new Vector3(0, 0, laneCentre),
+                EndWaypoint = cellCentre + new Vector3(halfCellSize, 0, laneCentre),
+                Direction = RoadDirection.East
             });
         }
         else if (hasSouth)
         {
-            // Lane going out (South)
-            laneData.Lanes.Add(new LaneSegment
-            {
-                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, halfCellSize),
-                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
-                Direction = RoadDirection.South
-            });
-
-            // Lane coming in (North) - allows for U-turn
+            // Lane coming in (North)
             laneData.Lanes.Add(new LaneSegment
             {
                 StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
-                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
+                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, 0),
                 Direction = RoadDirection.North
+            });
+
+            // turn from north to centre of dead end
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, 0),
+                EndWaypoint = cellCentre + new Vector3(0, 0, quarterCellSize),
+                Direction = RoadDirection.North
+            });
+
+            // turn from centre to south lane
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(0, 0, quarterCellSize),
+                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, 0),
+                Direction = RoadDirection.South
+            });
+
+            // Lane going out (South)
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, 0),
+                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
+                Direction = RoadDirection.South
             });
         }
         else if (hasWest)
         {
-            // Lane going out (West)
+            // Lane coming in (East)
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
-                EndWaypoint = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
+                StartWaypoint = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
+                EndWaypoint = cellCentre + new Vector3(0, 0, -laneCentre),
+                Direction = RoadDirection.East
+            });
+
+            // turn from east to centre of dead end
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(0, 0, -laneCentre),
+                EndWaypoint = cellCentre + new Vector3(quarterCellSize, 0, 0),
+                Direction = RoadDirection.East
+            });
+
+            // turn from centre to west lane
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(quarterCellSize, 0, 0),
+                EndWaypoint = cellCentre + new Vector3(0, 0, laneCentre),
                 Direction = RoadDirection.West
             });
 
-            // Lane coming in (East) - allows for U-turn
+            // Lane going out (West)
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
-                EndWaypoint = cellCentre + new Vector3(halfCellSize, 0, laneCentre),
-                Direction = RoadDirection.East
+                StartWaypoint = cellCentre + new Vector3(0, 0, laneCentre),
+                EndWaypoint = cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
+                Direction = RoadDirection.West
             });
         }
     }
@@ -152,8 +216,6 @@ public class LaneGenerator
         bool hasSouth = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.South);
         bool hasEast = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.East);
         bool hasWest = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.West);
-
-        Vector3 cellCentre = RoadGrid.Instance.GetCellCentre(cell);
 
         if (hasNorth && hasSouth) // Vertical road
         {
@@ -202,74 +264,138 @@ public class LaneGenerator
 
         Vector3 cellCentre = RoadGrid.Instance.GetCellCentre(cell);
 
-        if (hasNorth && hasEast) // North-East corner
+        if (hasNorth && hasEast)
         {
-            // Lane: South to East (outer turn)
+            // Lane: West to midpoint (outer turn)
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
-                EndWaypoint = cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
-                Direction = RoadDirection.East
+                StartWaypoint = cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
+                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, -laneCentre),
+                Direction = RoadDirection.West
             });
 
-            // Lane: West to North (inner turn)
+            // midpoint to north
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, -laneCentre),
                 EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
                 Direction = RoadDirection.North
             });
-        }
-        else if (hasEast && hasSouth) // East-South corner
-        {
-            // Lane: North to East (inner turn)
+
+            // Lane: South to midpoint (inner turn)
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, halfCellSize),
+                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, laneCentre),
+                Direction = RoadDirection.South
+            });
+
+            // Lane: midpoint to east (inner turn)
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, laneCentre),
+                EndWaypoint = cellCentre + new Vector3(halfCellSize, 0, laneCentre),
+                Direction = RoadDirection.East
+            });
+        }
+        else if (hasEast && hasSouth)
+        {
+            // Lane: North to midpoint (outer turn)
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
+                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, laneCentre),
+                Direction = RoadDirection.North
+            });
+
+            // midpoint to east
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, laneCentre),
                 EndWaypoint = cellCentre + new Vector3(halfCellSize, 0, laneCentre),
                 Direction = RoadDirection.East
             });
 
-            // Lane: West to South (outer turn)
-            laneData.Lanes.Add(new LaneSegment
-            {
-                StartWaypoint = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
-                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
-                Direction = RoadDirection.South
-            });
-        }
-        else if (hasSouth && hasWest) // South-West corner
-        {
-            // Lane: North to West (outer turn)
-            laneData.Lanes.Add(new LaneSegment
-            {
-                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
-                EndWaypoint = cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
-                Direction = RoadDirection.West
-            });
-
-            // Lane: East to South (inner turn)
+            // Lane: West to midpoint (inner turn)
             laneData.Lanes.Add(new LaneSegment
             {
                 StartWaypoint = cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
+                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, -laneCentre),
+                Direction = RoadDirection.West
+            });
+
+            // Lane: midpoint to south (inner turn)
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, -laneCentre),
                 EndWaypoint = cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
                 Direction = RoadDirection.South
             });
         }
-        else if (hasWest && hasNorth) // West-North corner
+        else if (hasSouth && hasWest)
         {
-            // Lane: East to North (outer turn)
+            // Lane: East to midpoint (outer turn)
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(halfCellSize, 0, laneCentre),
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
+                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, laneCentre),
+                Direction = RoadDirection.East
+            });
+
+            // midpoint to south
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, laneCentre),
+                EndWaypoint = cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
+                Direction = RoadDirection.South
+            });
+
+            // Lane: North to midpoint (inner turn)
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
+                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, -laneCentre),
+                Direction = RoadDirection.North
+            });
+
+            // Lane: midpoint to West (inner turn)
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, -laneCentre),
+                EndWaypoint = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
+                Direction = RoadDirection.West
+            });
+        }
+        else if (hasWest && hasNorth)
+        {
+            // Lane: East to midpoint (inner turn)
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
+                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, laneCentre),
+                Direction = RoadDirection.East
+            });
+
+            // midpoint to North
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, laneCentre),
                 EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
                 Direction = RoadDirection.North
             });
 
-            // Lane: South to West (inner turn)
+            // Lane: South to midpoint (outer turn)
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, halfCellSize),
+                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, -laneCentre),
+                Direction = RoadDirection.South
+            });
+
+            // Lane: midpoint to West (outer turn)
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, -laneCentre),
                 EndWaypoint = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
                 Direction = RoadDirection.West
             });
@@ -303,35 +429,67 @@ public class LaneGenerator
                 Direction = RoadDirection.West
             });
 
-            // Turn lane: South to East
-            laneData.Lanes.Add(new LaneSegment
-            {
-                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
-                EndWaypoint = cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
-                Direction = RoadDirection.East
-            });
-
-            // Turn lane: South to West
+            // Turn lane: South to Midpoint
             laneData.Lanes.Add(new LaneSegment
             {
                 StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
-                EndWaypoint = cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
+                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, laneCentre),
+                Direction = RoadDirection.North
+            });
+
+            // Turn lane: Midpoint to East
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, laneCentre),
+                EndWaypoint = cellCentre + new Vector3(halfCellSize, 0, laneCentre),
+                Direction = RoadDirection.East
+            });
+
+            // Turn lane: South to midpoint
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
+                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, -laneCentre),
+                Direction = RoadDirection.North
+            });
+
+            // Turn lane: midpoint to West
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, -laneCentre),
+                EndWaypoint = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
                 Direction = RoadDirection.West
             });
 
-            // Turn lane: East to South
+            // Turn lane: East to midpoint
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(halfCellSize, 0, laneCentre),
+                StartWaypoint = cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
+                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, -laneCentre),
+                Direction = RoadDirection.West
+            });
+
+            // Turn lane: midpoint to South
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, -laneCentre),
                 EndWaypoint = cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
                 Direction = RoadDirection.South
             });
 
-            // Turn lane: West to South
+            // Turn lane: West to midpoint
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
-                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
+                StartWaypoint = cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
+                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, laneCentre),
+                Direction = RoadDirection.East
+            });
+
+            // Turn lane: midpoint to South
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, laneCentre),
+                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
                 Direction = RoadDirection.South
             });
         }
@@ -340,47 +498,79 @@ public class LaneGenerator
             // Through lane: North to South
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
-                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, halfCellSize),
+                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
                 Direction = RoadDirection.South
             });
 
             // Through lane: South to North
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
-                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, halfCellSize),
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
+                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
                 Direction = RoadDirection.North
             });
 
-            // Turn lane: West to North
+            // Turn lane: West to midpoint
             laneData.Lanes.Add(new LaneSegment
             {
                 StartWaypoint = cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
-                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, halfCellSize),
+                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, laneCentre),
+                Direction = RoadDirection.East
+            });
+
+            // Turn lane: midpoint to North
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, laneCentre),
+                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
                 Direction = RoadDirection.North
             });
 
-            // Turn lane: West to South
+            // Turn lane: West to Midpoint
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
+                StartWaypoint = cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
+                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, laneCentre),
+                Direction = RoadDirection.East
+            });
+
+            // Turn lane: Midpoint to South
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, laneCentre),
                 EndWaypoint = cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
                 Direction = RoadDirection.South
             });
 
-            // Turn lane: North to West
+            // Turn lane: North to Midpoint
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
-                EndWaypoint = cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, halfCellSize),
+                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, -laneCentre),
                 Direction = RoadDirection.West
             });
 
-            // Turn lane: South to West
+            // Turn lane: midpoint to West
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, -laneCentre),
+                EndWaypoint = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
+                Direction = RoadDirection.West
+            });
+
+            // Turn lane: South to midpoint
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
+                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, -laneCentre),
+                Direction = RoadDirection.North
+            });
+
+            // Turn lane: Midpoint to West
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, -laneCentre),
                 EndWaypoint = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
                 Direction = RoadDirection.West
             });
@@ -403,34 +593,66 @@ public class LaneGenerator
                 Direction = RoadDirection.West
             });
 
-            // Turn lane: North to East
+            // Turn lane: North to Midpoint
             laneData.Lanes.Add(new LaneSegment
             {
                 StartWaypoint = cellCentre + new Vector3(laneCentre, 0, halfCellSize),
+                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, laneCentre),
+                Direction = RoadDirection.South
+            });
+
+            // Turn lane: Midpoint to East
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, laneCentre),
                 EndWaypoint = cellCentre + new Vector3(halfCellSize, 0, laneCentre),
                 Direction = RoadDirection.East
             });
 
-            // Turn lane: North to West
+            // Turn lane: North to Midpoint
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
-                EndWaypoint = cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, halfCellSize),
+                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, -laneCentre),
                 Direction = RoadDirection.West
             });
 
-            // Turn lane: East to North
+            // Turn lane: midpoint to West
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(halfCellSize, 0, laneCentre),
-                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, halfCellSize),
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, -laneCentre),
+                EndWaypoint = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
+                Direction = RoadDirection.West
+            });
+
+            // Turn lane: East to Midpoint
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
+                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, -laneCentre),
+                Direction = RoadDirection.West
+            });
+
+            // Turn lane: Midpoint to North
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, -laneCentre),
+                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
                 Direction = RoadDirection.North
             });
 
-            // Turn lane: West to North
+            // Turn lane: West to midpoint
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
+                StartWaypoint = cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
+                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, laneCentre),
+                Direction = RoadDirection.East
+            });
+
+            // Turn lane: midpoint to North
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, laneCentre),
                 EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
                 Direction = RoadDirection.North
             });
@@ -440,47 +662,79 @@ public class LaneGenerator
             // Through lane: North to South
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
-                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, halfCellSize),
+                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
                 Direction = RoadDirection.South
             });
 
             // Through lane: South to North
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
-                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, halfCellSize),
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
+                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
                 Direction = RoadDirection.North
             });
 
-            // Turn lane: East to South
+            // Turn lane: East to midpoint
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(halfCellSize, 0, laneCentre),
+                StartWaypoint = cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
+                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, -laneCentre),
+                Direction = RoadDirection.West
+            });
+
+            // Turn lane: midpoint to South
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, -laneCentre),
                 EndWaypoint = cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
                 Direction = RoadDirection.South
             });
 
-            // Turn lane: East to North
+            // Turn lane: East to Midpoint
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(halfCellSize, 0, laneCentre),
-                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, halfCellSize),
+                StartWaypoint = cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
+                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, -laneCentre),
+                Direction = RoadDirection.West
+            });
+
+            // Turn lane: Midpoint to North
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, -laneCentre),
+                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
                 Direction = RoadDirection.North
             });
 
-            // Turn lane: North to East
+            // Turn lane: North to Midpoint
             laneData.Lanes.Add(new LaneSegment
             {
                 StartWaypoint = cellCentre + new Vector3(laneCentre, 0, halfCellSize),
+                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, laneCentre),
+                Direction = RoadDirection.South
+            });
+
+            // Turn lane: Midpoint to East
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, laneCentre),
                 EndWaypoint = cellCentre + new Vector3(halfCellSize, 0, laneCentre),
                 Direction = RoadDirection.East
             });
 
-            // Turn lane: South to East
+            // Turn lane: South to Midpoint
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
+                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, laneCentre),
+                Direction = RoadDirection.North
+            });
+
+            // Turn lane: Midpoint to East
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, laneCentre),
                 EndWaypoint = cellCentre + new Vector3(halfCellSize, 0, laneCentre),
                 Direction = RoadDirection.East
             });
@@ -499,14 +753,8 @@ public class LaneGenerator
         // All four directions have roads (crossroads)
         if (hasNorth && hasEast && hasSouth && hasWest)
         {
-            // North-South lanes
-            laneData.Lanes.Add(new LaneSegment
-            {
-                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
-                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
-                Direction = RoadDirection.North
-            });
-
+            // Through roads
+            // Through lane: North to South
             laneData.Lanes.Add(new LaneSegment
             {
                 StartWaypoint = cellCentre + new Vector3(laneCentre, 0, halfCellSize),
@@ -514,19 +762,164 @@ public class LaneGenerator
                 Direction = RoadDirection.South
             });
 
-            // East-West lanes
+            // Through lane: South to North
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
-                EndWaypoint = cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
+                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
+                Direction = RoadDirection.North
+            });
+
+            // Through lane: West to East
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
+                EndWaypoint = cellCentre + new Vector3(halfCellSize, 0, laneCentre),
                 Direction = RoadDirection.East
             });
 
+            // Through lane: East to West
             laneData.Lanes.Add(new LaneSegment
             {
-                StartWaypoint = cellCentre + new Vector3(halfCellSize, 0, laneCentre),
-                EndWaypoint = cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
+                StartWaypoint = cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
+                EndWaypoint = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
                 Direction = RoadDirection.West
+            });
+
+            // turns from north
+            // north to east
+            // Turn lane: North to Midpoint
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, halfCellSize),
+                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, laneCentre),
+                Direction = RoadDirection.South
+            });
+
+            // Turn lane: Midpoint to East
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, laneCentre),
+                EndWaypoint = cellCentre + new Vector3(halfCellSize, 0, laneCentre),
+                Direction = RoadDirection.East
+            });
+            // north to west
+            // Turn lane: North to Midpoint
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, halfCellSize),
+                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, -laneCentre),
+                Direction = RoadDirection.West
+            });
+
+            // Turn lane: midpoint to West
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, -laneCentre),
+                EndWaypoint = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
+                Direction = RoadDirection.West
+            });
+
+            // Turns from east
+            // east to north
+            // Turn lane: East to Midpoint
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
+                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, -laneCentre),
+                Direction = RoadDirection.West
+            });
+
+            // Turn lane: Midpoint to North
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, -laneCentre),
+                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
+                Direction = RoadDirection.North
+            });
+            // East to south
+            // Turn lane: East to midpoint
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
+                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, -laneCentre),
+                Direction = RoadDirection.West
+            });
+
+            // Turn lane: midpoint to South
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, -laneCentre),
+                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
+                Direction = RoadDirection.South
+            });
+
+            // turns from south
+            // south to east
+            // Turn lane: South to Midpoint
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
+                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, laneCentre),
+                Direction = RoadDirection.North
+            });
+
+            // Turn lane: Midpoint to East
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, laneCentre),
+                EndWaypoint = cellCentre + new Vector3(halfCellSize, 0, laneCentre),
+                Direction = RoadDirection.East
+            });
+            // south to west
+            // Turn lane: South to midpoint
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
+                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, -laneCentre),
+                Direction = RoadDirection.North
+            });
+
+            // Turn lane: Midpoint to West
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, -laneCentre),
+                EndWaypoint = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
+                Direction = RoadDirection.West
+            });
+
+            // turns from west
+            // west to north
+            // Turn lane: West to midpoint
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
+                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, laneCentre),
+                Direction = RoadDirection.East
+            });
+
+            // Turn lane: midpoint to North
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-laneCentre, 0, laneCentre),
+                EndWaypoint = cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
+                Direction = RoadDirection.North
+            });
+            // west to south
+            // Turn lane: West to Midpoint
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
+                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, laneCentre),
+                Direction = RoadDirection.East
+            });
+
+            // Turn lane: Midpoint to South
+            laneData.Lanes.Add(new LaneSegment
+            {
+                StartWaypoint = cellCentre + new Vector3(laneCentre, 0, laneCentre),
+                EndWaypoint = cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
+                Direction = RoadDirection.South
             });
         }
     }
