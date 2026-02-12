@@ -39,9 +39,14 @@ public class LaneConnectionBuilder
                             Cost = cost
                         });
                     }
+                    else
+                    {
+                        Debug.Log($"{lane.SegmentName} {lane.Direction} doesn't connect to {neighborLane.SegmentName} {neighborLane.Direction}");
+                    }
                 }
             }
         }
+        //Debug.Log(cell.CellInfo);
     }
 
     private bool LanesConnect(LaneSegment from, LaneSegment to)

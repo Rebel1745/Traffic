@@ -42,14 +42,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 5760995951581482920}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 591301db3f26d6343b5e15e7ac875eed, type: 3}
+  m_Script: {fileID: 11500000, guid: becdb91920850a34c9b4f9e56b8aed5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VehicleController
-  CurrentWaypointIndex: 0
-  Speed: 5
-  TargetSpeed: 5
-  Acceleration: 1
-  Deceleration: 1
+  moveSpeed: 0.5
+  rotationSpeed: 5
+  waypointReachDistance: 0.2
 --- !u!1 &8007712958523469889
 GameObject:
   m_ObjectHideFlags: 0
@@ -78,8 +76,8 @@ Transform:
   m_GameObject: {fileID: 8007712958523469889}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 2}
+  m_LocalPosition: {x: 0, y: 0.3, z: 0}
+  m_LocalScale: {x: 0.5, y: 0.3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2579604288317498953}
@@ -117,7 +115,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f53f4e0296559a74e8824aafab1bdf55, type: 2}
+  - {fileID: 2100000, guid: 1bef6b8b8d044c24aa9651690c02aea6, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

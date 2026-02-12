@@ -586,6 +586,36 @@ public class RoadGrid : MonoBehaviour
         return grid[newX, newZ];
     }
 
+    public GridCell GetRandomRoadCell()
+    {
+        List<GridCell> roadCells = new List<GridCell>();
+
+        for (int x = 0; x < gridWidth; x++)
+        {
+            for (int y = 0; y < gridHeight; y++)
+            {
+                GridCell cell = grid[x, y];
+                if (cell.CellType == CellType.Road && cell.LaneData != null && cell.LaneData.Lanes.Count > 0)
+                {
+                    roadCells.Add(cell);
+                }
+            }
+        }
+
+        if (roadCells.Count == 0)
+            return null;
+
+        return roadCells[UnityEngine.Random.Range(0, roadCells.Count)];
+    }
+
+    public LaneSegment GetRandomLaneFromCell(GridCell cell)
+    {
+        if (cell == null || cell.LaneData == null || cell.LaneData.Lanes.Count == 0)
+            return null;
+
+        return cell.LaneData.Lanes[UnityEngine.Random.Range(0, cell.LaneData.Lanes.Count)];
+    }
+
     private void OnDrawGizmos()
     {
         if (grid == null || grid.Length == 0)
@@ -616,11 +646,11 @@ public class RoadGrid : MonoBehaviour
 
             // Draw start waypoint as a sphere
             Gizmos.color = Color.green;
-            Gizmos.DrawSphere(lane.StartWaypoint, 0.1f);
+            Gizmos.DrawSphere(lane.StartWaypoint, 0.2f);
 
             // Draw end waypoint as a sphere
             Gizmos.color = Color.red;
-            Gizmos.DrawSphere(lane.EndWaypoint, 0.1f);
+            Gizmos.DrawSphere(lane.EndWaypoint, 0.2f);
 
             // Draw connections to other lanes
             Gizmos.color = Color.yellow;
