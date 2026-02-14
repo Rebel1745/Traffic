@@ -24,8 +24,7 @@ public class RoadGrid : MonoBehaviour
     private Vector3? dragStartPosition;
     private List<Vector3Int> cellsAlongDragLine = new List<Vector3Int>();
 
-    private LaneGenerator laneGenerator;
-    private LaneConnectionBuilder connectionBuilder;
+    private TrafficWaypointManager trafficWaypointManager;
 
     public void Awake()
     {
@@ -86,8 +85,7 @@ public class RoadGrid : MonoBehaviour
             }
         }
 
-        laneGenerator = new LaneGenerator();
-        connectionBuilder = new LaneConnectionBuilder();
+        trafficWaypointManager = new TrafficWaypointManager();
     }
 
     private void Update()
@@ -494,9 +492,8 @@ public class RoadGrid : MonoBehaviour
 
     private void UpdateRoadGrid()
     {
-        laneGenerator.GenerateAllLanes(grid);
-        connectionBuilder.BuildAllConnections(grid);
         RegenerateMesh();
+        trafficWaypointManager.GenerateWaypoints(grid);
     }
 
     private void RegenerateMesh()
@@ -586,85 +583,54 @@ public class RoadGrid : MonoBehaviour
         return grid[newX, newZ];
     }
 
-    public GridCell GetRandomRoadCell()
-    {
-        List<GridCell> roadCells = new List<GridCell>();
-
-        for (int x = 0; x < gridWidth; x++)
-        {
-            for (int y = 0; y < gridHeight; y++)
-            {
-                GridCell cell = grid[x, y];
-                if (cell.CellType == CellType.Road && cell.LaneData != null && cell.LaneData.Lanes.Count > 0)
-                {
-                    roadCells.Add(cell);
-                }
-            }
-        }
-
-        if (roadCells.Count == 0)
-            return null;
-
-        return roadCells[UnityEngine.Random.Range(0, roadCells.Count)];
-    }
-
-    public LaneSegment GetRandomLaneFromCell(GridCell cell)
-    {
-        if (cell == null || cell.LaneData == null || cell.LaneData.Lanes.Count == 0)
-            return null;
-
-        return cell.LaneData.Lanes[UnityEngine.Random.Range(0, cell.LaneData.Lanes.Count)];
-    }
-
     private void OnDrawGizmos()
     {
         if (grid == null || grid.Length == 0)
             return;
 
-        // Draw all lane waypoints and connections
         for (int x = 0; x < grid.GetLength(0); x++)
         {
-            for (int z = 0; z < grid.GetLength(1); z++)
+            for (int y = 0; y < grid.GetLength(1); y++)
             {
-                GridCell cell = grid[x, z];
+                GridCell cell = grid[x, y];
 
-                if (cell.CellType != CellType.Road || cell.LaneData == null)
+                if (cell.CellType == CellType.Empty || cell.WaypointData == null)
                     continue;
 
-                DrawCellLanes(cell);
+                Gizmos.color = Color.red;
+                // Draw all waypoints as spheres
+                foreach (var waypoint in cell.WaypointData.AllWaypoints)
+                {
+                    Gizmos.DrawSphere(waypoint.Position, 0.1f);
+                }
+
+                // Draw exit waypoints in yellow
+                Gizmos.color = Color.yellow;
+                foreach (var direction in cell.WaypointData.ExitWaypoints.Keys)
+                {
+                    foreach (var waypoint in cell.WaypointData.ExitWaypoints[direction])
+                    {
+                        Gizmos.DrawSphere(waypoint.Position, 0.1f);
+                    }
+                }
+
+                // Draw internal waypoints in magenta
+                Gizmos.color = Color.magenta;
+                foreach (var waypoint in cell.WaypointData.InternalWaypoints)
+                {
+                    Gizmos.DrawSphere(waypoint.Position, 0.1f);
+                }
+
+                // Draw connections between waypoints
+                Gizmos.color = Color.white;
+                foreach (var waypoint in cell.WaypointData.AllWaypoints)
+                {
+                    foreach (var connection in waypoint.Connections)
+                    {
+                        Gizmos.DrawLine(waypoint.Position, connection.Position);
+                    }
+                }
             }
         }
     }
-
-    private void DrawCellLanes(GridCell cell)
-    {
-        foreach (var lane in cell.LaneData.Lanes)
-        {
-            // Draw start waypoint as a sphere
-            Gizmos.color = Color.green;
-            Gizmos.DrawSphere(lane.StartWaypoint, 0.2f);
-
-            // Draw end waypoint as a sphere
-            Gizmos.color = Color.red;
-            Gizmos.DrawSphere(lane.EndWaypoint, 0.2f);
-
-            Gizmos.color = Color.white;
-            foreach (LaneConnection connection in lane.OutgoingConnections)
-            {
-                // Draw an arrow from this lane's end to the connected lane's start
-                Gizmos.DrawLine(lane.StartWaypoint, connection.TargetLane.StartWaypoint);
-            }
-        }
-    }
-}
-
-public enum RoadType
-{
-    Empty, // no road in the cell
-    Single, // single square of road, surrounded on all four sides by pavement
-    DeadEnd, // road only connected to one road, pavement on three sides
-    Straight, // standard straight road, pavement on two sides
-    Corner, // joins two perpendicular roads
-    TJunction, // joins three straight roads with a perpendicular road in the middle
-    Crossroads // joins four straight roads
 }
