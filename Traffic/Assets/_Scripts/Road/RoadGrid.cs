@@ -640,10 +640,6 @@ public class RoadGrid : MonoBehaviour
     {
         foreach (var lane in cell.LaneData.Lanes)
         {
-            // Draw the lane waypoint as a line
-            Gizmos.color = GetColorForDirection(lane.Direction);
-            Gizmos.DrawLine(lane.StartWaypoint, lane.EndWaypoint);
-
             // Draw start waypoint as a sphere
             Gizmos.color = Color.green;
             Gizmos.DrawSphere(lane.StartWaypoint, 0.2f);
@@ -652,47 +648,13 @@ public class RoadGrid : MonoBehaviour
             Gizmos.color = Color.red;
             Gizmos.DrawSphere(lane.EndWaypoint, 0.2f);
 
-            // Draw connections to other lanes
-            Gizmos.color = Color.yellow;
-            foreach (var connection in lane.OutgoingConnections)
+            Gizmos.color = Color.white;
+            foreach (LaneConnection connection in lane.OutgoingConnections)
             {
                 // Draw an arrow from this lane's end to the connected lane's start
-                DrawArrow(lane.EndWaypoint, connection.TargetLane.StartWaypoint, Color.yellow);
+                Gizmos.DrawLine(lane.StartWaypoint, connection.TargetLane.StartWaypoint);
             }
         }
-    }
-
-    private Color GetColorForDirection(RoadDirection direction)
-    {
-        switch (direction)
-        {
-            case RoadDirection.North:
-                return Color.blue;
-            case RoadDirection.East:
-                return Color.red;
-            case RoadDirection.South:
-                return Color.cyan;
-            case RoadDirection.West:
-                return Color.magenta;
-            default:
-                return Color.white;
-        }
-    }
-
-    private void DrawArrow(Vector3 from, Vector3 to, Color color)
-    {
-        Gizmos.color = color;
-        Gizmos.DrawLine(from, to);
-
-        // Draw arrowhead
-        Vector3 direction = (to - from).normalized;
-        Vector3 arrowSize = direction * 0.2f;
-
-        Vector3 arrowLeft = from + arrowSize + Vector3.Cross(direction, Vector3.up) * 0.1f;
-        Vector3 arrowRight = from + arrowSize - Vector3.Cross(direction, Vector3.up) * 0.1f;
-
-        Gizmos.DrawLine(to, arrowLeft);
-        Gizmos.DrawLine(to, arrowRight);
     }
 }
 

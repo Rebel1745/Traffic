@@ -19,7 +19,7 @@ public class LaneConnectionBuilder
 
     private void ConnectCellLanes(GridCell cell)
     {
-        foreach (var lane in cell.LaneData.Lanes)
+        foreach (LaneSegment lane in cell.LaneData.Lanes)
         {
             // Find neighboring cell in the lane's direction
             GridCell neighbor = RoadGrid.Instance.GetNeighborInDirection(cell, lane.Direction);
@@ -27,7 +27,7 @@ public class LaneConnectionBuilder
             if (neighbor != null && neighbor.CellType == CellType.Road && neighbor.LaneData != null)
             {
                 // Find compatible incoming lanes in the neighbor
-                foreach (var neighborLane in neighbor.LaneData.Lanes)
+                foreach (LaneSegment neighborLane in neighbor.LaneData.Lanes)
                 {
                     // Check if lanes connect (end of current lane matches start of neighbor lane)
                     if (LanesConnect(lane, neighborLane))
@@ -39,10 +39,6 @@ public class LaneConnectionBuilder
                             Cost = cost
                         });
                     }
-                    else
-                    {
-                        Debug.Log($"{lane.SegmentName} {lane.Direction} doesn't connect to {neighborLane.SegmentName} {neighborLane.Direction}");
-                    }
                 }
             }
         }
@@ -53,6 +49,9 @@ public class LaneConnectionBuilder
     {
         // Lanes connect if they're close and going the same direction
         float distance = Vector3.Distance(from.EndWaypoint, to.StartWaypoint);
+        if (distance < 0.1f && from.Direction != to.Direction)
+            Debug.Log($"{from.SegmentName} {from.Direction} doesn't connect to {to.SegmentName} {to.Direction}");
+
         return distance < 0.1f && from.Direction == to.Direction;
     }
 }
