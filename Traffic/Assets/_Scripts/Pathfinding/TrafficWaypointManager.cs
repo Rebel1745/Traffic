@@ -65,7 +65,7 @@ public class TrafficWaypointManager
                 GenerateTJunctionLaneWaypoints(cell);
                 break;
             case RoadType.Crossroads:
-                //CreateCrossroadsWaypoints(cell);
+                GenerateCrossroadsLaneWaypoints(cell);
                 break;
             case RoadType.DeadEnd:
                 GenerateDeadEndLaneWaypoints(cell);
@@ -89,16 +89,16 @@ public class TrafficWaypointManager
             TrafficWaypoint wpNorthExit = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, halfCellSize), cell.Position.x, cell.Position.y, 0);
 
-            wpSouthEntry.AddConnection(wpNorthExit);
-            cell.WaypointData.ExitWaypoints[RoadDirection.North].Add(wpNorthExit);
-
             // Lane going South (entry from North, exit to South)
             TrafficWaypoint wpNorthEntry = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, halfCellSize), cell.Position.x, cell.Position.y, 1);
             TrafficWaypoint wpSouthExit = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, -halfCellSize), cell.Position.x, cell.Position.y, 1);
 
+            wpSouthEntry.AddConnection(wpNorthExit);
             wpNorthEntry.AddConnection(wpSouthExit);
+
+            cell.WaypointData.ExitWaypoints[RoadDirection.North].Add(wpNorthExit);
             cell.WaypointData.ExitWaypoints[RoadDirection.South].Add(wpSouthExit);
 
             cell.WaypointData.AllWaypoints.AddRange(new[] { wpSouthEntry, wpNorthExit, wpNorthEntry, wpSouthExit });
@@ -111,16 +111,16 @@ public class TrafficWaypointManager
             TrafficWaypoint wpEastExit = new TrafficWaypoint(
                 cellCentre + new Vector3(halfCellSize, 0, laneCentre), cell.Position.x, cell.Position.y, 0);
 
-            wpWestEntry.AddConnection(wpEastExit);
-            cell.WaypointData.ExitWaypoints[RoadDirection.East].Add(wpEastExit);
-
             // Lane going West
             TrafficWaypoint wpEastEntry = new TrafficWaypoint(
                 cellCentre + new Vector3(halfCellSize, 0, -laneCentre), cell.Position.x, cell.Position.y, 1);
             TrafficWaypoint wpWestExit = new TrafficWaypoint(
                 cellCentre + new Vector3(-halfCellSize, 0, -laneCentre), cell.Position.x, cell.Position.y, 1);
 
+            wpWestEntry.AddConnection(wpEastExit);
             wpEastEntry.AddConnection(wpWestExit);
+
+            cell.WaypointData.ExitWaypoints[RoadDirection.East].Add(wpEastExit);
             cell.WaypointData.ExitWaypoints[RoadDirection.West].Add(wpWestExit);
 
             cell.WaypointData.AllWaypoints.AddRange(new[] { wpWestEntry, wpEastExit, wpEastEntry, wpWestExit });
@@ -134,74 +134,134 @@ public class TrafficWaypointManager
         bool hasEast = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.East);
         bool hasWest = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.West);
 
-        // Determine which direction the dead end opens to
-        RoadDirection openDirection = RoadDirection.North;
-        if (hasSouth) openDirection = RoadDirection.South;
-        else if (hasEast) openDirection = RoadDirection.East;
-        else if (hasWest) openDirection = RoadDirection.West;
+        TrafficWaypoint wpEntry = null, wpMidIncoming = null, wpUTurn = null, wpMidOutgoing = null, wpExit = null;
 
-        TrafficWaypoint wpEntry, wpMidIncoming, wpUTurn, wpMidOutgoing, wpExit;
-
-        if (hasNorth || hasSouth)
+        if (hasNorth)
         {
-            // Vertical dead end (opens North or South)
-            int multiplier = hasNorth ? 1 : -1;
-
             // Lane 0: Entry from open side, U-turn, exit back
-            // In UK, left-hand traffic means the left lane (negative x) is the primary lane
             wpEntry = new TrafficWaypoint(
-                cellCentre + new Vector3(-laneCentre, 0, halfCellSize * multiplier), cell.Position.x, cell.Position.y, 0);
+                cellCentre + new Vector3(-laneCentre, 0, halfCellSize), cell.Position.x, cell.Position.y, 0);
 
             wpMidIncoming = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, 0), cell.Position.x, cell.Position.y, 0);
 
             wpUTurn = new TrafficWaypoint(
-                cellCentre + new Vector3(0, 0, -quarterCellSize * multiplier), cell.Position.x, cell.Position.y, 0);
+                cellCentre + new Vector3(0, 0, -quarterCellSize), cell.Position.x, cell.Position.y, 0);
 
             wpMidOutgoing = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, 0), cell.Position.x, cell.Position.y, 1);
 
             wpExit = new TrafficWaypoint(
-                cellCentre + new Vector3(laneCentre, 0, halfCellSize * multiplier), cell.Position.x, cell.Position.y, 1);
-        }
-        else
-        {
-            // Horizontal dead end (opens East or West)
-            int multiplier = hasEast ? 1 : -1;
+                cellCentre + new Vector3(laneCentre, 0, halfCellSize), cell.Position.x, cell.Position.y, 1);
 
+            // Connect waypoints in sequence
+            wpEntry.AddConnection(wpMidIncoming);
+            wpMidIncoming.AddConnection(wpUTurn);
+            wpUTurn.AddConnection(wpMidOutgoing);
+            wpMidOutgoing.AddConnection(wpExit);
+
+            cell.WaypointData.ExitWaypoints[RoadDirection.North].Add(wpExit);
+
+            // Mark internal waypoints
+            cell.WaypointData.InternalWaypoints.AddRange(new[] { wpMidIncoming, wpUTurn, wpMidOutgoing });
+
+            cell.WaypointData.AllWaypoints.AddRange(new[] { wpEntry, wpMidIncoming, wpUTurn, wpMidOutgoing, wpExit });
+        }
+        else if (hasSouth)
+        {
             // Lane 0: Entry from open side, U-turn, exit back
-            // In UK, left-hand traffic means the left lane (negative x) is the primary lane
             wpEntry = new TrafficWaypoint(
-                cellCentre + new Vector3(halfCellSize * multiplier, 0, -laneCentre), cell.Position.x, cell.Position.y, 0);
+                cellCentre + new Vector3(-laneCentre, 0, -halfCellSize), cell.Position.x, cell.Position.y, 0);
+
+            wpMidIncoming = new TrafficWaypoint(
+                cellCentre + new Vector3(-laneCentre, 0, 0), cell.Position.x, cell.Position.y, 0);
+
+            wpUTurn = new TrafficWaypoint(
+                cellCentre + new Vector3(0, 0, quarterCellSize), cell.Position.x, cell.Position.y, 0);
+
+            wpMidOutgoing = new TrafficWaypoint(
+                cellCentre + new Vector3(laneCentre, 0, 0), cell.Position.x, cell.Position.y, 1);
+
+            wpExit = new TrafficWaypoint(
+                cellCentre + new Vector3(laneCentre, 0, -halfCellSize), cell.Position.x, cell.Position.y, 1);
+
+            // Connect waypoints in sequence
+            wpEntry.AddConnection(wpMidIncoming);
+            wpMidIncoming.AddConnection(wpUTurn);
+            wpUTurn.AddConnection(wpMidOutgoing);
+            wpMidOutgoing.AddConnection(wpExit);
+
+            cell.WaypointData.ExitWaypoints[RoadDirection.South].Add(wpExit);
+
+            // Mark internal waypoints
+            cell.WaypointData.InternalWaypoints.AddRange(new[] { wpMidIncoming, wpUTurn, wpMidOutgoing });
+
+            cell.WaypointData.AllWaypoints.AddRange(new[] { wpEntry, wpMidIncoming, wpUTurn, wpMidOutgoing, wpExit });
+        }
+        else if (hasEast)
+        {
+            // Lane 0: Entry from open side, U-turn, exit back
+            wpEntry = new TrafficWaypoint(
+                cellCentre + new Vector3(halfCellSize, 0, -laneCentre), cell.Position.x, cell.Position.y, 0);
 
             wpMidIncoming = new TrafficWaypoint(
                 cellCentre + new Vector3(0, 0, -laneCentre), cell.Position.x, cell.Position.y, 0);
 
             wpUTurn = new TrafficWaypoint(
-                cellCentre + new Vector3(-quarterCellSize * multiplier, 0, 0), cell.Position.x, cell.Position.y, 0);
+                cellCentre + new Vector3(-quarterCellSize, 0, 0), cell.Position.x, cell.Position.y, 0);
 
             wpMidOutgoing = new TrafficWaypoint(
                 cellCentre + new Vector3(0, 0, laneCentre), cell.Position.x, cell.Position.y, 1);
 
             wpExit = new TrafficWaypoint(
-                cellCentre + new Vector3(halfCellSize * multiplier, 0, laneCentre), cell.Position.x, cell.Position.y, 1);
+                cellCentre + new Vector3(halfCellSize, 0, laneCentre), cell.Position.x, cell.Position.y, 1);
+
+            // Connect waypoints in sequence
+            wpEntry.AddConnection(wpMidIncoming);
+            wpMidIncoming.AddConnection(wpUTurn);
+            wpUTurn.AddConnection(wpMidOutgoing);
+            wpMidOutgoing.AddConnection(wpExit);
+
+            cell.WaypointData.ExitWaypoints[RoadDirection.East].Add(wpExit);
+
+            // Mark internal waypoints
+            cell.WaypointData.InternalWaypoints.AddRange(new[] { wpMidIncoming, wpUTurn, wpMidOutgoing });
+
+            cell.WaypointData.AllWaypoints.AddRange(new[] { wpEntry, wpMidIncoming, wpUTurn, wpMidOutgoing, wpExit });
         }
+        else if (hasWest)
+        {
+            // Lane 0: Entry from open side, U-turn, exit back
+            wpEntry = new TrafficWaypoint(
+                cellCentre + new Vector3(-halfCellSize, 0, -laneCentre), cell.Position.x, cell.Position.y, 0);
 
-        // Connect waypoints in sequence
-        wpEntry.AddConnection(wpMidIncoming);
-        wpMidIncoming.AddConnection(wpUTurn);
-        wpUTurn.AddConnection(wpMidOutgoing);
-        wpMidOutgoing.AddConnection(wpExit);
+            wpMidIncoming = new TrafficWaypoint(
+                cellCentre + new Vector3(0, 0, -laneCentre), cell.Position.x, cell.Position.y, 0);
 
-        // Mark entry and exit waypoints
-        cell.WaypointData.ExitWaypoints[openDirection].Add(wpEntry);
-        cell.WaypointData.ExitWaypoints[GetOppositeDirection(openDirection)].Add(wpExit);
+            wpUTurn = new TrafficWaypoint(
+                cellCentre + new Vector3(quarterCellSize, 0, 0), cell.Position.x, cell.Position.y, 0);
 
-        // Mark internal waypoints
-        cell.WaypointData.InternalWaypoints.AddRange(new[] { wpMidIncoming, wpUTurn, wpMidOutgoing });
+            wpMidOutgoing = new TrafficWaypoint(
+                cellCentre + new Vector3(0, 0, laneCentre), cell.Position.x, cell.Position.y, 1);
 
-        cell.WaypointData.AllWaypoints.AddRange(new[] { wpEntry, wpMidIncoming, wpUTurn, wpMidOutgoing, wpExit });
+            wpExit = new TrafficWaypoint(
+                cellCentre + new Vector3(-halfCellSize, 0, laneCentre), cell.Position.x, cell.Position.y, 1);
+
+            // Connect waypoints in sequence
+            wpEntry.AddConnection(wpMidIncoming);
+            wpMidIncoming.AddConnection(wpUTurn);
+            wpUTurn.AddConnection(wpMidOutgoing);
+            wpMidOutgoing.AddConnection(wpExit);
+
+            cell.WaypointData.ExitWaypoints[RoadDirection.West].Add(wpExit);
+
+            // Mark internal waypoints
+            cell.WaypointData.InternalWaypoints.AddRange(new[] { wpMidIncoming, wpUTurn, wpMidOutgoing });
+
+            cell.WaypointData.AllWaypoints.AddRange(new[] { wpEntry, wpMidIncoming, wpUTurn, wpMidOutgoing, wpExit });
+        }
     }
+
     private void GenerateCornerLaneWaypoints(GridCell cell)
     {
         bool hasNorth = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.North);
@@ -238,6 +298,22 @@ public class TrafficWaypointManager
             wpExit2 = new TrafficWaypoint(
                 cellCentre + new Vector3(halfCellSize, 0, laneCentre),
                 cell.Position.x, cell.Position.y, 1);
+
+            // Connect waypoints
+            wpEntry1.AddConnection(wpTurn1);
+            wpTurn1.AddConnection(wpExit1);
+
+            wpEntry2.AddConnection(wpTurn2);
+            wpTurn2.AddConnection(wpExit2);
+
+            // Mark exit waypoints
+            cell.WaypointData.ExitWaypoints[RoadDirection.North].Add(wpExit1);
+            cell.WaypointData.ExitWaypoints[RoadDirection.East].Add(wpExit2);
+
+            // Mark internal waypoints
+            cell.WaypointData.InternalWaypoints.AddRange(new[] { wpTurn1, wpTurn2 });
+
+            cell.WaypointData.AllWaypoints.AddRange(new[] { wpEntry1, wpTurn1, wpExit1, wpEntry2, wpTurn2, wpExit2 });
         }
         else if (hasNorth && hasWest)
         {
@@ -265,6 +341,22 @@ public class TrafficWaypointManager
             wpExit2 = new TrafficWaypoint(
                 cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
                 cell.Position.x, cell.Position.y, 1);
+
+            // Connect waypoints
+            wpEntry1.AddConnection(wpTurn1);
+            wpTurn1.AddConnection(wpExit1);
+
+            wpEntry2.AddConnection(wpTurn2);
+            wpTurn2.AddConnection(wpExit2);
+
+            // Mark exit waypoints
+            cell.WaypointData.ExitWaypoints[RoadDirection.North].Add(wpExit1);
+            cell.WaypointData.ExitWaypoints[RoadDirection.West].Add(wpExit2);
+
+            // Mark internal waypoints
+            cell.WaypointData.InternalWaypoints.AddRange(new[] { wpTurn1, wpTurn2 });
+
+            cell.WaypointData.AllWaypoints.AddRange(new[] { wpEntry1, wpTurn1, wpExit1, wpEntry2, wpTurn2, wpExit2 });
         }
         else if (hasSouth && hasEast)
         {
@@ -292,6 +384,22 @@ public class TrafficWaypointManager
             wpExit2 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
                 cell.Position.x, cell.Position.y, 1);
+
+            // Connect waypoints
+            wpEntry1.AddConnection(wpTurn1);
+            wpTurn1.AddConnection(wpExit1);
+
+            wpEntry2.AddConnection(wpTurn2);
+            wpTurn2.AddConnection(wpExit2);
+
+            // Mark exit waypoints
+            cell.WaypointData.ExitWaypoints[RoadDirection.East].Add(wpExit1);
+            cell.WaypointData.ExitWaypoints[RoadDirection.South].Add(wpExit2);
+
+            // Mark internal waypoints
+            cell.WaypointData.InternalWaypoints.AddRange(new[] { wpTurn1, wpTurn2 });
+
+            cell.WaypointData.AllWaypoints.AddRange(new[] { wpEntry1, wpTurn1, wpExit1, wpEntry2, wpTurn2, wpExit2 });
         }
         else if (hasSouth && hasWest)
         {
@@ -319,25 +427,23 @@ public class TrafficWaypointManager
             wpExit2 = new TrafficWaypoint(
                 cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
                 cell.Position.x, cell.Position.y, 1);
+
+            // Connect waypoints
+            wpEntry1.AddConnection(wpTurn1);
+            wpTurn1.AddConnection(wpExit1);
+
+            wpEntry2.AddConnection(wpTurn2);
+            wpTurn2.AddConnection(wpExit2);
+
+            // Mark exit waypoints
+            cell.WaypointData.ExitWaypoints[RoadDirection.West].Add(wpExit1);
+            cell.WaypointData.ExitWaypoints[RoadDirection.South].Add(wpExit2);
+
+            // Mark internal waypoints
+            cell.WaypointData.InternalWaypoints.AddRange(new[] { wpTurn1, wpTurn2 });
+
+            cell.WaypointData.AllWaypoints.AddRange(new[] { wpEntry1, wpTurn1, wpExit1, wpEntry2, wpTurn2, wpExit2 });
         }
-
-        // Connect waypoints
-        wpEntry1.AddConnection(wpTurn1);
-        wpTurn1.AddConnection(wpExit1);
-
-        wpEntry2.AddConnection(wpTurn2);
-        wpTurn2.AddConnection(wpExit2);
-
-        // Mark entry and exit waypoints
-        cell.WaypointData.ExitWaypoints[RoadDirection.North].Add(wpEntry1);
-        cell.WaypointData.ExitWaypoints[RoadDirection.East].Add(wpEntry2);
-        cell.WaypointData.ExitWaypoints[GetOppositeDirection(RoadDirection.North)].Add(wpExit1);
-        cell.WaypointData.ExitWaypoints[GetOppositeDirection(RoadDirection.East)].Add(wpExit2);
-
-        // Mark internal waypoints
-        cell.WaypointData.InternalWaypoints.AddRange(new[] { wpTurn1, wpTurn2 });
-
-        cell.WaypointData.AllWaypoints.AddRange(new[] { wpEntry1, wpTurn1, wpExit1, wpEntry2, wpTurn2, wpExit2 });
     }
 
     private void GenerateTJunctionLaneWaypoints(GridCell cell)
@@ -433,14 +539,7 @@ public class TrafficWaypointManager
 
             wpEntry6.AddConnection(wpExit6);
 
-            // Mark entry and exit waypoints
-            cell.WaypointData.ExitWaypoints[RoadDirection.East].Add(wpEntry1);
-            cell.WaypointData.ExitWaypoints[RoadDirection.East].Add(wpEntry2);
-            cell.WaypointData.ExitWaypoints[RoadDirection.North].Add(wpEntry3);
-            cell.WaypointData.ExitWaypoints[RoadDirection.South].Add(wpEntry4);
-            cell.WaypointData.ExitWaypoints[RoadDirection.South].Add(wpEntry5);
-            cell.WaypointData.ExitWaypoints[RoadDirection.North].Add(wpEntry6);
-
+            // Mark exit waypoints
             cell.WaypointData.ExitWaypoints[RoadDirection.North].Add(wpExit1);
             cell.WaypointData.ExitWaypoints[RoadDirection.South].Add(wpExit2);
             cell.WaypointData.ExitWaypoints[RoadDirection.East].Add(wpExit3);
@@ -532,14 +631,7 @@ public class TrafficWaypointManager
 
             wpEntry6.AddConnection(wpExit6);
 
-            // Mark entry and exit waypoints
-            cell.WaypointData.ExitWaypoints[RoadDirection.South].Add(wpEntry1);
-            cell.WaypointData.ExitWaypoints[RoadDirection.South].Add(wpEntry2);
-            cell.WaypointData.ExitWaypoints[RoadDirection.East].Add(wpEntry3);
-            cell.WaypointData.ExitWaypoints[RoadDirection.West].Add(wpEntry4);
-            cell.WaypointData.ExitWaypoints[RoadDirection.East].Add(wpEntry5);
-            cell.WaypointData.ExitWaypoints[RoadDirection.West].Add(wpEntry6);
-
+            // Mark exit waypoints
             cell.WaypointData.ExitWaypoints[RoadDirection.East].Add(wpExit1);
             cell.WaypointData.ExitWaypoints[RoadDirection.West].Add(wpExit2);
             cell.WaypointData.ExitWaypoints[RoadDirection.South].Add(wpExit3);
@@ -631,14 +723,7 @@ public class TrafficWaypointManager
 
             wpEntry6.AddConnection(wpExit6);
 
-            // Mark entry and exit waypoints
-            cell.WaypointData.ExitWaypoints[RoadDirection.North].Add(wpEntry1);
-            cell.WaypointData.ExitWaypoints[RoadDirection.South].Add(wpEntry2);
-            cell.WaypointData.ExitWaypoints[RoadDirection.West].Add(wpEntry3);
-            cell.WaypointData.ExitWaypoints[RoadDirection.West].Add(wpEntry4);
-            cell.WaypointData.ExitWaypoints[RoadDirection.South].Add(wpEntry5);
-            cell.WaypointData.ExitWaypoints[RoadDirection.North].Add(wpEntry6);
-
+            // Mark exit waypoints
             cell.WaypointData.ExitWaypoints[RoadDirection.West].Add(wpExit1);
             cell.WaypointData.ExitWaypoints[RoadDirection.West].Add(wpExit2);
             cell.WaypointData.ExitWaypoints[RoadDirection.North].Add(wpExit3);
@@ -730,14 +815,7 @@ public class TrafficWaypointManager
 
             wpEntry6.AddConnection(wpExit6);
 
-            // Mark entry and exit waypoints
-            cell.WaypointData.ExitWaypoints[RoadDirection.North].Add(wpEntry1);
-            cell.WaypointData.ExitWaypoints[RoadDirection.North].Add(wpEntry2);
-            cell.WaypointData.ExitWaypoints[RoadDirection.East].Add(wpEntry3);
-            cell.WaypointData.ExitWaypoints[RoadDirection.West].Add(wpEntry4);
-            cell.WaypointData.ExitWaypoints[RoadDirection.East].Add(wpEntry5);
-            cell.WaypointData.ExitWaypoints[RoadDirection.West].Add(wpEntry6);
-
+            // Mark exit waypoints
             cell.WaypointData.ExitWaypoints[RoadDirection.East].Add(wpExit1);
             cell.WaypointData.ExitWaypoints[RoadDirection.West].Add(wpExit2);
             cell.WaypointData.ExitWaypoints[RoadDirection.North].Add(wpExit3);
@@ -750,6 +828,199 @@ public class TrafficWaypointManager
 
             cell.WaypointData.AllWaypoints.AddRange(new[] { wpEntry1, wpTurn1, wpExit1, wpEntry2, wpTurn2, wpExit2, wpEntry3, wpTurn3, wpExit3, wpEntry4, wpTurn4, wpExit4, wpEntry5, wpExit5, wpEntry6, wpExit6 });
         }
+    }
+
+    private void GenerateCrossroadsLaneWaypoints(GridCell cell)
+    {
+        bool hasNorth = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.North);
+        bool hasSouth = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.South);
+        bool hasEast = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.East);
+        bool hasWest = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.West);
+
+        // Only process if all four directions exist
+        if (!hasNorth || !hasSouth || !hasEast || !hasWest)
+            return;
+
+        // Define all 12 routes
+        TrafficWaypoint wpEntry1 = null, wpEntry2 = null, wpEntry3 = null, wpEntry4 = null, wpEntry5 = null, wpEntry6 = null, wpEntry7 = null, wpEntry8 = null, wpEntry9 = null, wpEntry10 = null, wpEntry11 = null, wpEntry12;
+        TrafficWaypoint wpExit1 = null, wpExit2 = null, wpExit3 = null, wpExit4 = null, wpExit5 = null, wpExit6 = null, wpExit7 = null, wpExit8 = null, wpExit9 = null, wpExit10 = null, wpExit11 = null, wpExit12;
+
+        // Turn routes (1-8)
+        TrafficWaypoint wpTurn1 = null, wpTurn2 = null, wpTurn3 = null, wpTurn4 = null, wpTurn5 = null, wpTurn6 = null, wpTurn7 = null, wpTurn8 = null;
+
+        // Route 1: East to North (turn)
+        wpEntry1 = new TrafficWaypoint(
+            cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
+            cell.Position.x, cell.Position.y, 0);
+        wpTurn1 = new TrafficWaypoint(
+            cellCentre + new Vector3(-laneCentre, 0, -laneCentre),
+            cell.Position.x, cell.Position.y, 0);
+        wpExit1 = new TrafficWaypoint(
+            cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
+            cell.Position.x, cell.Position.y, 0);
+
+        // Route 2: East to South (turn)
+        wpEntry2 = new TrafficWaypoint(
+            cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
+            cell.Position.x, cell.Position.y, 0);
+        wpTurn2 = new TrafficWaypoint(
+            cellCentre + new Vector3(laneCentre, 0, -laneCentre),
+            cell.Position.x, cell.Position.y, 0);
+        wpExit2 = new TrafficWaypoint(
+            cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
+            cell.Position.x, cell.Position.y, 0);
+
+        // Route 3: North to East (turn)
+        wpEntry3 = new TrafficWaypoint(
+            cellCentre + new Vector3(laneCentre, 0, halfCellSize),
+            cell.Position.x, cell.Position.y, 1);
+        wpTurn3 = new TrafficWaypoint(
+            cellCentre + new Vector3(laneCentre, 0, laneCentre),
+            cell.Position.x, cell.Position.y, 1);
+        wpExit3 = new TrafficWaypoint(
+            cellCentre + new Vector3(halfCellSize, 0, laneCentre),
+            cell.Position.x, cell.Position.y, 1);
+
+        // Route 4: North to West (turn)
+        wpEntry4 = new TrafficWaypoint(
+            cellCentre + new Vector3(laneCentre, 0, halfCellSize),
+            cell.Position.x, cell.Position.y, 1);
+        wpTurn4 = new TrafficWaypoint(
+            cellCentre + new Vector3(laneCentre, 0, -laneCentre),
+            cell.Position.x, cell.Position.y, 1);
+        wpExit4 = new TrafficWaypoint(
+            cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
+            cell.Position.x, cell.Position.y, 1);
+
+        // Route 5: West to North (turn)
+        wpEntry5 = new TrafficWaypoint(
+            cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
+            cell.Position.x, cell.Position.y, 2);
+        wpTurn5 = new TrafficWaypoint(
+            cellCentre + new Vector3(-laneCentre, 0, laneCentre),
+            cell.Position.x, cell.Position.y, 2);
+        wpExit5 = new TrafficWaypoint(
+            cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
+            cell.Position.x, cell.Position.y, 2);
+
+        // Route 6: West to South (turn)
+        wpEntry6 = new TrafficWaypoint(
+            cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
+            cell.Position.x, cell.Position.y, 2);
+        wpTurn6 = new TrafficWaypoint(
+            cellCentre + new Vector3(laneCentre, 0, laneCentre),
+            cell.Position.x, cell.Position.y, 2);
+        wpExit6 = new TrafficWaypoint(
+            cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
+            cell.Position.x, cell.Position.y, 2);
+
+        // Route 7: South to West (turn)
+        wpEntry7 = new TrafficWaypoint(
+            cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
+            cell.Position.x, cell.Position.y, 3);
+        wpTurn7 = new TrafficWaypoint(
+            cellCentre + new Vector3(-laneCentre, 0, -laneCentre),
+            cell.Position.x, cell.Position.y, 3);
+        wpExit7 = new TrafficWaypoint(
+            cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
+            cell.Position.x, cell.Position.y, 3);
+
+        // Route 8: South to East (turn)
+        wpEntry8 = new TrafficWaypoint(
+            cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
+            cell.Position.x, cell.Position.y, 3);
+        wpTurn8 = new TrafficWaypoint(
+            cellCentre + new Vector3(-laneCentre, 0, laneCentre),
+            cell.Position.x, cell.Position.y, 3);
+        wpExit8 = new TrafficWaypoint(
+            cellCentre + new Vector3(halfCellSize, 0, laneCentre),
+            cell.Position.x, cell.Position.y, 3);
+
+        // Route 9: East to West (straight)
+        wpEntry9 = new TrafficWaypoint(
+            cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
+            cell.Position.x, cell.Position.y, 4);
+        wpExit9 = new TrafficWaypoint(
+            cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
+            cell.Position.x, cell.Position.y, 4);
+
+        // Route 10: West to East (straight)
+        wpEntry10 = new TrafficWaypoint(
+            cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
+            cell.Position.x, cell.Position.y, 4);
+        wpExit10 = new TrafficWaypoint(
+            cellCentre + new Vector3(halfCellSize, 0, laneCentre),
+            cell.Position.x, cell.Position.y, 4);
+
+        // Route 11: North to South (straight)
+        wpEntry11 = new TrafficWaypoint(
+            cellCentre + new Vector3(laneCentre, 0, halfCellSize),
+            cell.Position.x, cell.Position.y, 5);
+        wpExit11 = new TrafficWaypoint(
+            cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
+            cell.Position.x, cell.Position.y, 5);
+
+        // Route 12: South to North (straight)
+        wpEntry12 = new TrafficWaypoint(
+            cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
+            cell.Position.x, cell.Position.y, 5);
+        wpExit12 = new TrafficWaypoint(
+            cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
+            cell.Position.x, cell.Position.y, 5);
+
+        // Connect waypoints
+        wpEntry1.AddConnection(wpTurn1);
+        wpTurn1.AddConnection(wpExit1);
+
+        wpEntry2.AddConnection(wpTurn2);
+        wpTurn2.AddConnection(wpExit2);
+
+        wpEntry3.AddConnection(wpTurn3);
+        wpTurn3.AddConnection(wpExit3);
+
+        wpEntry4.AddConnection(wpTurn4);
+        wpTurn4.AddConnection(wpExit4);
+
+        wpEntry5.AddConnection(wpTurn5);
+        wpTurn5.AddConnection(wpExit5);
+
+        wpEntry6.AddConnection(wpTurn6);
+        wpTurn6.AddConnection(wpExit6);
+
+        wpEntry7.AddConnection(wpTurn7);
+        wpTurn7.AddConnection(wpExit7);
+
+        wpEntry8.AddConnection(wpTurn8);
+        wpTurn8.AddConnection(wpExit8);
+
+        wpEntry9.AddConnection(wpExit9);
+        wpEntry10.AddConnection(wpExit10);
+        wpEntry11.AddConnection(wpExit11);
+        wpEntry12.AddConnection(wpExit12);
+
+        // Mark exit waypoints only (consistent with straight roads)
+        cell.WaypointData.ExitWaypoints[RoadDirection.North].Add(wpExit1);
+        cell.WaypointData.ExitWaypoints[RoadDirection.South].Add(wpExit2);
+        cell.WaypointData.ExitWaypoints[RoadDirection.West].Add(wpExit3);
+        cell.WaypointData.ExitWaypoints[RoadDirection.East].Add(wpExit4);
+        cell.WaypointData.ExitWaypoints[RoadDirection.West].Add(wpExit5);
+        cell.WaypointData.ExitWaypoints[RoadDirection.East].Add(wpExit6);
+        cell.WaypointData.ExitWaypoints[RoadDirection.North].Add(wpExit7);
+        cell.WaypointData.ExitWaypoints[RoadDirection.East].Add(wpExit8);
+        cell.WaypointData.ExitWaypoints[RoadDirection.West].Add(wpExit9);
+        cell.WaypointData.ExitWaypoints[RoadDirection.East].Add(wpExit10);
+        cell.WaypointData.ExitWaypoints[RoadDirection.South].Add(wpExit11);
+        cell.WaypointData.ExitWaypoints[RoadDirection.North].Add(wpExit12);
+
+        // Mark internal waypoints
+        cell.WaypointData.InternalWaypoints.AddRange(new[] { wpTurn1, wpTurn2, wpTurn3, wpTurn4, wpTurn5, wpTurn6, wpTurn7, wpTurn8 });
+
+        // Add all waypoints
+        cell.WaypointData.AllWaypoints.AddRange(new[] {
+            wpEntry1, wpTurn1, wpExit1, wpEntry2, wpTurn2, wpExit2, wpEntry3, wpTurn3, wpExit3, wpEntry4, wpTurn4, wpExit4,
+            wpEntry5, wpTurn5, wpExit5, wpEntry6, wpTurn6, wpExit6, wpEntry7, wpTurn7, wpExit7, wpEntry8, wpTurn8, wpExit8,
+            wpEntry9, wpExit9, wpEntry10, wpExit10, wpEntry11, wpExit11, wpEntry12, wpExit12
+        });
     }
 
     // Helper method to get the opposite direction
