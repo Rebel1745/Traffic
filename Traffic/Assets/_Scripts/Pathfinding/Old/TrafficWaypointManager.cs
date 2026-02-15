@@ -85,15 +85,15 @@ public class TrafficWaypointManager
         if (hasNorth && hasSouth) // Vertical road
         {
             TrafficWaypoint wpSouthEntry = new TrafficWaypoint(
-                cellCentre + new Vector3(-laneCentre, 0, -halfCellSize), cell.Position.x, cell.Position.y, 0);
+                cellCentre + new Vector3(-laneCentre, 0, -halfCellSize), cell.Position.x, cell.Position.z, 0);
             TrafficWaypoint wpNorthExit = new TrafficWaypoint(
-                cellCentre + new Vector3(-laneCentre, 0, halfCellSize), cell.Position.x, cell.Position.y, 0);
+                cellCentre + new Vector3(-laneCentre, 0, halfCellSize), cell.Position.x, cell.Position.z, 0);
 
             // Lane going South (entry from North, exit to South)
             TrafficWaypoint wpNorthEntry = new TrafficWaypoint(
-                cellCentre + new Vector3(laneCentre, 0, halfCellSize), cell.Position.x, cell.Position.y, 1);
+                cellCentre + new Vector3(laneCentre, 0, halfCellSize), cell.Position.x, cell.Position.z, 1);
             TrafficWaypoint wpSouthExit = new TrafficWaypoint(
-                cellCentre + new Vector3(laneCentre, 0, -halfCellSize), cell.Position.x, cell.Position.y, 1);
+                cellCentre + new Vector3(laneCentre, 0, -halfCellSize), cell.Position.x, cell.Position.z, 1);
 
             wpSouthEntry.AddConnection(wpNorthExit);
             wpNorthEntry.AddConnection(wpSouthExit);
@@ -107,15 +107,15 @@ public class TrafficWaypointManager
         {
             // Lane going East
             TrafficWaypoint wpWestEntry = new TrafficWaypoint(
-                cellCentre + new Vector3(-halfCellSize, 0, laneCentre), cell.Position.x, cell.Position.y, 0);
+                cellCentre + new Vector3(-halfCellSize, 0, laneCentre), cell.Position.x, cell.Position.z, 0);
             TrafficWaypoint wpEastExit = new TrafficWaypoint(
-                cellCentre + new Vector3(halfCellSize, 0, laneCentre), cell.Position.x, cell.Position.y, 0);
+                cellCentre + new Vector3(halfCellSize, 0, laneCentre), cell.Position.x, cell.Position.z, 0);
 
             // Lane going West
             TrafficWaypoint wpEastEntry = new TrafficWaypoint(
-                cellCentre + new Vector3(halfCellSize, 0, -laneCentre), cell.Position.x, cell.Position.y, 1);
+                cellCentre + new Vector3(halfCellSize, 0, -laneCentre), cell.Position.x, cell.Position.z, 1);
             TrafficWaypoint wpWestExit = new TrafficWaypoint(
-                cellCentre + new Vector3(-halfCellSize, 0, -laneCentre), cell.Position.x, cell.Position.y, 1);
+                cellCentre + new Vector3(-halfCellSize, 0, -laneCentre), cell.Position.x, cell.Position.z, 1);
 
             wpWestEntry.AddConnection(wpEastExit);
             wpEastEntry.AddConnection(wpWestExit);
@@ -140,19 +140,19 @@ public class TrafficWaypointManager
         {
             // Lane 0: Entry from open side, U-turn, exit back
             wpEntry = new TrafficWaypoint(
-                cellCentre + new Vector3(-laneCentre, 0, halfCellSize), cell.Position.x, cell.Position.y, 0);
+                cellCentre + new Vector3(-laneCentre, 0, halfCellSize), cell.Position.x, cell.Position.z, 0);
 
             wpMidIncoming = new TrafficWaypoint(
-                cellCentre + new Vector3(-laneCentre, 0, 0), cell.Position.x, cell.Position.y, 0);
+                cellCentre + new Vector3(-laneCentre, 0, 0), cell.Position.x, cell.Position.z, 0);
 
             wpUTurn = new TrafficWaypoint(
-                cellCentre + new Vector3(0, 0, -quarterCellSize), cell.Position.x, cell.Position.y, 0);
+                cellCentre + new Vector3(0, 0, -quarterCellSize), cell.Position.x, cell.Position.z, 0);
 
             wpMidOutgoing = new TrafficWaypoint(
-                cellCentre + new Vector3(laneCentre, 0, 0), cell.Position.x, cell.Position.y, 1);
+                cellCentre + new Vector3(laneCentre, 0, 0), cell.Position.x, cell.Position.z, 1);
 
             wpExit = new TrafficWaypoint(
-                cellCentre + new Vector3(laneCentre, 0, halfCellSize), cell.Position.x, cell.Position.y, 1);
+                cellCentre + new Vector3(laneCentre, 0, halfCellSize), cell.Position.x, cell.Position.z, 1);
 
             // Connect waypoints in sequence
             wpEntry.AddConnection(wpMidIncoming);
@@ -171,19 +171,19 @@ public class TrafficWaypointManager
         {
             // Lane 0: Entry from open side, U-turn, exit back
             wpEntry = new TrafficWaypoint(
-                cellCentre + new Vector3(-laneCentre, 0, -halfCellSize), cell.Position.x, cell.Position.y, 0);
+                cellCentre + new Vector3(-laneCentre, 0, -halfCellSize), cell.Position.x, cell.Position.z, 0);
 
             wpMidIncoming = new TrafficWaypoint(
-                cellCentre + new Vector3(-laneCentre, 0, 0), cell.Position.x, cell.Position.y, 0);
+                cellCentre + new Vector3(-laneCentre, 0, 0), cell.Position.x, cell.Position.z, 0);
 
             wpUTurn = new TrafficWaypoint(
-                cellCentre + new Vector3(0, 0, quarterCellSize), cell.Position.x, cell.Position.y, 0);
+                cellCentre + new Vector3(0, 0, quarterCellSize), cell.Position.x, cell.Position.z, 0);
 
             wpMidOutgoing = new TrafficWaypoint(
-                cellCentre + new Vector3(laneCentre, 0, 0), cell.Position.x, cell.Position.y, 1);
+                cellCentre + new Vector3(laneCentre, 0, 0), cell.Position.x, cell.Position.z, 1);
 
             wpExit = new TrafficWaypoint(
-                cellCentre + new Vector3(laneCentre, 0, -halfCellSize), cell.Position.x, cell.Position.y, 1);
+                cellCentre + new Vector3(laneCentre, 0, -halfCellSize), cell.Position.x, cell.Position.z, 1);
 
             // Connect waypoints in sequence
             wpEntry.AddConnection(wpMidIncoming);
@@ -202,19 +202,19 @@ public class TrafficWaypointManager
         {
             // Lane 0: Entry from open side, U-turn, exit back
             wpEntry = new TrafficWaypoint(
-                cellCentre + new Vector3(halfCellSize, 0, -laneCentre), cell.Position.x, cell.Position.y, 0);
+                cellCentre + new Vector3(halfCellSize, 0, -laneCentre), cell.Position.x, cell.Position.z, 0);
 
             wpMidIncoming = new TrafficWaypoint(
-                cellCentre + new Vector3(0, 0, -laneCentre), cell.Position.x, cell.Position.y, 0);
+                cellCentre + new Vector3(0, 0, -laneCentre), cell.Position.x, cell.Position.z, 0);
 
             wpUTurn = new TrafficWaypoint(
-                cellCentre + new Vector3(-quarterCellSize, 0, 0), cell.Position.x, cell.Position.y, 0);
+                cellCentre + new Vector3(-quarterCellSize, 0, 0), cell.Position.x, cell.Position.z, 0);
 
             wpMidOutgoing = new TrafficWaypoint(
-                cellCentre + new Vector3(0, 0, laneCentre), cell.Position.x, cell.Position.y, 1);
+                cellCentre + new Vector3(0, 0, laneCentre), cell.Position.x, cell.Position.z, 1);
 
             wpExit = new TrafficWaypoint(
-                cellCentre + new Vector3(halfCellSize, 0, laneCentre), cell.Position.x, cell.Position.y, 1);
+                cellCentre + new Vector3(halfCellSize, 0, laneCentre), cell.Position.x, cell.Position.z, 1);
 
             // Connect waypoints in sequence
             wpEntry.AddConnection(wpMidIncoming);
@@ -233,19 +233,19 @@ public class TrafficWaypointManager
         {
             // Lane 0: Entry from open side, U-turn, exit back
             wpEntry = new TrafficWaypoint(
-                cellCentre + new Vector3(-halfCellSize, 0, -laneCentre), cell.Position.x, cell.Position.y, 0);
+                cellCentre + new Vector3(-halfCellSize, 0, -laneCentre), cell.Position.x, cell.Position.z, 0);
 
             wpMidIncoming = new TrafficWaypoint(
-                cellCentre + new Vector3(0, 0, -laneCentre), cell.Position.x, cell.Position.y, 0);
+                cellCentre + new Vector3(0, 0, -laneCentre), cell.Position.x, cell.Position.z, 0);
 
             wpUTurn = new TrafficWaypoint(
-                cellCentre + new Vector3(quarterCellSize, 0, 0), cell.Position.x, cell.Position.y, 0);
+                cellCentre + new Vector3(quarterCellSize, 0, 0), cell.Position.x, cell.Position.z, 0);
 
             wpMidOutgoing = new TrafficWaypoint(
-                cellCentre + new Vector3(0, 0, laneCentre), cell.Position.x, cell.Position.y, 1);
+                cellCentre + new Vector3(0, 0, laneCentre), cell.Position.x, cell.Position.z, 1);
 
             wpExit = new TrafficWaypoint(
-                cellCentre + new Vector3(-halfCellSize, 0, laneCentre), cell.Position.x, cell.Position.y, 1);
+                cellCentre + new Vector3(-halfCellSize, 0, laneCentre), cell.Position.x, cell.Position.z, 1);
 
             // Connect waypoints in sequence
             wpEntry.AddConnection(wpMidIncoming);
@@ -276,28 +276,28 @@ public class TrafficWaypointManager
         {
             wpEntry1 = new TrafficWaypoint(
                 cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 0);
+                cell.Position.x, cell.Position.z, 0);
 
             wpTurn1 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 0);
+                cell.Position.x, cell.Position.z, 0);
 
             wpExit1 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
-                cell.Position.x, cell.Position.y, 0);
+                cell.Position.x, cell.Position.z, 0);
 
             // Lane 2: From dir2 to dir1
             wpEntry2 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, halfCellSize),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
 
             wpTurn2 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
 
             wpExit2 = new TrafficWaypoint(
                 cellCentre + new Vector3(halfCellSize, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
 
             // Connect waypoints
             wpEntry1.AddConnection(wpTurn1);
@@ -319,28 +319,28 @@ public class TrafficWaypointManager
         {
             wpEntry1 = new TrafficWaypoint(
                 cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 0);
+                cell.Position.x, cell.Position.z, 0);
 
             wpTurn1 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 0);
+                cell.Position.x, cell.Position.z, 0);
 
             wpExit1 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
-                cell.Position.x, cell.Position.y, 0);
+                cell.Position.x, cell.Position.z, 0);
 
             // Lane 2: From dir2 to dir1
             wpEntry2 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, halfCellSize),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
 
             wpTurn2 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
 
             wpExit2 = new TrafficWaypoint(
                 cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
 
             // Connect waypoints
             wpEntry1.AddConnection(wpTurn1);
@@ -362,28 +362,28 @@ public class TrafficWaypointManager
         {
             wpEntry1 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
-                cell.Position.x, cell.Position.y, 0);
+                cell.Position.x, cell.Position.z, 0);
 
             wpTurn1 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 0);
+                cell.Position.x, cell.Position.z, 0);
 
             wpExit1 = new TrafficWaypoint(
                 cellCentre + new Vector3(halfCellSize, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 0);
+                cell.Position.x, cell.Position.z, 0);
 
             // Lane 2: From dir2 to dir1
             wpEntry2 = new TrafficWaypoint(
                 cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
 
             wpTurn2 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
 
             wpExit2 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
 
             // Connect waypoints
             wpEntry1.AddConnection(wpTurn1);
@@ -405,28 +405,28 @@ public class TrafficWaypointManager
         {
             wpEntry1 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
-                cell.Position.x, cell.Position.y, 0);
+                cell.Position.x, cell.Position.z, 0);
 
             wpTurn1 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 0);
+                cell.Position.x, cell.Position.z, 0);
 
             wpExit1 = new TrafficWaypoint(
                 cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 0);
+                cell.Position.x, cell.Position.z, 0);
 
             // Lane 2: From dir2 to dir1
             wpEntry2 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
 
             wpTurn2 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
 
             wpExit2 = new TrafficWaypoint(
                 cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
 
             // Connect waypoints
             wpEntry1.AddConnection(wpTurn1);
@@ -465,62 +465,62 @@ public class TrafficWaypointManager
             // Lane 1: East to North
             wpEntry1 = new TrafficWaypoint(
                 cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 0);
+                cell.Position.x, cell.Position.z, 0);
             wpTurn1 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 0);
+                cell.Position.x, cell.Position.z, 0);
             wpExit1 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
-                cell.Position.x, cell.Position.y, 0);
+                cell.Position.x, cell.Position.z, 0);
 
             // Lane 2: East to South
             wpEntry2 = new TrafficWaypoint(
                 cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
             wpTurn2 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
             wpExit2 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
 
             // Lane 3: North to East
             wpEntry3 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, halfCellSize),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
             wpTurn3 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
             wpExit3 = new TrafficWaypoint(
                 cellCentre + new Vector3(halfCellSize, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
 
             // Lane 4: South to East
             wpEntry4 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
             wpTurn4 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
             wpExit4 = new TrafficWaypoint(
                 cellCentre + new Vector3(halfCellSize, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
 
             // direction 5: South to North (straight)
             wpEntry5 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
-                cell.Position.x, cell.Position.y, 2);
+                cell.Position.x, cell.Position.z, 2);
             wpExit5 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
-                cell.Position.x, cell.Position.y, 2);
+                cell.Position.x, cell.Position.z, 2);
 
             // direction 6: North to South (straight)
             wpEntry6 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, halfCellSize),
-                cell.Position.x, cell.Position.y, 2);
+                cell.Position.x, cell.Position.z, 2);
             wpExit6 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
-                cell.Position.x, cell.Position.y, 2);
+                cell.Position.x, cell.Position.z, 2);
 
             // Connect waypoints
             wpEntry1.AddConnection(wpTurn1);
@@ -557,62 +557,62 @@ public class TrafficWaypointManager
             // Lane 1: South to East
             wpEntry1 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
-                cell.Position.x, cell.Position.y, 0);
+                cell.Position.x, cell.Position.z, 0);
             wpTurn1 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 0);
+                cell.Position.x, cell.Position.z, 0);
             wpExit1 = new TrafficWaypoint(
                 cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 0);
+                cell.Position.x, cell.Position.z, 0);
 
             // Lane 2: South to West
             wpEntry2 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
             wpTurn2 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
             wpExit2 = new TrafficWaypoint(
                 cellCentre + new Vector3(halfCellSize, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
 
             // Lane 3: East to south
             wpEntry3 = new TrafficWaypoint(
                 cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
             wpTurn3 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
             wpExit3 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
 
             // Lane 4: West to South
             wpEntry4 = new TrafficWaypoint(
                 cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
             wpTurn4 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
             wpExit4 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
 
             // direction 5: East to West (straight)
             wpEntry5 = new TrafficWaypoint(
                 cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 2);
+                cell.Position.x, cell.Position.z, 2);
             wpExit5 = new TrafficWaypoint(
                 cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 2);
+                cell.Position.x, cell.Position.z, 2);
 
             // direction 6: West to east (straight)
             wpEntry6 = new TrafficWaypoint(
                 cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 2);
+                cell.Position.x, cell.Position.z, 2);
             wpExit6 = new TrafficWaypoint(
                 cellCentre + new Vector3(halfCellSize, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 2);
+                cell.Position.x, cell.Position.z, 2);
 
             // Connect waypoints
             wpEntry1.AddConnection(wpTurn1);
@@ -649,62 +649,62 @@ public class TrafficWaypointManager
             // Lane 1: North to West
             wpEntry1 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, halfCellSize),
-                cell.Position.x, cell.Position.y, 0);
+                cell.Position.x, cell.Position.z, 0);
             wpTurn1 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 0);
+                cell.Position.x, cell.Position.z, 0);
             wpExit1 = new TrafficWaypoint(
                 cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 0);
+                cell.Position.x, cell.Position.z, 0);
 
             // Lane 2: South to West
             wpEntry2 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
             wpTurn2 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
             wpExit2 = new TrafficWaypoint(
                 cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
 
             // Lane 3: West to North
             wpEntry3 = new TrafficWaypoint(
                 cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
             wpTurn3 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
             wpExit3 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
 
             // Lane 4: West to South
             wpEntry4 = new TrafficWaypoint(
                 cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
             wpTurn4 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
             wpExit4 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
 
             // direction 5: South to North (straight)
             wpEntry5 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
-                cell.Position.x, cell.Position.y, 2);
+                cell.Position.x, cell.Position.z, 2);
             wpExit5 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
-                cell.Position.x, cell.Position.y, 2);
+                cell.Position.x, cell.Position.z, 2);
 
             // direction 6: North to South (straight)
             wpEntry6 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, halfCellSize),
-                cell.Position.x, cell.Position.y, 2);
+                cell.Position.x, cell.Position.z, 2);
             wpExit6 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
-                cell.Position.x, cell.Position.y, 2);
+                cell.Position.x, cell.Position.z, 2);
 
             // Connect waypoints
             wpEntry1.AddConnection(wpTurn1);
@@ -741,62 +741,62 @@ public class TrafficWaypointManager
             // Lane 1: North to East
             wpEntry1 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, halfCellSize),
-                cell.Position.x, cell.Position.y, 0);
+                cell.Position.x, cell.Position.z, 0);
             wpTurn1 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 0);
+                cell.Position.x, cell.Position.z, 0);
             wpExit1 = new TrafficWaypoint(
                 cellCentre + new Vector3(halfCellSize, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 0);
+                cell.Position.x, cell.Position.z, 0);
 
             // Lane 2: North to West
             wpEntry2 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, halfCellSize),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
             wpTurn2 = new TrafficWaypoint(
                 cellCentre + new Vector3(laneCentre, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
             wpExit2 = new TrafficWaypoint(
                 cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
 
             // Lane 3: East to North
             wpEntry3 = new TrafficWaypoint(
                 cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
             wpTurn3 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
             wpExit3 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
 
             // Lane 4: West to North
             wpEntry4 = new TrafficWaypoint(
                 cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
             wpTurn4 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
             wpExit4 = new TrafficWaypoint(
                 cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
-                cell.Position.x, cell.Position.y, 1);
+                cell.Position.x, cell.Position.z, 1);
 
             // direction 5: East to West (straight)
             wpEntry5 = new TrafficWaypoint(
                 cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 2);
+                cell.Position.x, cell.Position.z, 2);
             wpExit5 = new TrafficWaypoint(
                 cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
-                cell.Position.x, cell.Position.y, 2);
+                cell.Position.x, cell.Position.z, 2);
 
             // direction 6: West to east (straight)
             wpEntry6 = new TrafficWaypoint(
                 cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 2);
+                cell.Position.x, cell.Position.z, 2);
             wpExit6 = new TrafficWaypoint(
                 cellCentre + new Vector3(halfCellSize, 0, laneCentre),
-                cell.Position.x, cell.Position.y, 2);
+                cell.Position.x, cell.Position.z, 2);
 
             // Connect waypoints
             wpEntry1.AddConnection(wpTurn1);
@@ -851,122 +851,122 @@ public class TrafficWaypointManager
         // Route 1: East to North (turn)
         wpEntry1 = new TrafficWaypoint(
             cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
-            cell.Position.x, cell.Position.y, 0);
+            cell.Position.x, cell.Position.z, 0);
         wpTurn1 = new TrafficWaypoint(
             cellCentre + new Vector3(-laneCentre, 0, -laneCentre),
-            cell.Position.x, cell.Position.y, 0);
+            cell.Position.x, cell.Position.z, 0);
         wpExit1 = new TrafficWaypoint(
             cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
-            cell.Position.x, cell.Position.y, 0);
+            cell.Position.x, cell.Position.z, 0);
 
         // Route 2: East to South (turn)
         wpEntry2 = new TrafficWaypoint(
             cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
-            cell.Position.x, cell.Position.y, 0);
+            cell.Position.x, cell.Position.z, 0);
         wpTurn2 = new TrafficWaypoint(
             cellCentre + new Vector3(laneCentre, 0, -laneCentre),
-            cell.Position.x, cell.Position.y, 0);
+            cell.Position.x, cell.Position.z, 0);
         wpExit2 = new TrafficWaypoint(
             cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
-            cell.Position.x, cell.Position.y, 0);
+            cell.Position.x, cell.Position.z, 0);
 
         // Route 3: North to East (turn)
         wpEntry3 = new TrafficWaypoint(
             cellCentre + new Vector3(laneCentre, 0, halfCellSize),
-            cell.Position.x, cell.Position.y, 1);
+            cell.Position.x, cell.Position.z, 1);
         wpTurn3 = new TrafficWaypoint(
             cellCentre + new Vector3(laneCentre, 0, laneCentre),
-            cell.Position.x, cell.Position.y, 1);
+            cell.Position.x, cell.Position.z, 1);
         wpExit3 = new TrafficWaypoint(
             cellCentre + new Vector3(halfCellSize, 0, laneCentre),
-            cell.Position.x, cell.Position.y, 1);
+            cell.Position.x, cell.Position.z, 1);
 
         // Route 4: North to West (turn)
         wpEntry4 = new TrafficWaypoint(
             cellCentre + new Vector3(laneCentre, 0, halfCellSize),
-            cell.Position.x, cell.Position.y, 1);
+            cell.Position.x, cell.Position.z, 1);
         wpTurn4 = new TrafficWaypoint(
             cellCentre + new Vector3(laneCentre, 0, -laneCentre),
-            cell.Position.x, cell.Position.y, 1);
+            cell.Position.x, cell.Position.z, 1);
         wpExit4 = new TrafficWaypoint(
             cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
-            cell.Position.x, cell.Position.y, 1);
+            cell.Position.x, cell.Position.z, 1);
 
         // Route 5: West to North (turn)
         wpEntry5 = new TrafficWaypoint(
             cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
-            cell.Position.x, cell.Position.y, 2);
+            cell.Position.x, cell.Position.z, 2);
         wpTurn5 = new TrafficWaypoint(
             cellCentre + new Vector3(-laneCentre, 0, laneCentre),
-            cell.Position.x, cell.Position.y, 2);
+            cell.Position.x, cell.Position.z, 2);
         wpExit5 = new TrafficWaypoint(
             cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
-            cell.Position.x, cell.Position.y, 2);
+            cell.Position.x, cell.Position.z, 2);
 
         // Route 6: West to South (turn)
         wpEntry6 = new TrafficWaypoint(
             cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
-            cell.Position.x, cell.Position.y, 2);
+            cell.Position.x, cell.Position.z, 2);
         wpTurn6 = new TrafficWaypoint(
             cellCentre + new Vector3(laneCentre, 0, laneCentre),
-            cell.Position.x, cell.Position.y, 2);
+            cell.Position.x, cell.Position.z, 2);
         wpExit6 = new TrafficWaypoint(
             cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
-            cell.Position.x, cell.Position.y, 2);
+            cell.Position.x, cell.Position.z, 2);
 
         // Route 7: South to West (turn)
         wpEntry7 = new TrafficWaypoint(
             cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
-            cell.Position.x, cell.Position.y, 3);
+            cell.Position.x, cell.Position.z, 3);
         wpTurn7 = new TrafficWaypoint(
             cellCentre + new Vector3(-laneCentre, 0, -laneCentre),
-            cell.Position.x, cell.Position.y, 3);
+            cell.Position.x, cell.Position.z, 3);
         wpExit7 = new TrafficWaypoint(
             cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
-            cell.Position.x, cell.Position.y, 3);
+            cell.Position.x, cell.Position.z, 3);
 
         // Route 8: South to East (turn)
         wpEntry8 = new TrafficWaypoint(
             cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
-            cell.Position.x, cell.Position.y, 3);
+            cell.Position.x, cell.Position.z, 3);
         wpTurn8 = new TrafficWaypoint(
             cellCentre + new Vector3(-laneCentre, 0, laneCentre),
-            cell.Position.x, cell.Position.y, 3);
+            cell.Position.x, cell.Position.z, 3);
         wpExit8 = new TrafficWaypoint(
             cellCentre + new Vector3(halfCellSize, 0, laneCentre),
-            cell.Position.x, cell.Position.y, 3);
+            cell.Position.x, cell.Position.z, 3);
 
         // Route 9: East to West (straight)
         wpEntry9 = new TrafficWaypoint(
             cellCentre + new Vector3(halfCellSize, 0, -laneCentre),
-            cell.Position.x, cell.Position.y, 4);
+            cell.Position.x, cell.Position.z, 4);
         wpExit9 = new TrafficWaypoint(
             cellCentre + new Vector3(-halfCellSize, 0, -laneCentre),
-            cell.Position.x, cell.Position.y, 4);
+            cell.Position.x, cell.Position.z, 4);
 
         // Route 10: West to East (straight)
         wpEntry10 = new TrafficWaypoint(
             cellCentre + new Vector3(-halfCellSize, 0, laneCentre),
-            cell.Position.x, cell.Position.y, 4);
+            cell.Position.x, cell.Position.z, 4);
         wpExit10 = new TrafficWaypoint(
             cellCentre + new Vector3(halfCellSize, 0, laneCentre),
-            cell.Position.x, cell.Position.y, 4);
+            cell.Position.x, cell.Position.z, 4);
 
         // Route 11: North to South (straight)
         wpEntry11 = new TrafficWaypoint(
             cellCentre + new Vector3(laneCentre, 0, halfCellSize),
-            cell.Position.x, cell.Position.y, 5);
+            cell.Position.x, cell.Position.z, 5);
         wpExit11 = new TrafficWaypoint(
             cellCentre + new Vector3(laneCentre, 0, -halfCellSize),
-            cell.Position.x, cell.Position.y, 5);
+            cell.Position.x, cell.Position.z, 5);
 
         // Route 12: South to North (straight)
         wpEntry12 = new TrafficWaypoint(
             cellCentre + new Vector3(-laneCentre, 0, -halfCellSize),
-            cell.Position.x, cell.Position.y, 5);
+            cell.Position.x, cell.Position.z, 5);
         wpExit12 = new TrafficWaypoint(
             cellCentre + new Vector3(-laneCentre, 0, halfCellSize),
-            cell.Position.x, cell.Position.y, 5);
+            cell.Position.x, cell.Position.z, 5);
 
         // Connect waypoints
         wpEntry1.AddConnection(wpTurn1);
@@ -1039,19 +1039,19 @@ public class TrafficWaypointManager
     void ConnectAdjacentCells(GridCell cell)
     {
         // Check North neighbor
-        if (cell.Position.y + 1 < roadGrid.GetLength(1) &&
-            roadGrid[cell.Position.x, cell.Position.y + 1].CellType != CellType.Empty)
+        if (cell.Position.z + 1 < roadGrid.GetLength(1) &&
+            roadGrid[cell.Position.x, cell.Position.z + 1].CellType != CellType.Empty)
         {
             ConnectCells(cell, RoadDirection.North,
-                        roadGrid[cell.Position.x, cell.Position.y + 1], RoadDirection.South);
+                        roadGrid[cell.Position.x, cell.Position.z + 1], RoadDirection.South);
         }
 
         // Check East neighbor
         if (cell.Position.x + 1 < roadGrid.GetLength(0) &&
-            roadGrid[cell.Position.x + 1, cell.Position.y].CellType != CellType.Empty)
+            roadGrid[cell.Position.x + 1, cell.Position.z].CellType != CellType.Empty)
         {
             ConnectCells(cell, RoadDirection.East,
-                        roadGrid[cell.Position.x + 1, cell.Position.y], RoadDirection.West);
+                        roadGrid[cell.Position.x + 1, cell.Position.z], RoadDirection.West);
         }
 
         // South and West are handled by other cells

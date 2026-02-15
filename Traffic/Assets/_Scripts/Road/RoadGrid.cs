@@ -493,7 +493,7 @@ public class RoadGrid : MonoBehaviour
     private void UpdateRoadGrid()
     {
         RegenerateMesh();
-        trafficWaypointManager.GenerateWaypoints(grid);
+        WaypointManager.Instance.GenerateWaypoints(grid);
     }
 
     private void RegenerateMesh()
@@ -525,9 +525,24 @@ public class RoadGrid : MonoBehaviour
         return grid;
     }
 
+    public GridCell GetGridCell(int x, int z)
+    {
+        return IsValidGridPosition(new Vector3Int(x, 0, z)) ? grid[x, z] : null;
+    }
+
     public Vector3 GetGridOrigin()
     {
         return gridOrigin;
+    }
+
+    public float GetGridHeight()
+    {
+        return gridHeight;
+    }
+
+    public float GetGridWidth()
+    {
+        return gridWidth;
     }
 
     public float GetCellSize()

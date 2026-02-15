@@ -5,14 +5,14 @@ public class TrafficWaypoint
 {
     public Vector3 Position;
     public List<TrafficWaypoint> Connections;
-    public int GridX, GridY; // Cell coordinates
+    public int GridX, GridZ; // Cell coordinates
     public int LaneIndex; // Which lane this waypoint belongs to
 
-    public TrafficWaypoint(Vector3 position, int gridX, int gridY, int laneIndex)
+    public TrafficWaypoint(Vector3 position, int gridX, int gridZ, int laneIndex)
     {
         Position = position;
         GridX = gridX;
-        GridY = gridY;
+        GridZ = gridZ;
         LaneIndex = laneIndex;
         Connections = new List<TrafficWaypoint>();
     }
