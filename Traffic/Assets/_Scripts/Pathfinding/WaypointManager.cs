@@ -37,6 +37,8 @@ public class WaypointManager : MonoBehaviour
                 }
             }
         }
+
+        ConnectAllCells();
     }
 
     private void CreateAndConnectWaypoints(GridCell cell)
@@ -75,7 +77,7 @@ public class WaypointManager : MonoBehaviour
         allWaypoints.AddRange(waypoints);
 
         // Connect waypoints within this cell
-        ConnectWaypointsWithinCell(cell, waypoints);
+        //ConnectWaypointsWithinCell(cell, waypoints);
     }
 
     private List<WaypointNode> CreateStraightWaypoints(GridCell cell)
@@ -89,35 +91,56 @@ public class WaypointManager : MonoBehaviour
 
         if (hasNorth && hasSouth) // Vertical road
         {
-            // Lane going North
+            // Lane going North (traffic flows from South to North)
             Vector3 wpSouthEntry = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize);
             Vector3 wpNorthExit = cellCentre + new Vector3(-laneCentre, 0, halfCellSize);
+            WaypointNode southEntry = new WaypointNode(wpSouthEntry, cell, WaypointType.Entry);
+            WaypointNode northExit = new WaypointNode(wpNorthExit, cell, WaypointType.Exit);
 
-            // Lane going South
+            // Connect entry to exit (one-way)
+            southEntry.Connections.Add(new WaypointConnection(northExit, Vector3.Distance(wpSouthEntry, wpNorthExit)));
+
+            waypoints.Add(southEntry);
+            waypoints.Add(northExit);
+
+            // Lane going South (traffic flows from North to South)
             Vector3 wpNorthEntry = cellCentre + new Vector3(laneCentre, 0, halfCellSize);
             Vector3 wpSouthExit = cellCentre + new Vector3(laneCentre, 0, -halfCellSize);
+            WaypointNode northEntry = new WaypointNode(wpNorthEntry, cell, WaypointType.Entry);
+            WaypointNode southExit = new WaypointNode(wpSouthExit, cell, WaypointType.Exit);
 
-            // Create waypoints
-            waypoints.Add(new WaypointNode(wpSouthEntry, cell, WaypointType.Entry));
-            waypoints.Add(new WaypointNode(wpNorthExit, cell, WaypointType.Exit));
-            waypoints.Add(new WaypointNode(wpNorthEntry, cell, WaypointType.Entry));
-            waypoints.Add(new WaypointNode(wpSouthExit, cell, WaypointType.Exit));
+            // Connect entry to exit (one-way)
+            northEntry.Connections.Add(new WaypointConnection(southExit, Vector3.Distance(wpNorthEntry, wpSouthExit)));
+
+            waypoints.Add(northEntry);
+            waypoints.Add(southExit);
+
         }
         else if (hasEast && hasWest) // Horizontal road
         {
-            // Lane going East
+            // Lane going East (traffic flows from West to East)
             Vector3 wpWestEntry = cellCentre + new Vector3(-halfCellSize, 0, laneCentre);
             Vector3 wpEastExit = cellCentre + new Vector3(halfCellSize, 0, laneCentre);
+            WaypointNode westEntry = new WaypointNode(wpWestEntry, cell, WaypointType.Entry);
+            WaypointNode eastExit = new WaypointNode(wpEastExit, cell, WaypointType.Exit);
 
-            // Lane going West
+            // Connect entry to exit (one-way)
+            westEntry.Connections.Add(new WaypointConnection(eastExit, Vector3.Distance(wpWestEntry, wpEastExit)));
+
+            waypoints.Add(westEntry);
+            waypoints.Add(eastExit);
+
+            // Lane going West (traffic flows from East to West)
             Vector3 wpEastEntry = cellCentre + new Vector3(halfCellSize, 0, -laneCentre);
             Vector3 wpWestExit = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre);
+            WaypointNode eastEntry = new WaypointNode(wpEastEntry, cell, WaypointType.Entry);
+            WaypointNode westExit = new WaypointNode(wpWestExit, cell, WaypointType.Exit);
 
-            // Create waypoints
-            waypoints.Add(new WaypointNode(wpWestEntry, cell, WaypointType.Entry));
-            waypoints.Add(new WaypointNode(wpEastExit, cell, WaypointType.Exit));
-            waypoints.Add(new WaypointNode(wpEastEntry, cell, WaypointType.Entry));
-            waypoints.Add(new WaypointNode(wpWestExit, cell, WaypointType.Exit));
+            // Connect entry to exit (one-way)
+            eastEntry.Connections.Add(new WaypointConnection(westExit, Vector3.Distance(wpEastEntry, wpWestExit)));
+
+            waypoints.Add(eastEntry);
+            waypoints.Add(westExit);
         }
 
         return waypoints;
@@ -140,74 +163,154 @@ public class WaypointManager : MonoBehaviour
         if (hasNorth && hasEast) // Corner from North to East
         {
             // Lane going North to East
-            Vector3 wpNorthEntry = cellCentre + new Vector3(-laneCentre, 0, halfCellSize);
-            Vector3 wpMidpoint = cellCentre + new Vector3(laneCentre, 0, laneCentre);
+            Vector3 wpNorthEntry = cellCentre + new Vector3(laneCentre, 0, halfCellSize);
+            Vector3 wpMidpoint1 = cellCentre + new Vector3(laneCentre, 0, laneCentre);
             Vector3 wpEastExit = cellCentre + new Vector3(halfCellSize, 0, laneCentre);
-            waypoints.Add(new WaypointNode(wpNorthEntry, cell, WaypointType.Entry));
-            waypoints.Add(new WaypointNode(wpMidpoint, cell, WaypointType.Midpoint));
-            waypoints.Add(new WaypointNode(wpEastExit, cell, WaypointType.Exit));
+
+            WaypointNode northEntry = new WaypointNode(wpNorthEntry, cell, WaypointType.Entry);
+            WaypointNode midpoint1 = new WaypointNode(wpMidpoint1, cell, WaypointType.Midpoint);
+            WaypointNode eastExit = new WaypointNode(wpEastExit, cell, WaypointType.Exit);
+
+            // connections
+            northEntry.Connections.Add(new WaypointConnection(midpoint1, Vector3.Distance(wpNorthEntry, wpMidpoint1)));
+            midpoint1.Connections.Add(new WaypointConnection(eastExit, Vector3.Distance(wpMidpoint1, wpEastExit)));
+
+            // add waypoints
+            waypoints.Add(northEntry);
+            waypoints.Add(midpoint1);
+            waypoints.Add(eastExit);
 
             // Lane going East to North (reverse direction)
             Vector3 wpEastEntry = cellCentre + new Vector3(halfCellSize, 0, -laneCentre);
             Vector3 wpMidpoint2 = cellCentre + new Vector3(-laneCentre, 0, -laneCentre);
             Vector3 wpNorthExit = cellCentre + new Vector3(-laneCentre, 0, halfCellSize);
-            waypoints.Add(new WaypointNode(wpEastEntry, cell, WaypointType.Entry));
-            waypoints.Add(new WaypointNode(wpMidpoint2, cell, WaypointType.Midpoint));
-            waypoints.Add(new WaypointNode(wpNorthExit, cell, WaypointType.Exit));
+
+            WaypointNode eastEntry = new WaypointNode(wpEastEntry, cell, WaypointType.Entry);
+            WaypointNode midpoint2 = new WaypointNode(wpMidpoint2, cell, WaypointType.Midpoint);
+            WaypointNode northExit = new WaypointNode(wpNorthExit, cell, WaypointType.Exit);
+
+            // connections
+            eastEntry.Connections.Add(new WaypointConnection(midpoint2, Vector3.Distance(wpEastEntry, wpMidpoint2)));
+            midpoint2.Connections.Add(new WaypointConnection(northExit, Vector3.Distance(wpMidpoint2, wpNorthExit)));
+
+            // add waypoints
+            waypoints.Add(eastEntry);
+            waypoints.Add(midpoint2);
+            waypoints.Add(northExit);
         }
         else if (hasNorth && hasWest) // Corner from North to West
         {
             // Lane going North to West
             Vector3 wpNorthEntry = cellCentre + new Vector3(laneCentre, 0, halfCellSize);
-            Vector3 wpMidpoint = cellCentre + new Vector3(laneCentre, 0, -laneCentre);
+            Vector3 wpMidpoint1 = cellCentre + new Vector3(laneCentre, 0, -laneCentre);
             Vector3 wpWestExit = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre);
-            waypoints.Add(new WaypointNode(wpNorthEntry, cell, WaypointType.Entry));
-            waypoints.Add(new WaypointNode(wpMidpoint, cell, WaypointType.Midpoint));
-            waypoints.Add(new WaypointNode(wpWestExit, cell, WaypointType.Exit));
+
+            WaypointNode northEntry = new WaypointNode(wpNorthEntry, cell, WaypointType.Entry);
+            WaypointNode midpoint1 = new WaypointNode(wpMidpoint1, cell, WaypointType.Midpoint);
+            WaypointNode westExit = new WaypointNode(wpWestExit, cell, WaypointType.Exit);
+
+            // connections
+            northEntry.Connections.Add(new WaypointConnection(midpoint1, Vector3.Distance(wpNorthEntry, wpMidpoint1)));
+            midpoint1.Connections.Add(new WaypointConnection(westExit, Vector3.Distance(wpMidpoint1, wpWestExit)));
+
+            // add waypoints
+            waypoints.Add(northEntry);
+            waypoints.Add(midpoint1);
+            waypoints.Add(westExit);
 
             // Lane going West to North (reverse direction)
             Vector3 wpWestEntry = cellCentre + new Vector3(-halfCellSize, 0, laneCentre);
             Vector3 wpMidpoint2 = cellCentre + new Vector3(-laneCentre, 0, laneCentre);
             Vector3 wpNorthExit = cellCentre + new Vector3(-laneCentre, 0, halfCellSize);
-            waypoints.Add(new WaypointNode(wpWestEntry, cell, WaypointType.Entry));
-            waypoints.Add(new WaypointNode(wpMidpoint2, cell, WaypointType.Midpoint));
-            waypoints.Add(new WaypointNode(wpNorthExit, cell, WaypointType.Exit));
+
+            WaypointNode westEntry = new WaypointNode(wpWestEntry, cell, WaypointType.Entry);
+            WaypointNode midpoint2 = new WaypointNode(wpMidpoint2, cell, WaypointType.Midpoint);
+            WaypointNode northExit = new WaypointNode(wpNorthExit, cell, WaypointType.Exit);
+
+            // connections
+            westEntry.Connections.Add(new WaypointConnection(midpoint2, Vector3.Distance(wpWestEntry, wpMidpoint2)));
+            midpoint2.Connections.Add(new WaypointConnection(northExit, Vector3.Distance(wpMidpoint2, wpNorthExit)));
+
+            // add waypoints
+            waypoints.Add(westEntry);
+            waypoints.Add(midpoint2);
+            waypoints.Add(westExit);
         }
         else if (hasSouth && hasEast) // Corner from South to East
         {
             // Lane going South to East
             Vector3 wpSouthEntry = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize);
-            Vector3 wpMidpoint = cellCentre + new Vector3(-laneCentre, 0, laneCentre);
+            Vector3 wpMidpoint1 = cellCentre + new Vector3(-laneCentre, 0, laneCentre);
             Vector3 wpEastExit = cellCentre + new Vector3(halfCellSize, 0, laneCentre);
-            waypoints.Add(new WaypointNode(wpSouthEntry, cell, WaypointType.Entry));
-            waypoints.Add(new WaypointNode(wpMidpoint, cell, WaypointType.Midpoint));
-            waypoints.Add(new WaypointNode(wpEastExit, cell, WaypointType.Exit));
+
+            WaypointNode southEntry = new WaypointNode(wpSouthEntry, cell, WaypointType.Entry);
+            WaypointNode midpoint1 = new WaypointNode(wpMidpoint1, cell, WaypointType.Midpoint);
+            WaypointNode eastExit = new WaypointNode(wpEastExit, cell, WaypointType.Exit);
+
+            // connections
+            southEntry.Connections.Add(new WaypointConnection(midpoint1, Vector3.Distance(wpSouthEntry, wpMidpoint1)));
+            midpoint1.Connections.Add(new WaypointConnection(eastExit, Vector3.Distance(wpMidpoint1, wpEastExit)));
+
+            // add waypoints
+            waypoints.Add(southEntry);
+            waypoints.Add(midpoint1);
+            waypoints.Add(eastExit);
 
             // Lane going East to South (reverse direction)
             Vector3 wpEastEntry = cellCentre + new Vector3(halfCellSize, 0, -laneCentre);
             Vector3 wpMidpoint2 = cellCentre + new Vector3(laneCentre, 0, -laneCentre);
             Vector3 wpSouthExit = cellCentre + new Vector3(laneCentre, 0, -halfCellSize);
-            waypoints.Add(new WaypointNode(wpEastEntry, cell, WaypointType.Entry));
-            waypoints.Add(new WaypointNode(wpMidpoint2, cell, WaypointType.Midpoint));
-            waypoints.Add(new WaypointNode(wpSouthExit, cell, WaypointType.Exit));
+
+            WaypointNode eastEntry = new WaypointNode(wpEastEntry, cell, WaypointType.Entry);
+            WaypointNode midpoint2 = new WaypointNode(wpMidpoint2, cell, WaypointType.Midpoint);
+            WaypointNode southExit = new WaypointNode(wpSouthExit, cell, WaypointType.Exit);
+
+            // connections
+            eastEntry.Connections.Add(new WaypointConnection(midpoint2, Vector3.Distance(wpEastEntry, wpMidpoint2)));
+            midpoint2.Connections.Add(new WaypointConnection(southExit, Vector3.Distance(wpMidpoint1, wpSouthExit)));
+
+            // add waypoints
+            waypoints.Add(eastEntry);
+            waypoints.Add(midpoint2);
+            waypoints.Add(southExit);
         }
         else if (hasSouth && hasWest) // Corner from South to West
         {
             // Lane going South to West
             Vector3 wpSouthEntry = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize);
-            Vector3 wpMidpoint = cellCentre + new Vector3(-laneCentre, 0, -laneCentre);
+            Vector3 wpMidpoint1 = cellCentre + new Vector3(-laneCentre, 0, -laneCentre);
             Vector3 wpWestExit = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre);
-            waypoints.Add(new WaypointNode(wpSouthEntry, cell, WaypointType.Entry));
-            waypoints.Add(new WaypointNode(wpMidpoint, cell, WaypointType.Midpoint));
-            waypoints.Add(new WaypointNode(wpWestExit, cell, WaypointType.Exit));
+
+            WaypointNode southEntry = new WaypointNode(wpSouthEntry, cell, WaypointType.Entry);
+            WaypointNode midpoint1 = new WaypointNode(wpMidpoint1, cell, WaypointType.Midpoint);
+            WaypointNode westExit = new WaypointNode(wpWestExit, cell, WaypointType.Exit);
+
+            // connections
+            southEntry.Connections.Add(new WaypointConnection(midpoint1, Vector3.Distance(wpSouthEntry, wpMidpoint1)));
+            midpoint1.Connections.Add(new WaypointConnection(westExit, Vector3.Distance(wpMidpoint1, wpWestExit)));
+
+            // add waypoints
+            waypoints.Add(southEntry);
+            waypoints.Add(midpoint1);
+            waypoints.Add(westExit);
 
             // Lane going West to South (reverse direction)
             Vector3 wpWestEntry = cellCentre + new Vector3(-halfCellSize, 0, laneCentre);
             Vector3 wpMidpoint2 = cellCentre + new Vector3(laneCentre, 0, laneCentre);
             Vector3 wpSouthExit = cellCentre + new Vector3(laneCentre, 0, -halfCellSize);
-            waypoints.Add(new WaypointNode(wpWestEntry, cell, WaypointType.Entry));
-            waypoints.Add(new WaypointNode(wpMidpoint2, cell, WaypointType.Midpoint));
-            waypoints.Add(new WaypointNode(wpSouthExit, cell, WaypointType.Exit));
+
+            WaypointNode westEntry = new WaypointNode(wpWestEntry, cell, WaypointType.Entry);
+            WaypointNode midpoint2 = new WaypointNode(wpMidpoint2, cell, WaypointType.Midpoint);
+            WaypointNode southExit = new WaypointNode(wpSouthExit, cell, WaypointType.Exit);
+
+            // connections
+            westEntry.Connections.Add(new WaypointConnection(midpoint2, Vector3.Distance(wpWestEntry, wpMidpoint2)));
+            midpoint2.Connections.Add(new WaypointConnection(southExit, Vector3.Distance(wpMidpoint1, wpSouthExit)));
+
+            // add waypoints
+            waypoints.Add(westEntry);
+            waypoints.Add(midpoint2);
+            waypoints.Add(southExit);
         }
 
         return waypoints;
@@ -224,17 +327,14 @@ public class WaypointManager : MonoBehaviour
         }
     }
 
-    private void ConnectWaypointsWithinCell(GridCell cell, List<WaypointNode> waypoints)
-    {
-        // Sort waypoints by position to ensure correct order
-        waypoints.Sort((a, b) => Vector3.Distance(a.Position, Vector3.zero).CompareTo(Vector3.Distance(b.Position, Vector3.zero)));
-
-        // Connect waypoints in sequence
-        for (int i = 0; i < waypoints.Count - 1; i++)
-        {
-            waypoints[i].Connections.Add(new WaypointConnection(waypoints[i + 1], Vector3.Distance(waypoints[i].Position, waypoints[i + 1].Position)));
-        }
-    }
+    // private void ConnectWaypointsWithinCell(GridCell cell, List<WaypointNode> waypoints)
+    // {
+    //     // Connect waypoints in sequence
+    //     for (int i = 0; i < waypoints.Count - 1; i++)
+    //     {
+    //         waypoints[i].Connections.Add(new WaypointConnection(waypoints[i + 1], Vector3.Distance(waypoints[i].Position, waypoints[i + 1].Position)));
+    //     }
+    // }
 
     private void ConnectToNeighboringCells(GridCell cell, List<WaypointNode> waypoints)
     {
@@ -260,68 +360,63 @@ public class WaypointManager : MonoBehaviour
 
     private void ConnectWaypointsToNeighbor(GridCell cell, List<WaypointNode> waypoints, GridCell neighbor, int direction)
     {
-        // Find entry and exit points based on direction
-        List<WaypointNode> entryWaypoints = new List<WaypointNode>();
-        List<WaypointNode> exitWaypoints = new List<WaypointNode>();
+        if (!cellWaypoints.ContainsKey(neighbor))
+            return;
 
-        // Determine which waypoints are entry and exit points based on direction
-        if (direction == 0) // North
-        {
-            entryWaypoints = waypoints.Where(w => w.Type == WaypointType.Exit).ToList();
-            exitWaypoints = cellWaypoints[neighbor].Where(w => w.Type == WaypointType.Entry).ToList();
-        }
-        else if (direction == 1) // South
-        {
-            entryWaypoints = waypoints.Where(w => w.Type == WaypointType.Exit).ToList();
-            exitWaypoints = cellWaypoints[neighbor].Where(w => w.Type == WaypointType.Entry).ToList();
-        }
-        else if (direction == 2) // West
-        {
-            entryWaypoints = waypoints.Where(w => w.Type == WaypointType.Exit).ToList();
-            exitWaypoints = cellWaypoints[neighbor].Where(w => w.Type == WaypointType.Entry).ToList();
-        }
-        else if (direction == 3) // East
-        {
-            entryWaypoints = waypoints.Where(w => w.Type == WaypointType.Exit).ToList();
-            exitWaypoints = cellWaypoints[neighbor].Where(w => w.Type == WaypointType.Entry).ToList();
-        }
+        List<WaypointNode> cellExitWaypoints = new List<WaypointNode>();
+        List<WaypointNode> neighborEntryWaypoints = new List<WaypointNode>();
 
-        // Connect entry waypoints to exit waypoints
-        foreach (var entryWaypoint in entryWaypoints)
+        // Get exit waypoints from current cell and entry waypoints from neighbor
+        cellExitWaypoints = waypoints.Where(w => w.Type == WaypointType.Exit).ToList();
+        neighborEntryWaypoints = cellWaypoints[neighbor].Where(w => w.Type == WaypointType.Entry).ToList();
+
+        // Connect exit waypoints to entry waypoints only if they are at the same position (or very close)
+        foreach (var exitWaypoint in cellExitWaypoints)
         {
-            foreach (var exitWaypoint in exitWaypoints)
+            foreach (var entryWaypoint in neighborEntryWaypoints)
             {
-                // Add connection from entry to exit
-                entryWaypoint.Connections.Add(new WaypointConnection(exitWaypoint, Vector3.Distance(entryWaypoint.Position, exitWaypoint.Position)));
+                // Check if the waypoints are at the same position (or very close)
+                float distance = Vector3.Distance(exitWaypoint.Position, entryWaypoint.Position);
+
+                // If the distance is very small (essentially zero), connect them
+                if (distance < 0.01f) // Tolerance for floating point precision
+                {
+                    exitWaypoint.Connections.Add(new WaypointConnection(entryWaypoint, distance));
+                }
             }
         }
+    }
+
+    public List<WaypointNode> GetAllWaypoints()
+    {
+        return allWaypoints;
     }
 
     public void OnDrawGizmos()
     {
         // Draw all waypoints
-        foreach (var waypoint in allWaypoints)
-        {
-            // Color based on waypoint type
-            Color color = waypoint.Type switch
-            {
-                WaypointType.Entry => Color.green,
-                WaypointType.Exit => Color.red,
-                WaypointType.Midpoint => Color.blue,
-                WaypointType.UTurn => Color.magenta,
-                _ => Color.white
-            };
+        // foreach (var waypoint in allWaypoints)
+        // {
+        //     // Color based on waypoint type
+        //     Color color = waypoint.Type switch
+        //     {
+        //         WaypointType.Entry => Color.green,
+        //         WaypointType.Exit => Color.red,
+        //         WaypointType.Midpoint => Color.blue,
+        //         WaypointType.UTurn => Color.magenta,
+        //         _ => Color.white
+        //     };
 
-            // Draw sphere at waypoint position
-            Gizmos.color = color;
-            Gizmos.DrawSphere(waypoint.Position, 0.1f);
+        //     // Draw sphere at waypoint position
+        //     Gizmos.color = color;
+        //     Gizmos.DrawSphere(waypoint.Position, 0.1f);
 
-            // Draw connections to neighboring waypoints
-            foreach (var connection in waypoint.Connections)
-            {
-                Gizmos.color = Color.yellow;
-                Gizmos.DrawLine(waypoint.Position, connection.TargetWaypoint.Position);
-            }
-        }
+        //     // Draw connections to neighboring waypoints
+        //     foreach (var connection in waypoint.Connections)
+        //     {
+        //         Gizmos.color = Color.yellow;
+        //         Gizmos.DrawLine(waypoint.Position, connection.TargetWaypoint.Position);
+        //     }
+        // }
     }
 }
