@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class PathfindingTest : MonoBehaviour
@@ -47,50 +46,21 @@ public class PathfindingTest : MonoBehaviour
             return;
         }
 
-        // Group waypoints by their parent cell (lane)
-        var waypointsByCell = new Dictionary<GridCell, List<WaypointNode>>();
-        foreach (var waypoint in allWaypoints)
-        {
-            if (!waypointsByCell.ContainsKey(waypoint.ParentCell))
-            {
-                waypointsByCell[waypoint.ParentCell] = new List<WaypointNode>();
-            }
-            waypointsByCell[waypoint.ParentCell].Add(waypoint);
-        }
-
-        // Filter cells that have at least 2 entry waypoints
-        var validCells = waypointsByCell.Where(kvp => kvp.Value.Count >= 2).ToList();
-
-        if (validCells.Count == 0)
-        {
-            Debug.LogWarning("No cells have at least 2 entry waypoints for pathfinding!");
-            return;
-        }
-
-        // Select a random cell with at least 2 entry waypoints
-        int cellIndex = Random.Range(0, validCells.Count);
-        var selectedCell = validCells[cellIndex].Key;
-        var cellWaypoints = validCells[cellIndex].Value;
-
-        // Select two random entry waypoints from the same cell
-        int startIndex = Random.Range(0, cellWaypoints.Count);
-        int endIndex = Random.Range(0, cellWaypoints.Count);
+        // Select two random Entry waypoints
+        int startIndex = Random.Range(0, allWaypoints.Count - 1);
+        int endIndex = Random.Range(0, allWaypoints.Count - 1);
 
         // Ensure they're different
         while (endIndex == startIndex)
         {
-            endIndex = Random.Range(0, cellWaypoints.Count);
+            endIndex = Random.Range(0, allWaypoints.Count);
         }
 
-        startWaypoint = cellWaypoints[startIndex];
-        endWaypoint = cellWaypoints[endIndex];
+        startWaypoint = allWaypoints[startIndex];
+        endWaypoint = allWaypoints[endIndex];
 
         // Draw debug spheres at start and end
-        Debug.Log($"Start waypoint: {startWaypoint.Position}, End waypoint: {endWaypoint.Position}");
-        // Gizmos.color = Color.green;
-        // Gizmos.DrawSphere(startWaypoint.Position, 0.2f);
-        // Gizmos.color = Color.red;
-        // Gizmos.DrawSphere(endWaypoint.Position, 0.2f);
+        Debug.Log($"Start waypoint: {startWaypoint.ParentCell.Position}, End waypoint: {endWaypoint.ParentCell.Position}");
     }
 
     private void FindAndDrawPath()
@@ -126,6 +96,7 @@ public class PathfindingTest : MonoBehaviour
         List<WaypointNode> entryWaypoints = new List<WaypointNode>();
 
         // Access WaypointManager's waypoints through reflection or a public getter
+        // For now, we'll iterate through all waypoints and filter for Entry types
         var waypointManager = WaypointManager.Instance;
 
         // You may need to add a public method to WaypointManager to access all waypoints
@@ -150,15 +121,15 @@ public class PathfindingTest : MonoBehaviour
         // Draw start waypoint
         if (startWaypoint != null)
         {
-            Gizmos.color = Color.green;
-            Gizmos.DrawSphere(startWaypoint.Position, 0.2f);
+            Gizmos.color = Color.blue;
+            Gizmos.DrawSphere(startWaypoint.Position, 0.4f);
         }
 
         // Draw end waypoint
         if (endWaypoint != null)
         {
-            Gizmos.color = Color.red;
-            Gizmos.DrawSphere(endWaypoint.Position, 0.2f);
+            Gizmos.color = Color.white;
+            Gizmos.DrawSphere(endWaypoint.Position, 0.4f);
         }
 
         // Draw current path

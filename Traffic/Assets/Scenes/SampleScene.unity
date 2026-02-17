@@ -349,7 +349,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 125, y: 100, z: 125}
+  m_LocalPosition: {x: 25, y: 45, z: 22.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -656,8 +656,8 @@ MonoBehaviour:
   config: {fileID: 11400000, guid: ac9c0926cd1df9549b1b42924525d025, type: 2}
   roadMeshFilter: {fileID: 0}
   pavementMeshFilter: {fileID: 0}
-  gridWidth: 50
-  gridHeight: 50
+  gridWidth: 10
+  gridHeight: 10
   cellSize: 5
   highlightMaterial: {fileID: 2100000, guid: fe6b55402d41d2844a269e9096682f86, type: 2}
   previewLine: {fileID: 0}
