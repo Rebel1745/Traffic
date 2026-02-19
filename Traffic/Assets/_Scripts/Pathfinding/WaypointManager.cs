@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -17,16 +18,34 @@ public class WaypointManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null) Instance = this;
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
     }
 
-    public void GenerateWaypoints(GridCell[,] grid)
+    private void OnEnable()
     {
+        // Subscribe to road grid updates
+        RoadMeshRenderer.OnRoadMeshUpdated += RoadMeshUpdated;
+    }
+
+    private void RoadMeshUpdated()
+    {
+        GenerateWaypoints();
+    }
+
+    public void GenerateWaypoints()
+    {
+        GridCell[,] grid = GridManager.Instance.GetGrid();
+
         cellWaypoints.Clear();
         allWaypoints.Clear();
 
-        laneCentre = RoadGrid.Instance.GetLaneWidth() / 2f;
-        halfCellSize = RoadGrid.Instance.GetCellSize() / 2f;
+        laneCentre = RoadMeshRenderer.Instance.GetLaneWidth() / 2f;
+        halfCellSize = GridManager.Instance.CellSize / 2f;
         quarterCellSize = halfCellSize / 2f;
 
         // First pass: Create waypoints for each cell
@@ -50,7 +69,7 @@ public class WaypointManager : MonoBehaviour
 
         List<WaypointNode> waypoints = new List<WaypointNode>();
 
-        cellCentre = RoadGrid.Instance.GetCellCentre(cell);
+        cellCentre = GridManager.Instance.GetCellCentre(cell);
 
         switch (cell.RoadType)
         {
@@ -78,19 +97,16 @@ public class WaypointManager : MonoBehaviour
         }
         cellWaypoints[cell].AddRange(waypoints);
         allWaypoints.AddRange(waypoints);
-
-        // Connect waypoints within this cell
-        //ConnectWaypointsWithinCell(cell, waypoints);
     }
 
     private List<WaypointNode> CreateStraightWaypoints(GridCell cell)
     {
         List<WaypointNode> waypoints = new List<WaypointNode>();
 
-        bool hasNorth = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.North);
-        bool hasSouth = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.South);
-        bool hasEast = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.East);
-        bool hasWest = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.West);
+        bool hasNorth = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.North);
+        bool hasSouth = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.South);
+        bool hasEast = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.East);
+        bool hasWest = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.West);
 
         if (hasNorth && hasSouth) // Vertical road
         {
@@ -152,15 +168,13 @@ public class WaypointManager : MonoBehaviour
     private List<WaypointNode> CreateCornerWaypoints(GridCell cell)
     {
         List<WaypointNode> waypoints = new List<WaypointNode>();
-        Vector3 cellCentre = RoadGrid.Instance.GetCellCentre(cell);
-        float laneCentre = RoadGrid.Instance.GetLaneWidth() / 2f;
-        float halfCellSize = RoadGrid.Instance.GetCellSize() / 2f;
+        Vector3 cellCentre = GridManager.Instance.GetCellCentre(cell);
 
         // Determine which directions have roads
-        bool hasNorth = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.North);
-        bool hasSouth = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.South);
-        bool hasEast = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.East);
-        bool hasWest = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.West);
+        bool hasNorth = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.North);
+        bool hasSouth = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.South);
+        bool hasEast = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.East);
+        bool hasWest = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.West);
 
         // Corner cases
         if (hasNorth && hasEast) // Corner from North to East
@@ -324,10 +338,10 @@ public class WaypointManager : MonoBehaviour
         List<WaypointNode> waypoints = new List<WaypointNode>();
 
         // Determine which directions have roads
-        bool hasNorth = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.North);
-        bool hasSouth = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.South);
-        bool hasEast = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.East);
-        bool hasWest = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.West);
+        bool hasNorth = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.North);
+        bool hasSouth = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.South);
+        bool hasEast = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.East);
+        bool hasWest = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.West);
 
         // T-Junction with North, East, and West (missing South)
         if (hasNorth && hasEast && hasWest && !hasSouth)
@@ -702,10 +716,10 @@ public class WaypointManager : MonoBehaviour
         List<WaypointNode> waypoints = new List<WaypointNode>();
 
         // Determine which directions have roads ( should all be true, but better check anyway )
-        bool hasNorth = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.North);
-        bool hasSouth = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.South);
-        bool hasEast = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.East);
-        bool hasWest = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.West);
+        bool hasNorth = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.North);
+        bool hasSouth = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.South);
+        bool hasEast = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.East);
+        bool hasWest = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.West);
 
         // Crossroads with all four directions
         if (hasNorth && hasSouth && hasEast && hasWest)
@@ -894,10 +908,10 @@ public class WaypointManager : MonoBehaviour
     {
         List<WaypointNode> waypoints = new List<WaypointNode>();
 
-        bool hasNorth = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.North);
-        bool hasSouth = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.South);
-        bool hasEast = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.East);
-        bool hasWest = RoadGrid.Instance.HasRoadNeighbor(cell, RoadDirection.West);
+        bool hasNorth = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.North);
+        bool hasSouth = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.South);
+        bool hasEast = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.East);
+        bool hasWest = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.West);
 
         Vector3 wpEntry = Vector3.zero, wpMidpoint1 = Vector3.zero, wpUTurn = Vector3.zero, wpMidpoint2 = Vector3.zero, wpExit = Vector3.zero;
         WaypointNode entry = null, midpoint1 = null, uTurn = null, midpoint2 = null, exit = null;
@@ -977,9 +991,9 @@ public class WaypointManager : MonoBehaviour
         {
             int nx = cell.Position.x + dx[i];
             int nz = cell.Position.z + dz[i];
-            if (nx >= 0 && nx < RoadGrid.Instance.GetGridWidth() && nz >= 0 && nz < RoadGrid.Instance.GetGridHeight())
+            if (nx >= 0 && nx < GridManager.Instance.GridWidth && nz >= 0 && nz < GridManager.Instance.GridHeight)
             {
-                GridCell neighbor = RoadGrid.Instance.GetGridCell(nx, nz);
+                GridCell neighbor = GridManager.Instance.GetCell(nx, nz);
                 if (neighbor != null && neighbor.CellType == CellType.Road)
                 {
                     // Connect waypoints to neighbor cell

@@ -8,7 +8,6 @@ public class GridCell
     public RoadType RoadType;
     public RoadDirection RoadDirection;
     public string CellInfo { get { return "Cell (" + Position.x + ", " + Position.z + ") Type: " + RoadType.ToString(); } }
-    public CellWaypointData WaypointData;
 }
 
 public enum CellType
