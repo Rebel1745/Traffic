@@ -165,35 +165,4 @@ public class VehicleController : MonoBehaviour
             isMoving = true;
         }
     }
-
-    private void OnDrawGizmos()
-    {
-        if (!showDebugInfo || Path == null || Path.Count == 0)
-            return;
-
-        // Draw current path
-        Gizmos.color = Color.cyan;
-        for (int i = currentWaypointIndex; i < Path.Count - 1; i++)
-        {
-            Gizmos.DrawLine(Path[i].Position, Path[i + 1].Position);
-        }
-
-        // Draw current target waypoint
-        if (currentWaypointIndex < Path.Count)
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(Path[currentWaypointIndex].Position, 0.3f);
-        }
-
-        // Draw final target
-        if (TargetWaypoint != null)
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(TargetWaypoint.Position, 0.5f);
-        }
-
-        // Draw vehicle direction
-        Gizmos.color = Color.blue;
-        Gizmos.DrawRay(transform.position, transform.forward * 2f);
-    }
 }

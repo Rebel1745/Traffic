@@ -6,117 +6,32 @@ public class VehicleManager : MonoBehaviour
 {
     public static VehicleManager Instance { get; private set; }
 
-    [Header("Vehicle Settings")]
-    [SerializeField] private GameObject vehiclePrefab;
-
-    [Header("Debug Settings")]
-    [SerializeField] private bool showDebugInfo;
-
     private List<VehicleController> activeVehicles = new List<VehicleController>();
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
+            return;
         }
+        Instance = this;
     }
 
-    private void Update()
+    public void RegisterVehicle(VehicleController vehicle)
     {
-        if (Input.GetMouseButtonUp(3))
+        if (vehicle != null && !activeVehicles.Contains(vehicle))
         {
-            SpawnVehicle();
-        }
-    }
-
-    public void SpawnVehicle()
-    {
-        // Get a random valid spawn location
-        WaypointNode startWaypoint = GetRandomEntryWaypoint();
-        if (startWaypoint == null)
-        {
-            Debug.LogWarning("No valid spawn location found!");
-            return;
-        }
-
-        // Get a random valid target
-        WaypointNode targetWaypoint = FindValidTarget(startWaypoint);
-        if (targetWaypoint == null)
-        {
-            Debug.LogWarning("No valid target found for spawn location!");
-            return;
-        }
-
-        // Find path
-        List<WaypointNode> path = AStarPathfinder.FindPath(startWaypoint, targetWaypoint);
-        if (path == null || path.Count == 0)
-        {
-            Debug.LogWarning("No path found between spawn and target!");
-            return;
-        }
-
-        // Spawn vehicle
-        GameObject vehicleObj = Instantiate(vehiclePrefab, startWaypoint.Position, Quaternion.identity);
-        VehicleController vehicle = vehicleObj.GetComponent<VehicleController>();
-
-        if (vehicle != null)
-        {
-            // Calculate initial rotation to face next waypoint
-            if (path.Count > 1)
-            {
-                Vector3 direction = (path[0].Position - path[0].Position).normalized;
-                vehicleObj.transform.rotation = Quaternion.LookRotation(direction);
-            }
-
-            vehicle.Initialize(path, targetWaypoint);
             activeVehicles.Add(vehicle);
-            Debug.Log($"Vehicle spawned at {startWaypoint.Position} with target {targetWaypoint.Position}");
-        }
-        else
-        {
-            Debug.LogError("Vehicle prefab does not have VehicleController component!");
-            Destroy(vehicleObj);
         }
     }
 
-    public WaypointNode GetRandomEntryWaypoint()
+    public void UnregisterVehicle(VehicleController vehicle)
     {
-        var allWaypoints = WaypointManager.Instance.GetAllWaypoints();
-        var entryWaypoints = allWaypoints.Where(w => w.Type == WaypointType.Entry).ToList();
-
-        if (entryWaypoints.Count == 0)
-            return null;
-
-        return entryWaypoints[Random.Range(0, entryWaypoints.Count)];
-    }
-
-    public WaypointNode FindValidTarget(WaypointNode startWaypoint, int maxAttempts = 10)
-    {
-        var allWaypoints = WaypointManager.Instance.GetAllWaypoints();
-        var entryWaypoints = allWaypoints.Where(w => w.Type == WaypointType.Entry && w != startWaypoint).ToList();
-
-        if (entryWaypoints.Count == 0)
-            return null;
-
-        // Try to find a valid target
-        for (int i = 0; i < maxAttempts; i++)
+        if (activeVehicles.Contains(vehicle))
         {
-            WaypointNode candidate = entryWaypoints[Random.Range(0, entryWaypoints.Count)];
-
-            // Check if path exists
-            List<WaypointNode> path = AStarPathfinder.FindPath(startWaypoint, candidate);
-            if (path != null && path.Count > 0)
-            {
-                return candidate;
-            }
+            activeVehicles.Remove(vehicle);
         }
-
-        return null;
     }
 
     public void RequestNewTarget(VehicleController vehicle)
@@ -152,6 +67,30 @@ public class VehicleManager : MonoBehaviour
         // Failed to find a valid target after 3 attempts
         Debug.LogWarning($"Failed to find valid target for vehicle after {maxAttempts} attempts. Destroying vehicle.");
         RemoveVehicle(vehicle);
+    }
+
+    private WaypointNode FindValidTarget(WaypointNode startWaypoint, int maxAttempts = 10)
+    {
+        var allWaypoints = WaypointManager.Instance.GetAllWaypoints();
+        var entryWaypoints = allWaypoints.Where(w => w.Type == WaypointType.Entry && w != startWaypoint).ToList();
+
+        if (entryWaypoints.Count == 0)
+            return null;
+
+        // Try to find a valid target
+        for (int i = 0; i < maxAttempts; i++)
+        {
+            WaypointNode candidate = entryWaypoints[Random.Range(0, entryWaypoints.Count)];
+
+            // Check if path exists
+            List<WaypointNode> path = AStarPathfinder.FindPath(startWaypoint, candidate);
+            if (path != null && path.Count > 0)
+            {
+                return candidate;
+            }
+        }
+
+        return null;
     }
 
     public void RemoveVehicle(VehicleController vehicle)
@@ -255,21 +194,8 @@ public class VehicleManager : MonoBehaviour
         return activeVehicles.Count;
     }
 
-    private void OnDrawGizmos()
+    public List<VehicleController> GetActiveVehicles()
     {
-        if (activeVehicles == null || !showDebugInfo) return;
-
-        // Draw vehicle paths
-        foreach (var vehicle in activeVehicles)
-        {
-            if (vehicle != null && vehicle.Path != null && vehicle.Path.Count > 1)
-            {
-                Gizmos.color = Color.yellow;
-                for (int i = 0; i < vehicle.Path.Count - 1; i++)
-                {
-                    Gizmos.DrawLine(vehicle.Path[i].Position, vehicle.Path[i + 1].Position);
-                }
-            }
-        }
+        return new List<VehicleController>(activeVehicles);
     }
 }
