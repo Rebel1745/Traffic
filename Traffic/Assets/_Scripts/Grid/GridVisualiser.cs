@@ -29,7 +29,6 @@ public class GridVisualiser : MonoBehaviour
     {
         cellSize = GridManager.Instance.CellSize;
 
-        // Initialize line renderer
         if (previewLine == null)
         {
             GameObject previewObj = new GameObject("RoadPreview");
@@ -38,8 +37,15 @@ public class GridVisualiser : MonoBehaviour
             previewLine.startWidth = cellSize * previewLineWidthMultiplier;
             previewLine.endWidth = cellSize * previewLineWidthMultiplier;
             previewLine.material = new Material(Shader.Find("Sprites/Default"));
-            previewLine.startColor = Color.dimGray;
-            previewLine.endColor = Color.dimGray;
+            previewLine.startColor = Color.gray;
+            previewLine.endColor = Color.gray;
+
+            // Fix billboarding - align to Transform Z so it lies flat on the ground
+            previewLine.alignment = LineAlignment.TransformZ;
+
+            // Rotate the parent object so the Z axis points downward into the ground plane
+            previewObj.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+
             previewLine.enabled = false;
         }
     }

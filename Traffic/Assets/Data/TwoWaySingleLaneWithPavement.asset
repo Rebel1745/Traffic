@@ -15,8 +15,8 @@ MonoBehaviour:
   laneWidth: 1.75
   pavementWidth: 0.75
   cornerSegments: 8
-  roadThickness: 0.5
-  pavementThickness: 1
+  roadThickness: 0.1
+  pavementThickness: 0.2
   nodeSnapDistance: 1
   roadMaterial: {fileID: 2100000, guid: 26d7a615e254cc945ba0f15daf8d6906, type: 2}
   pavementMaterial: {fileID: 2100000, guid: eec5e872fef3a5c4599fd8e41ed0d1a0, type: 2}

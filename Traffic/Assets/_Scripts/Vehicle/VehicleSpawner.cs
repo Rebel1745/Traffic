@@ -6,7 +6,7 @@ public class VehicleSpawner : MonoBehaviour
 {
     public static VehicleSpawner Instance { get; private set; }
 
-    [SerializeField] private GameObject vehiclePrefab;
+    [SerializeField] private GameObject[] vehiclePrefabs;
 
     private void Awake()
     {
@@ -65,6 +65,7 @@ public class VehicleSpawner : MonoBehaviour
             return;
         }
 
+        GameObject vehiclePrefab = GetRandomVehiclePrefab();
         // Spawn vehicle
         GameObject vehicleObj = Instantiate(vehiclePrefab, startWaypoint.Position, Quaternion.identity);
         VehicleController vehicle = vehicleObj.GetComponent<VehicleController>();
@@ -122,5 +123,10 @@ public class VehicleSpawner : MonoBehaviour
         }
 
         return null;
+    }
+
+    private GameObject GetRandomVehiclePrefab()
+    {
+        return vehiclePrefabs[Random.Range(0, vehiclePrefabs.Length)];
     }
 }
