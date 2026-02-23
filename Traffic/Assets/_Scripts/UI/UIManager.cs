@@ -1,8 +1,10 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
+    [SerializeField] private List<ButtonGroup> topLevelGroups;
 
     private void Awake()
     {
@@ -14,43 +16,19 @@ public class UIManager : MonoBehaviour
         Instance = this;
     }
 
-    // Called by UI buttons in the Inspector
-    public void OnPlaceRoadsButtonClicked()
+    private void Start()
     {
-        SimulationManager.Instance.SetState(SimulationState.PlacingRoads);
+        foreach (ButtonGroup group in topLevelGroups)
+            group.OnSelectionChanged += _ => OnAnyTopLevelGroupChanged(group);
     }
 
-    public void OnPlaceTrafficLightsButtonClicked()
+    private void OnAnyTopLevelGroupChanged(ButtonGroup activeGroup)
     {
-        SimulationManager.Instance.SetState(SimulationState.PlacingTrafficLights);
-    }
-
-    public void OnPlaceBuildingsButtonClicked()
-    {
-        SimulationManager.Instance.SetState(SimulationState.PlacingBuildings);
-    }
-
-    public void OnSpawnVehicleButtonClicked()
-    {
-        // Only spawn if in running state
-        if (SimulationManager.Instance.IsInState(SimulationState.Running))
+        // Deselect all other top-level groups
+        foreach (ButtonGroup group in topLevelGroups)
         {
-            VehicleSpawner.Instance.SpawnVehicle();
+            if (group != activeGroup)
+                group.Deselect();
         }
-    }
-
-    public void OnPauseButtonClicked()
-    {
-        SimulationManager.Instance.TogglePause();
-    }
-
-    public void OnReturnToRunningButtonClicked()
-    {
-        SimulationManager.Instance.ReturnToRunning();
-    }
-
-    public void OnSimulationSpeedChanged(float speed)
-    {
-        SimulationManager.Instance.SetSimulationSpeed(speed);
     }
 }

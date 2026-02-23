@@ -11,7 +11,7 @@ public class SimulationManager : MonoBehaviour
     public static event Action<float> OnSimulationSpeedChanged;
 
     // State
-    public SimulationState CurrentState { get; private set; } = SimulationState.PlacingRoads;
+    public SimulationState CurrentState { get; private set; } = SimulationState.Running;
 
     // Speed
     [SerializeField, Range(0f, 5f)] private float simulationSpeed = 1f;
