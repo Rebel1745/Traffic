@@ -6,16 +6,10 @@ public class SimulationManager : MonoBehaviour
     // Singleton
     public static SimulationManager Instance { get; private set; }
 
+    public GameStateContext CurrentState { get; private set; }
+
     // Events
-    public static event Action<SimulationState> OnStateChanged;
-    public static event Action<float> OnSimulationSpeedChanged;
-
-    // State
-    public SimulationState CurrentState { get; private set; } = SimulationState.Running;
-
-    // Speed
-    [SerializeField, Range(0f, 5f)] private float simulationSpeed = 1f;
-    public float SimulationSpeed => simulationSpeed;
+    public event Action<GameStateContext> OnStateChanged;
 
     private void Awake()
     {
@@ -25,62 +19,61 @@ public class SimulationManager : MonoBehaviour
             return;
         }
         Instance = this;
-    }
 
-    private void Start()
-    {
-        SetSimulationSpeed(simulationSpeed);
+        SetSimulationState(SimulationState.Running);
     }
 
     // State management
-    public void SetState(SimulationState newState)
+    public void SetSimulationState(SimulationState state)
     {
-        if (CurrentState == newState) return;
+        // Reset all sub-states when changing main state
+        CurrentState = new GameStateContext
+        {
+            SimulationState = state,
+            RoadSubState = RoadSubState.None,
+            VehicleSubState = VehicleSubState.None,
+            TrafficLightSubState = TrafficLightSubState.None
+        };
 
-        CurrentState = newState;
         OnStateChanged?.Invoke(CurrentState);
-
-        // Pause Unity's time when simulation is paused
-        Time.timeScale = (CurrentState == SimulationState.Paused) ? 0f : simulationSpeed;
-
-        Debug.Log($"Simulation state changed to: {CurrentState}");
     }
 
-    public bool IsInState(SimulationState state) => CurrentState == state;
-
-    // Speed management
-    public void SetSimulationSpeed(float speed)
+    public void SetRoadSubState(RoadSubState subState)
     {
-        simulationSpeed = Mathf.Clamp(speed, 0f, 5f);
+        CurrentState = new GameStateContext
+        {
+            SimulationState = SimulationState.Roads,
+            RoadSubState = subState,
+            VehicleSubState = VehicleSubState.None,
+            TrafficLightSubState = TrafficLightSubState.None
+        };
 
-        // Don't change timescale if paused
-        if (CurrentState != SimulationState.Paused)
-            Time.timeScale = simulationSpeed;
-
-        OnSimulationSpeedChanged?.Invoke(simulationSpeed);
+        OnStateChanged?.Invoke(CurrentState);
     }
 
-    public void TogglePause()
+    public void SetVehicleSubState(VehicleSubState subState)
     {
-        if (CurrentState == SimulationState.Paused)
-            SetState(SimulationState.Running);
-        else
-            SetState(SimulationState.Paused);
+        CurrentState = new GameStateContext
+        {
+            SimulationState = SimulationState.Vehicles,
+            RoadSubState = RoadSubState.None,
+            VehicleSubState = subState,
+            TrafficLightSubState = TrafficLightSubState.None
+        };
+
+        OnStateChanged?.Invoke(CurrentState);
     }
 
-    // Convenience methods for placement modes
-    public void StartPlacingRoads() => SetState(SimulationState.PlacingRoads);
-    public void StartPlacingTrafficLights() => SetState(SimulationState.PlacingTrafficLights);
-    public void StartPlacingBuildings() => SetState(SimulationState.PlacingBuildings);
-    public void ReturnToRunning() => SetState(SimulationState.Running);
-}
+    public void SetTrafficLightSubState(TrafficLightSubState subState)
+    {
+        CurrentState = new GameStateContext
+        {
+            SimulationState = SimulationState.TrafficLights,
+            RoadSubState = RoadSubState.None,
+            VehicleSubState = VehicleSubState.None,
+            TrafficLightSubState = subState
+        };
 
-public enum SimulationState
-{
-    Empty,
-    Running,
-    Paused,
-    PlacingRoads,
-    PlacingTrafficLights,
-    PlacingBuildings
+        OnStateChanged?.Invoke(CurrentState);
+    }
 }

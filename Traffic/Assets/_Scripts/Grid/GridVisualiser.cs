@@ -48,10 +48,7 @@ public class GridVisualiser : MonoBehaviour
 
             previewLine.enabled = false;
         }
-    }
 
-    private void OnEnable()
-    {
         // Subscribe to input events
         InputManager.OnLeftClickPressed += HandleLeftClickPressed;
         InputManager.OnLeftClickReleased += HandleLeftClickReleased;
@@ -59,7 +56,7 @@ public class GridVisualiser : MonoBehaviour
         InputManager.OnMouseMoved += HandleMouseMoved;
 
         // Subscribe to simulation state changes
-        SimulationManager.OnStateChanged += HandleStateChanged;
+        SimulationManager.Instance.OnStateChanged += HandleStateChanged;
     }
 
     private void OnDisable()
@@ -71,7 +68,7 @@ public class GridVisualiser : MonoBehaviour
         InputManager.OnMouseMoved -= HandleMouseMoved;
 
         // Unsubscribe from simulation state changes
-        SimulationManager.OnStateChanged -= HandleStateChanged;
+        SimulationManager.Instance.OnStateChanged -= HandleStateChanged;
 
         if (highlightedCell != null)
         {
@@ -82,15 +79,15 @@ public class GridVisualiser : MonoBehaviour
     private void Update()
     {
         // Only update hover highlight when in road placement mode
-        if (SimulationManager.Instance.IsInState(SimulationState.PlacingRoads))
+        if (SimulationManager.Instance.CurrentState.SimulationState == SimulationState.Roads)
         {
             UpdateHoverHighlight();
         }
     }
 
-    private void HandleStateChanged(SimulationState newState)
+    private void HandleStateChanged(GameStateContext newState)
     {
-        if (newState == SimulationState.PlacingRoads)
+        if (newState.SimulationState == SimulationState.Roads)
         {
             EnableRoadPlacementVisuals();
         }
@@ -122,7 +119,7 @@ public class GridVisualiser : MonoBehaviour
     private void HandleLeftClickPressed(Vector2 screenPosition)
     {
         // Only handle input when in road placement mode
-        if (!SimulationManager.Instance.IsInState(SimulationState.PlacingRoads))
+        if (SimulationManager.Instance.CurrentState.SimulationState != SimulationState.Roads)
             return;
 
         Vector3? hitPoint = GridManager.Instance.GetGroundHitPoint();
@@ -137,7 +134,7 @@ public class GridVisualiser : MonoBehaviour
     private void HandleLeftClickReleased(Vector2 screenPosition)
     {
         // Only handle input when in road placement mode
-        if (!SimulationManager.Instance.IsInState(SimulationState.PlacingRoads))
+        if (SimulationManager.Instance.CurrentState.SimulationState != SimulationState.Roads)
             return;
 
         if (!isDragging)
@@ -190,7 +187,7 @@ public class GridVisualiser : MonoBehaviour
     private void HandleRightClickPressed(Vector2 screenPosition)
     {
         // Only handle input when in road placement mode
-        if (!SimulationManager.Instance.IsInState(SimulationState.PlacingRoads))
+        if (SimulationManager.Instance.CurrentState.SimulationState != SimulationState.Roads)
             return;
 
         Vector3? hitPoint = GridManager.Instance.GetGroundHitPoint();
@@ -210,7 +207,7 @@ public class GridVisualiser : MonoBehaviour
     private void HandleMouseMoved(Vector2 screenPosition)
     {
         // Only update mouse position when in road placement mode
-        if (!SimulationManager.Instance.IsInState(SimulationState.PlacingRoads))
+        if (SimulationManager.Instance.CurrentState.SimulationState != SimulationState.Roads)
             return;
 
         if (isDragging)

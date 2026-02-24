@@ -11,7 +11,7 @@ public class ButtonGroup : MonoBehaviour
 
     private ToggleButton _activeButton;
 
-    private void Awake()
+    private void Start()
     {
         foreach (ToggleButton button in buttons)
         {

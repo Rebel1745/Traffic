@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System;
+using UnityEngine.EventSystems;
 
 public class InputManager : MonoBehaviour
 {
@@ -86,6 +87,25 @@ public class InputManager : MonoBehaviour
         // Disable action maps
         inputActions.Gameplay.Disable();
         inputActions.Camera.Disable();
+    }
+    private void Update()
+    {
+        DoNotClickUIAndGameAtSameTime();
+
+    }
+
+    private void DoNotClickUIAndGameAtSameTime()
+    {
+        if (EventSystem.current.IsPointerOverGameObject())
+        {
+            inputActions.Gameplay.Disable();
+            inputActions.Camera.Disable();
+        }
+        else
+        {
+            inputActions.Gameplay.Enable();
+            inputActions.Camera.Enable();
+        }
     }
 
     // Mouse input handlers
