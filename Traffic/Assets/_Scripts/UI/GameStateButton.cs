@@ -3,12 +3,10 @@ using UnityEngine.UI;
 
 public class GameStateButton : MonoBehaviour
 {
-    [Header("Main State")]
-    [SerializeField] private SimulationState simulationState;
+    [Header("Main State")][SerializeField] private SimulationState simulationState;
     [SerializeField] private bool setSimulationState = false;
 
-    [Header("Sub States")]
-    [SerializeField] private RoadSubState roadSubState;
+    [Header("Sub States")][SerializeField] private RoadSubState roadSubState;
     [SerializeField] private VehicleSubState vehicleSubState;
     [SerializeField] private TrafficLightSubState trafficLightSubState;
 
@@ -19,12 +17,19 @@ public class GameStateButton : MonoBehaviour
 
     private void OnButtonClicked()
     {
-        // No need to check which button was selected, this only fires for this button
         if (setSimulationState)
         {
             SimulationManager.Instance.SetSimulationState(simulationState);
             return;
         }
+
+        // Defer sub-state change to next frame so main state sets first
+        StartCoroutine(SetSubStateNextFrame());
+    }
+
+    private System.Collections.IEnumerator SetSubStateNextFrame()
+    {
+        yield return null; // Wait one frame
 
         switch (SimulationManager.Instance.CurrentState.SimulationState)
         {

@@ -62,7 +62,7 @@ public class ButtonGroup : MonoBehaviour
         }
     }
 
-    public ToggleButton GetFirstButton(bool includeInactive)
+    public ToggleButton GetFirstButton(bool includeInactive = false)
     {
         if (buttons.Count == 0) return null;
 
@@ -74,5 +74,10 @@ public class ButtonGroup : MonoBehaviour
         }
 
         return null;
+    }
+
+    public List<ToggleButton> GetAllButtons()
+    {
+        return buttons;
     }
 }
