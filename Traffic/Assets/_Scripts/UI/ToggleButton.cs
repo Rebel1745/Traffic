@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -50,8 +52,19 @@ public class ToggleButton : MonoBehaviour
         _image.color = isActive ? activeColor : normalColor;
 
         // Only disable button if it's not collapsible
-        if (!collapsible)
+        if (collapsible)
+            StartCoroutine(UnDisableButton(isActive));
+        else
             _button.interactable = !isActive;
+    }
+
+    private IEnumerator UnDisableButton(bool disable)
+    {
+        _button.interactable = !disable;
+
+        yield return new WaitForSeconds(0.5f);
+
+        _button.interactable = disable;
     }
 
     public void ShowSubGroup(bool show)
@@ -99,6 +112,8 @@ public class ToggleButton : MonoBehaviour
 
     private void Collapse()
     {
+        // disable then re-enable
+        StartCoroutine(UnDisableButton(true));
         // Recursively collapse all nested sub-buttons
         CollapseNestedMenus(0);
 
@@ -127,12 +142,14 @@ public class ToggleButton : MonoBehaviour
         foreach (ToggleButton button in allButtons)
         {
             if (button == null) continue;
-            if (!button.gameObject.activeInHierarchy) continue; // Skip inactive buttons
-            Debug.Log(button.name + " deactivate");
+            if (!button.gameObject.activeInHierarchy) continue;
             button.SetActive(false);
         }
 
-        // Finally, hide the sub-group container
-        subGroup.ShowHideButtons(false);
+        // Finally, animate out the sub-group container
+        if (subGroup != null)
+        {
+            subGroup.AnimateButtonsOut();
+        }
     }
 }

@@ -2123,6 +2123,10 @@ MonoBehaviour:
   - {fileID: 1042404817}
   - {fileID: 3498930}
   hideOnStartup: 1
+  isVertical: 1
+  animationDuration: 0.2
+  staggerDelay: 0.05
+  slideDistance: 50
 --- !u!114 &946503453
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3258,6 +3262,10 @@ MonoBehaviour:
   - {fileID: 132440637}
   - {fileID: 130653192}
   hideOnStartup: 1
+  isVertical: 0
+  animationDuration: 0.2
+  staggerDelay: 0.05
+  slideDistance: 50
 --- !u!114 &1266757695
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3386,6 +3394,10 @@ MonoBehaviour:
   - {fileID: 880858899}
   - {fileID: 1083717940}
   hideOnStartup: 1
+  isVertical: 0
+  animationDuration: 0.2
+  staggerDelay: 0.05
+  slideDistance: 50
 --- !u!114 &1468431310
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3716,9 +3728,9 @@ MonoBehaviour:
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_PressedColor: {r: 1, g: 1, b: 1, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_DisabledColor: {r: 1, g: 1, b: 1, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -4849,6 +4861,10 @@ MonoBehaviour:
   - {fileID: 2020872342}
   - {fileID: 442702709}
   hideOnStartup: 1
+  isVertical: 0
+  animationDuration: 0.2
+  staggerDelay: 0.05
+  slideDistance: 50
 --- !u!114 &1809089617
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5243,6 +5259,10 @@ MonoBehaviour:
   buttons:
   - {fileID: 1613731755}
   hideOnStartup: 0
+  isVertical: 1
+  animationDuration: 0.2
+  staggerDelay: 0.05
+  slideDistance: 50
 --- !u!114 &2135813884
 MonoBehaviour:
   m_ObjectHideFlags: 0
