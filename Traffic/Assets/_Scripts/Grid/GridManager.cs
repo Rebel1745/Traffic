@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 
-public class GridManager : MonoBehaviour
+public class GridManager : MonoBehaviour, ISaveable
 {
     public static GridManager Instance { get; private set; }
 
@@ -19,6 +19,8 @@ public class GridManager : MonoBehaviour
     public float CellSize => cellSize;
     public Vector3 GridOrigin => gridOrigin;
 
+    public string SaveKey => "Grid";
+
     public static event Action OnRoadGridUpdated;
 
     private void Awake()
@@ -34,6 +36,18 @@ public class GridManager : MonoBehaviour
     private void Start()
     {
         InitializeGrid();
+    }
+
+    private void OnEnable()
+    {
+        if (SaveManager.Instance != null)
+            SaveManager.Instance.RegisterSaveable(this);
+    }
+
+    private void OnDisable()
+    {
+        if (SaveManager.Instance != null)
+            SaveManager.Instance.UnregisterSaveable(this);
     }
 
     private void InitializeGrid()
@@ -344,6 +358,89 @@ public class GridManager : MonoBehaviour
     {
         // This method should trigger the road mesh regeneration
         // Since we're separating concerns, we'll create an event for this
+        OnRoadGridUpdated?.Invoke();
+    }
+
+    public void PopulateSaveData(GameSaveData saveData)
+    {
+        var gridData = new GridSaveData { width = gridWidth, height = gridHeight };
+
+        for (int x = 0; x < gridWidth; x++)
+        {
+            for (int z = 0; z < gridHeight; z++)
+            {
+                var cell = grid[x, z];
+
+                // Only save non-empty cells
+                if (cell.CellType == CellType.Empty)
+                    continue;
+
+                var cellData = new GridCellSaveData
+                {
+                    x = cell.Position.x,
+                    y = cell.Position.y,
+                    z = cell.Position.z,
+                    cellType = cell.CellType,
+                    roadType = cell.RoadType,
+                    roadDirection = cell.RoadDirection
+                };
+                gridData.cells.Add(cellData);
+            }
+        }
+
+        saveData.grid = gridData;
+    }
+
+    public void LoadFromSaveData(GameSaveData saveData)
+    {
+        if (saveData.grid == null)
+        {
+            Debug.LogWarning("[GridManager] No grid data in save file.");
+            return;
+        }
+
+        var gridData = saveData.grid;
+        gridWidth = gridData.width;
+        gridHeight = gridData.height;
+
+        // Initialize grid with all Empty cells
+        grid = new GridCell[gridWidth, gridHeight];
+        for (int x = 0; x < gridWidth; x++)
+        {
+            for (int z = 0; z < gridHeight; z++)
+            {
+                grid[x, z] = new GridCell
+                {
+                    Position = new Vector3Int(x, 0, z),
+                    CellType = CellType.Empty,
+                    RoadType = RoadType.Empty,
+                    RoadDirection = RoadDirection.North
+                };
+            }
+        }
+
+        // Only load the non-empty cells from save data
+        foreach (var cellData in gridData.cells)
+        {
+            var position = new Vector3Int(cellData.x, cellData.y, cellData.z);
+            var cell = new GridCell
+            {
+                Position = position,
+                CellType = cellData.cellType,
+                RoadType = cellData.roadType,
+                RoadDirection = cellData.roadDirection
+            };
+
+            int gridX = cellData.x;
+            int gridZ = cellData.z;
+
+            if (gridX >= 0 && gridX < gridWidth && gridZ >= 0 && gridZ < gridHeight)
+                grid[gridX, gridZ] = cell;
+            else
+                Debug.LogWarning($"[GridManager] Cell at ({gridX}, {gridZ}) is out of bounds.");
+        }
+
+        Debug.Log($"[GridManager] Loaded {gridWidth}x{gridHeight} grid with {gridData.cells.Count} non-empty cells.");
         OnRoadGridUpdated?.Invoke();
     }
 }

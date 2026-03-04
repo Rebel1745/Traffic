@@ -31,4 +31,14 @@ public class UIManager : MonoBehaviour
                 group.Deselect();
         }
     }
+
+    public void SaveGame()
+    {
+        SaveManager.Instance.Save();
+    }
+
+    public void LoadGame()
+    {
+        SaveManager.Instance.Load();
+    }
 }

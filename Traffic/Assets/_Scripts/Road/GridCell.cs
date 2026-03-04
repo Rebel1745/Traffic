@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GridCell
@@ -7,7 +6,6 @@ public class GridCell
     public CellType CellType;
     public RoadType RoadType;
     public RoadDirection RoadDirection;
-    public string CellInfo { get { return "Cell (" + Position.x + ", " + Position.z + ") Type: " + RoadType.ToString(); } }
 }
 
 public enum CellType
