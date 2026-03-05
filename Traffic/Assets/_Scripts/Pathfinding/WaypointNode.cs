@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class WaypointNode
 {
+    public string Id { get; set; }
     public Vector3 Position { get; set; }
     public List<WaypointConnection> Connections { get; set; }
     public GridCell ParentCell { get; set; }
@@ -10,6 +11,7 @@ public class WaypointNode
 
     public WaypointNode(Vector3 position, GridCell parentCell, WaypointType type)
     {
+        Id = System.Guid.NewGuid().ToString();
         Position = position;
         ParentCell = parentCell;
         Type = type;

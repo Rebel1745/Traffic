@@ -3,10 +3,12 @@ using UnityEngine.UI;
 
 public class GameStateButton : MonoBehaviour
 {
-    [Header("Main State")][SerializeField] private SimulationState simulationState;
-    [SerializeField] private bool setSimulationState = false;
+    [Header("Main State")]
+    [SerializeField] private SimulationState _simulationState;
+    [SerializeField] private bool _setSimulationState = false;
 
-    [Header("Sub States")][SerializeField] private RoadSubState roadSubState;
+    [Header("Sub States")]
+    [SerializeField] private RoadSubState roadSubState;
     [SerializeField] private VehicleSubState vehicleSubState;
     [SerializeField] private TrafficLightSubState trafficLightSubState;
 
@@ -17,9 +19,9 @@ public class GameStateButton : MonoBehaviour
 
     private void OnButtonClicked()
     {
-        if (setSimulationState)
+        if (_setSimulationState)
         {
-            SimulationManager.Instance.SetSimulationState(simulationState);
+            SimulationManager.Instance.SetSimulationState(_simulationState);
             return;
         }
 

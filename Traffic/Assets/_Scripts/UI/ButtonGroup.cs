@@ -5,14 +5,14 @@ using DG.Tweening;
 
 public class ButtonGroup : MonoBehaviour
 {
-    [SerializeField] private List<ToggleButton> buttons;
-    [SerializeField] private bool hideOnStartup = true;
+    [SerializeField] private List<ToggleButton> _buttons;
+    [SerializeField] private bool _hideOnStartup = true;
 
     [Header("Animation")]
-    [SerializeField] private bool isVertical = true; // True = vertical, False = horizontal
-    [SerializeField] private float animationDuration = 0.2f;
-    [SerializeField] private float staggerDelay = 0.05f;
-    [SerializeField] private float slideDistance = 50f; // Distance to slide from
+    [SerializeField] private bool _isVertical = true; // True = vertical, False = horizontal
+    [SerializeField] private float _animationDuration = 0.2f;
+    [SerializeField] private float _staggerDelay = 0.05f;
+    [SerializeField] private float _slideDistance = 50f; // Distance to slide from
 
     public event Action<ToggleButton> OnSelectionChanged;
 
@@ -20,13 +20,13 @@ public class ButtonGroup : MonoBehaviour
 
     private void Start()
     {
-        foreach (ToggleButton button in buttons)
+        foreach (ToggleButton button in _buttons)
             button.SetGroup(this);
 
-        // If buttons are visible on startup, just show them without animation
-        if (!hideOnStartup)
+        // If _buttons are visible on startup, just show them without animation
+        if (!_hideOnStartup)
         {
-            foreach (ToggleButton button in buttons)
+            foreach (ToggleButton button in _buttons)
                 button.gameObject.SetActive(true);
         }
     }
@@ -41,23 +41,23 @@ public class ButtonGroup : MonoBehaviour
 
     private void AnimateButtonsIn()
     {
-        for (int i = 0; i < buttons.Count; i++)
+        for (int i = 0; i < _buttons.Count; i++)
         {
-            ToggleButton button = buttons[i];
+            ToggleButton button = _buttons[i];
             RectTransform rect = button.GetComponent<RectTransform>();
 
             // Kill any existing tweens on this button
             rect.DOKill(complete: true);
 
-            Vector2 startOffset = isVertical
-                ? new Vector2(0, -slideDistance)
-                : new Vector2(-slideDistance, 0);
+            Vector2 startOffset = _isVertical
+                ? new Vector2(0, -_slideDistance)
+                : new Vector2(-_slideDistance, 0);
 
             button.gameObject.SetActive(true);
             rect.anchoredPosition += startOffset;
 
-            rect.DOAnchorPos(rect.anchoredPosition - startOffset, animationDuration)
-                .SetDelay(i * staggerDelay)
+            rect.DOAnchorPos(rect.anchoredPosition - startOffset, _animationDuration)
+                .SetDelay(i * _staggerDelay)
                 .SetEase(Ease.OutCubic);
         }
     }
@@ -66,33 +66,33 @@ public class ButtonGroup : MonoBehaviour
     {
         Sequence sequence = DOTween.Sequence();
 
-        for (int i = 0; i < buttons.Count; i++)
+        for (int i = 0; i < _buttons.Count; i++)
         {
-            ToggleButton button = buttons[i];
+            ToggleButton button = _buttons[i];
             RectTransform rect = button.GetComponent<RectTransform>();
 
             rect.DOKill(complete: true);
 
-            Vector2 endOffset = isVertical
-                ? new Vector2(0, -slideDistance)
-                : new Vector2(-slideDistance, 0);
+            Vector2 endOffset = _isVertical
+                ? new Vector2(0, -_slideDistance)
+                : new Vector2(-_slideDistance, 0);
 
             // Add animation to sequence
-            sequence.Insert(i * staggerDelay,
-                rect.DOAnchorPos(rect.anchoredPosition + endOffset, animationDuration)
+            sequence.Insert(i * _staggerDelay,
+                rect.DOAnchorPos(rect.anchoredPosition + endOffset, _animationDuration)
                     .SetEase(Ease.InCubic));
         }
 
-        // After all animations complete, hide buttons
+        // After all animations complete, hide _buttons
         sequence.OnComplete(() =>
         {
-            foreach (ToggleButton button in buttons)
+            foreach (ToggleButton button in _buttons)
             {
                 button.gameObject.SetActive(false);
                 RectTransform rect = button.GetComponent<RectTransform>();
-                Vector2 endOffset = isVertical
-                    ? new Vector2(0, -slideDistance)
-                    : new Vector2(-slideDistance, 0);
+                Vector2 endOffset = _isVertical
+                    ? new Vector2(0, -_slideDistance)
+                    : new Vector2(-_slideDistance, 0);
                 rect.anchoredPosition -= endOffset;
             }
         });
@@ -114,7 +114,7 @@ public class ButtonGroup : MonoBehaviour
         _activeButton.ShowSubGroup(true);
 
         // Hide any other button's sub-group
-        foreach (ToggleButton button in buttons)
+        foreach (ToggleButton button in _buttons)
         {
             if (button != _activeButton)
                 button.ShowSubGroup(false);
@@ -135,11 +135,11 @@ public class ButtonGroup : MonoBehaviour
 
     public ToggleButton GetFirstButton(bool includeInactive = false)
     {
-        if (buttons.Count == 0) return null;
+        if (_buttons.Count == 0) return null;
 
-        if (includeInactive) return buttons[0];
+        if (includeInactive) return _buttons[0];
 
-        foreach (ToggleButton button in buttons)
+        foreach (ToggleButton button in _buttons)
         {
             if (button.gameObject.activeInHierarchy) return button;
         }
@@ -147,7 +147,7 @@ public class ButtonGroup : MonoBehaviour
         return null;
     }
 
-    public List<ToggleButton> GetAllButtons() => buttons;
-    public float GetAnimationDuration() => animationDuration;
-    public float GetStaggerDelay() => staggerDelay;
+    public List<ToggleButton> GetAllButtons() => _buttons;
+    public float GetAnimationDuration() => _animationDuration;
+    public float GetStaggerDelay() => _staggerDelay;
 }

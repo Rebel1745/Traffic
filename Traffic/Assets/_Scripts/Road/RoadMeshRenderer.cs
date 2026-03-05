@@ -5,13 +5,13 @@ public class RoadMeshRenderer : MonoBehaviour
 {
     public static RoadMeshRenderer Instance;
 
-    [SerializeField] private MeshFilter roadMeshFilter;
-    [SerializeField] private MeshFilter pavementMeshFilter;
-    [SerializeField] private RoadConfig config;
+    [SerializeField] private MeshFilter _roadMeshFilter;
+    [SerializeField] private MeshFilter _pavementMeshFilter;
+    [SerializeField] private RoadConfig _config;
 
-    private RoadMeshGenerator generator;
+    private RoadMeshGenerator _generator;
 
-    public static event Action OnRoadMeshUpdated;
+    public event Action OnRoadMeshUpdated;
 
     private void Awake()
     {
@@ -28,45 +28,50 @@ public class RoadMeshRenderer : MonoBehaviour
     private void OnEnable()
     {
         // Subscribe to road grid updates
-        GridManager.OnRoadGridUpdated += UpdateRoadMesh;
+        GridManager.OnRoadGridUpdated += OnGridUpdated;
     }
 
     private void OnDisable()
     {
         // Subscribe to road grid updates
-        GridManager.OnRoadGridUpdated -= UpdateRoadMesh;
+        GridManager.OnRoadGridUpdated -= OnGridUpdated;
     }
 
     private void Initialise()
     {
-        generator = new RoadMeshGenerator(config);
+        _generator = new RoadMeshGenerator(_config);
 
-        if (roadMeshFilter == null)
+        if (_roadMeshFilter == null)
         {
             GameObject roadObj = new GameObject("RoadMesh");
             roadObj.transform.parent = transform;
-            roadMeshFilter = roadObj.AddComponent<MeshFilter>();
+            _roadMeshFilter = roadObj.AddComponent<MeshFilter>();
             MeshRenderer renderer = roadObj.AddComponent<MeshRenderer>();
-            renderer.material = config.roadMaterial;
+            renderer.material = _config.roadMaterial;
         }
 
-        if (pavementMeshFilter == null)
+        if (_pavementMeshFilter == null)
         {
             GameObject pavementObj = new GameObject("PavementMesh");
             pavementObj.transform.parent = transform;
-            pavementMeshFilter = pavementObj.AddComponent<MeshFilter>();
+            _pavementMeshFilter = pavementObj.AddComponent<MeshFilter>();
             MeshRenderer renderer = pavementObj.AddComponent<MeshRenderer>();
-            renderer.material = config.pavementMaterial;
+            renderer.material = _config.pavementMaterial;
         }
     }
 
-    private void UpdateRoadMesh()
+    private void OnGridUpdated()
     {
-        if (roadMeshFilter == null || pavementMeshFilter == null)
+        UpdateRoadMesh(true);
+    }
+
+    public void UpdateRoadMesh(bool fireEvent = true)
+    {
+        if (_roadMeshFilter == null || _pavementMeshFilter == null)
             return;
 
-        MeshData roadMeshData = generator.GenerateRoadNetwork(GridManager.Instance.GetGrid(), GridManager.Instance.GridOrigin, GridManager.Instance.CellSize);
-        MeshData pavementMeshData = generator.GeneratePavementNetwork(GridManager.Instance.GetGrid(), GridManager.Instance.GridOrigin, GridManager.Instance.CellSize);
+        MeshData roadMeshData = _generator.GenerateRoadNetwork(GridManager.Instance.GetGrid(), GridManager.Instance.GridOrigin, GridManager.Instance.CellSize);
+        MeshData pavementMeshData = _generator.GeneratePavementNetwork(GridManager.Instance.GetGrid(), GridManager.Instance.GridOrigin, GridManager.Instance.CellSize);
 
         // Apply road mesh
         Mesh roadMesh = new Mesh();
@@ -74,7 +79,7 @@ public class RoadMeshRenderer : MonoBehaviour
         roadMesh.triangles = roadMeshData.triangles.ToArray();
         roadMesh.uv = roadMeshData.uvs.ToArray();
         roadMesh.RecalculateNormals();
-        roadMeshFilter.mesh = roadMesh;
+        _roadMeshFilter.mesh = roadMesh;
 
         // Apply pavement mesh
         Mesh pavementMesh = new Mesh();
@@ -82,13 +87,14 @@ public class RoadMeshRenderer : MonoBehaviour
         pavementMesh.triangles = pavementMeshData.triangles.ToArray();
         pavementMesh.uv = pavementMeshData.uvs.ToArray();
         pavementMesh.RecalculateNormals();
-        pavementMeshFilter.mesh = pavementMesh;
+        _pavementMeshFilter.mesh = pavementMesh;
 
-        OnRoadMeshUpdated?.Invoke();
+        if (fireEvent) // this should only be false if we are loading a road because we will also be loading the waypoints
+            OnRoadMeshUpdated?.Invoke();
     }
 
     public float GetLaneWidth()
     {
-        return config.laneWidth;
+        return _config.laneWidth;
     }
 }

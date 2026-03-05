@@ -3,18 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class WaypointManager : MonoBehaviour
+public class WaypointManager : MonoBehaviour, ISaveable
 {
     public static WaypointManager Instance { get; private set; }
 
-    private Dictionary<GridCell, List<WaypointNode>> cellWaypoints = new Dictionary<GridCell, List<WaypointNode>>();
-    private List<WaypointNode> allWaypoints = new List<WaypointNode>();
+    public string SaveKey => "Waypoints";
 
+    private Dictionary<GridCell, List<WaypointNode>> _cellWaypoints = new Dictionary<GridCell, List<WaypointNode>>();
+    private List<WaypointNode> _allWaypoints = new List<WaypointNode>();
 
-    private Vector3 cellCentre;
-    private float laneCentre;
-    private float halfCellSize;
-    private float quarterCellSize;
+    private Vector3 _cellCentre;
+    private float _laneCentre;
+    private float _halfCellSize;
+    private float _quarterCellSize;
+
+    private bool _subscribedToSaveManager = false;
+    private bool _subscribedToRoadMeshRenderer = false;
 
     private void Awake()
     {
@@ -26,10 +30,50 @@ public class WaypointManager : MonoBehaviour
         Instance = this;
     }
 
+    private void Update()
+    {
+        if (!_subscribedToSaveManager)
+            TryToSubscribeToSaveManager();
+
+        if (!_subscribedToRoadMeshRenderer)
+            TryToSubscribeToRoadMeshRenderer();
+    }
+
     private void OnEnable()
     {
-        // Subscribe to road grid updates
-        RoadMeshRenderer.OnRoadMeshUpdated += RoadMeshUpdated;
+        TryToSubscribeToSaveManager();
+        TryToSubscribeToRoadMeshRenderer();
+    }
+
+    private void OnDisable()
+    {
+        if (SaveManager.Instance != null)
+        {
+            SaveManager.Instance.UnregisterSaveable(this);
+            _subscribedToSaveManager = false;
+        }
+
+        if (RoadMeshRenderer.Instance != null)
+        {
+            RoadMeshRenderer.Instance.OnRoadMeshUpdated += RoadMeshUpdated;
+            _subscribedToRoadMeshRenderer = false;
+        }
+    }
+
+    private void TryToSubscribeToSaveManager()
+    {
+        if (SaveManager.Instance == null) return;
+
+        SaveManager.Instance.RegisterSaveable(this);
+        _subscribedToSaveManager = true;
+    }
+
+    private void TryToSubscribeToRoadMeshRenderer()
+    {
+        if (RoadMeshRenderer.Instance == null) return;
+
+        RoadMeshRenderer.Instance.OnRoadMeshUpdated += RoadMeshUpdated;
+        _subscribedToRoadMeshRenderer = true;
     }
 
     private void RoadMeshUpdated()
@@ -41,12 +85,12 @@ public class WaypointManager : MonoBehaviour
     {
         GridCell[,] grid = GridManager.Instance.GetGrid();
 
-        cellWaypoints.Clear();
-        allWaypoints.Clear();
+        _cellWaypoints.Clear();
+        _allWaypoints.Clear();
 
-        laneCentre = RoadMeshRenderer.Instance.GetLaneWidth() / 2f;
-        halfCellSize = GridManager.Instance.CellSize / 2f;
-        quarterCellSize = halfCellSize / 2f;
+        _laneCentre = RoadMeshRenderer.Instance.GetLaneWidth() / 2f;
+        _halfCellSize = GridManager.Instance.CellSize / 2f;
+        _quarterCellSize = _halfCellSize / 2f;
 
         // First pass: Create waypoints for each cell
         for (int x = 0; x < grid.GetLength(0); x++)
@@ -69,7 +113,7 @@ public class WaypointManager : MonoBehaviour
 
         List<WaypointNode> waypoints = new List<WaypointNode>();
 
-        cellCentre = GridManager.Instance.GetCellCentre(cell);
+        _cellCentre = GridManager.Instance.GetCellCentre(cell);
 
         switch (cell.RoadType)
         {
@@ -91,12 +135,12 @@ public class WaypointManager : MonoBehaviour
         }
 
         // Store waypoints for this cell
-        if (!cellWaypoints.ContainsKey(cell))
+        if (!_cellWaypoints.ContainsKey(cell))
         {
-            cellWaypoints[cell] = new List<WaypointNode>();
+            _cellWaypoints[cell] = new List<WaypointNode>();
         }
-        cellWaypoints[cell].AddRange(waypoints);
-        allWaypoints.AddRange(waypoints);
+        _cellWaypoints[cell].AddRange(waypoints);
+        _allWaypoints.AddRange(waypoints);
     }
 
     private List<WaypointNode> CreateStraightWaypoints(GridCell cell)
@@ -111,8 +155,8 @@ public class WaypointManager : MonoBehaviour
         if (hasNorth && hasSouth) // Vertical road
         {
             // Lane going North (traffic flows from South to North)
-            Vector3 wpSouthEntry = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize);
-            Vector3 wpNorthExit = cellCentre + new Vector3(-laneCentre, 0, halfCellSize);
+            Vector3 wpSouthEntry = _cellCentre + new Vector3(-_laneCentre, 0, -_halfCellSize);
+            Vector3 wpNorthExit = _cellCentre + new Vector3(-_laneCentre, 0, _halfCellSize);
             WaypointNode southEntry = new WaypointNode(wpSouthEntry, cell, WaypointType.Entry);
             WaypointNode northExit = new WaypointNode(wpNorthExit, cell, WaypointType.Exit);
 
@@ -123,8 +167,8 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(northExit);
 
             // Lane going South (traffic flows from North to South)
-            Vector3 wpNorthEntry = cellCentre + new Vector3(laneCentre, 0, halfCellSize);
-            Vector3 wpSouthExit = cellCentre + new Vector3(laneCentre, 0, -halfCellSize);
+            Vector3 wpNorthEntry = _cellCentre + new Vector3(_laneCentre, 0, _halfCellSize);
+            Vector3 wpSouthExit = _cellCentre + new Vector3(_laneCentre, 0, -_halfCellSize);
             WaypointNode northEntry = new WaypointNode(wpNorthEntry, cell, WaypointType.Entry);
             WaypointNode southExit = new WaypointNode(wpSouthExit, cell, WaypointType.Exit);
 
@@ -138,8 +182,8 @@ public class WaypointManager : MonoBehaviour
         else if (hasEast && hasWest) // Horizontal road
         {
             // Lane going East (traffic flows from West to East)
-            Vector3 wpWestEntry = cellCentre + new Vector3(-halfCellSize, 0, laneCentre);
-            Vector3 wpEastExit = cellCentre + new Vector3(halfCellSize, 0, laneCentre);
+            Vector3 wpWestEntry = _cellCentre + new Vector3(-_halfCellSize, 0, _laneCentre);
+            Vector3 wpEastExit = _cellCentre + new Vector3(_halfCellSize, 0, _laneCentre);
             WaypointNode westEntry = new WaypointNode(wpWestEntry, cell, WaypointType.Entry);
             WaypointNode eastExit = new WaypointNode(wpEastExit, cell, WaypointType.Exit);
 
@@ -150,8 +194,8 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(eastExit);
 
             // Lane going West (traffic flows from East to West)
-            Vector3 wpEastEntry = cellCentre + new Vector3(halfCellSize, 0, -laneCentre);
-            Vector3 wpWestExit = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre);
+            Vector3 wpEastEntry = _cellCentre + new Vector3(_halfCellSize, 0, -_laneCentre);
+            Vector3 wpWestExit = _cellCentre + new Vector3(-_halfCellSize, 0, -_laneCentre);
             WaypointNode eastEntry = new WaypointNode(wpEastEntry, cell, WaypointType.Entry);
             WaypointNode westExit = new WaypointNode(wpWestExit, cell, WaypointType.Exit);
 
@@ -168,7 +212,7 @@ public class WaypointManager : MonoBehaviour
     private List<WaypointNode> CreateCornerWaypoints(GridCell cell)
     {
         List<WaypointNode> waypoints = new List<WaypointNode>();
-        Vector3 cellCentre = GridManager.Instance.GetCellCentre(cell);
+        Vector3 _cellCentre = GridManager.Instance.GetCellCentre(cell);
 
         // Determine which directions have roads
         bool hasNorth = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.North);
@@ -180,9 +224,9 @@ public class WaypointManager : MonoBehaviour
         if (hasNorth && hasEast) // Corner from North to East
         {
             // Lane going North to East
-            Vector3 wpNorthEntry = cellCentre + new Vector3(laneCentre, 0, halfCellSize);
-            Vector3 wpMidpoint1 = cellCentre + new Vector3(laneCentre, 0, laneCentre);
-            Vector3 wpEastExit = cellCentre + new Vector3(halfCellSize, 0, laneCentre);
+            Vector3 wpNorthEntry = _cellCentre + new Vector3(_laneCentre, 0, _halfCellSize);
+            Vector3 wpMidpoint1 = _cellCentre + new Vector3(_laneCentre, 0, _laneCentre);
+            Vector3 wpEastExit = _cellCentre + new Vector3(_halfCellSize, 0, _laneCentre);
 
             WaypointNode northEntry = new WaypointNode(wpNorthEntry, cell, WaypointType.Entry);
             WaypointNode midpoint1 = new WaypointNode(wpMidpoint1, cell, WaypointType.Midpoint);
@@ -198,9 +242,9 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(eastExit);
 
             // Lane going East to North (reverse direction)
-            Vector3 wpEastEntry = cellCentre + new Vector3(halfCellSize, 0, -laneCentre);
-            Vector3 wpMidpoint2 = cellCentre + new Vector3(-laneCentre, 0, -laneCentre);
-            Vector3 wpNorthExit = cellCentre + new Vector3(-laneCentre, 0, halfCellSize);
+            Vector3 wpEastEntry = _cellCentre + new Vector3(_halfCellSize, 0, -_laneCentre);
+            Vector3 wpMidpoint2 = _cellCentre + new Vector3(-_laneCentre, 0, -_laneCentre);
+            Vector3 wpNorthExit = _cellCentre + new Vector3(-_laneCentre, 0, _halfCellSize);
 
             WaypointNode eastEntry = new WaypointNode(wpEastEntry, cell, WaypointType.Entry);
             WaypointNode midpoint2 = new WaypointNode(wpMidpoint2, cell, WaypointType.Midpoint);
@@ -218,9 +262,9 @@ public class WaypointManager : MonoBehaviour
         else if (hasNorth && hasWest) // Corner from North to West
         {
             // Lane going North to West
-            Vector3 wpNorthEntry = cellCentre + new Vector3(laneCentre, 0, halfCellSize);
-            Vector3 wpMidpoint1 = cellCentre + new Vector3(laneCentre, 0, -laneCentre);
-            Vector3 wpWestExit = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre);
+            Vector3 wpNorthEntry = _cellCentre + new Vector3(_laneCentre, 0, _halfCellSize);
+            Vector3 wpMidpoint1 = _cellCentre + new Vector3(_laneCentre, 0, -_laneCentre);
+            Vector3 wpWestExit = _cellCentre + new Vector3(-_halfCellSize, 0, -_laneCentre);
 
             WaypointNode northEntry = new WaypointNode(wpNorthEntry, cell, WaypointType.Entry);
             WaypointNode midpoint1 = new WaypointNode(wpMidpoint1, cell, WaypointType.Midpoint);
@@ -236,9 +280,9 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(westExit);
 
             // Lane going West to North (reverse direction)
-            Vector3 wpWestEntry = cellCentre + new Vector3(-halfCellSize, 0, laneCentre);
-            Vector3 wpMidpoint2 = cellCentre + new Vector3(-laneCentre, 0, laneCentre);
-            Vector3 wpNorthExit = cellCentre + new Vector3(-laneCentre, 0, halfCellSize);
+            Vector3 wpWestEntry = _cellCentre + new Vector3(-_halfCellSize, 0, _laneCentre);
+            Vector3 wpMidpoint2 = _cellCentre + new Vector3(-_laneCentre, 0, _laneCentre);
+            Vector3 wpNorthExit = _cellCentre + new Vector3(-_laneCentre, 0, _halfCellSize);
 
             WaypointNode westEntry = new WaypointNode(wpWestEntry, cell, WaypointType.Entry);
             WaypointNode midpoint2 = new WaypointNode(wpMidpoint2, cell, WaypointType.Midpoint);
@@ -256,9 +300,9 @@ public class WaypointManager : MonoBehaviour
         else if (hasSouth && hasEast) // Corner from South to East
         {
             // Lane going South to East
-            Vector3 wpSouthEntry = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize);
-            Vector3 wpMidpoint1 = cellCentre + new Vector3(-laneCentre, 0, laneCentre);
-            Vector3 wpEastExit = cellCentre + new Vector3(halfCellSize, 0, laneCentre);
+            Vector3 wpSouthEntry = _cellCentre + new Vector3(-_laneCentre, 0, -_halfCellSize);
+            Vector3 wpMidpoint1 = _cellCentre + new Vector3(-_laneCentre, 0, _laneCentre);
+            Vector3 wpEastExit = _cellCentre + new Vector3(_halfCellSize, 0, _laneCentre);
 
             WaypointNode southEntry = new WaypointNode(wpSouthEntry, cell, WaypointType.Entry);
             WaypointNode midpoint1 = new WaypointNode(wpMidpoint1, cell, WaypointType.Midpoint);
@@ -274,9 +318,9 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(eastExit);
 
             // Lane going East to South (reverse direction)
-            Vector3 wpEastEntry = cellCentre + new Vector3(halfCellSize, 0, -laneCentre);
-            Vector3 wpMidpoint2 = cellCentre + new Vector3(laneCentre, 0, -laneCentre);
-            Vector3 wpSouthExit = cellCentre + new Vector3(laneCentre, 0, -halfCellSize);
+            Vector3 wpEastEntry = _cellCentre + new Vector3(_halfCellSize, 0, -_laneCentre);
+            Vector3 wpMidpoint2 = _cellCentre + new Vector3(_laneCentre, 0, -_laneCentre);
+            Vector3 wpSouthExit = _cellCentre + new Vector3(_laneCentre, 0, -_halfCellSize);
 
             WaypointNode eastEntry = new WaypointNode(wpEastEntry, cell, WaypointType.Entry);
             WaypointNode midpoint2 = new WaypointNode(wpMidpoint2, cell, WaypointType.Midpoint);
@@ -294,9 +338,9 @@ public class WaypointManager : MonoBehaviour
         else if (hasSouth && hasWest) // Corner from South to West
         {
             // Lane going South to West
-            Vector3 wpSouthEntry = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize);
-            Vector3 wpMidpoint1 = cellCentre + new Vector3(-laneCentre, 0, -laneCentre);
-            Vector3 wpWestExit = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre);
+            Vector3 wpSouthEntry = _cellCentre + new Vector3(-_laneCentre, 0, -_halfCellSize);
+            Vector3 wpMidpoint1 = _cellCentre + new Vector3(-_laneCentre, 0, -_laneCentre);
+            Vector3 wpWestExit = _cellCentre + new Vector3(-_halfCellSize, 0, -_laneCentre);
 
             WaypointNode southEntry = new WaypointNode(wpSouthEntry, cell, WaypointType.Entry);
             WaypointNode midpoint1 = new WaypointNode(wpMidpoint1, cell, WaypointType.Midpoint);
@@ -312,9 +356,9 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(westExit);
 
             // Lane going West to South (reverse direction)
-            Vector3 wpWestEntry = cellCentre + new Vector3(-halfCellSize, 0, laneCentre);
-            Vector3 wpMidpoint2 = cellCentre + new Vector3(laneCentre, 0, laneCentre);
-            Vector3 wpSouthExit = cellCentre + new Vector3(laneCentre, 0, -halfCellSize);
+            Vector3 wpWestEntry = _cellCentre + new Vector3(-_halfCellSize, 0, _laneCentre);
+            Vector3 wpMidpoint2 = _cellCentre + new Vector3(_laneCentre, 0, _laneCentre);
+            Vector3 wpSouthExit = _cellCentre + new Vector3(_laneCentre, 0, -_halfCellSize);
 
             WaypointNode westEntry = new WaypointNode(wpWestEntry, cell, WaypointType.Entry);
             WaypointNode midpoint2 = new WaypointNode(wpMidpoint2, cell, WaypointType.Midpoint);
@@ -347,9 +391,9 @@ public class WaypointManager : MonoBehaviour
         if (hasNorth && hasEast && hasWest && !hasSouth)
         {
             // Lane 1: North to East (left turn)
-            Vector3 wpNorthEntry1 = cellCentre + new Vector3(laneCentre, 0, halfCellSize);
-            Vector3 wpMidpoint1 = cellCentre + new Vector3(laneCentre, 0, laneCentre);
-            Vector3 wpEastExit1 = cellCentre + new Vector3(halfCellSize, 0, laneCentre);
+            Vector3 wpNorthEntry1 = _cellCentre + new Vector3(_laneCentre, 0, _halfCellSize);
+            Vector3 wpMidpoint1 = _cellCentre + new Vector3(_laneCentre, 0, _laneCentre);
+            Vector3 wpEastExit1 = _cellCentre + new Vector3(_halfCellSize, 0, _laneCentre);
 
             WaypointNode northEntry1 = new WaypointNode(wpNorthEntry1, cell, WaypointType.Entry);
             WaypointNode midpoint1 = new WaypointNode(wpMidpoint1, cell, WaypointType.Midpoint);
@@ -363,9 +407,9 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(eastExit1);
 
             // Lane 2: North to West (right turn)
-            Vector3 wpNorthEntry2 = cellCentre + new Vector3(laneCentre, 0, halfCellSize);
-            Vector3 wpMidpoint2 = cellCentre + new Vector3(laneCentre, 0, -laneCentre);
-            Vector3 wpWestExit2 = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre);
+            Vector3 wpNorthEntry2 = _cellCentre + new Vector3(_laneCentre, 0, _halfCellSize);
+            Vector3 wpMidpoint2 = _cellCentre + new Vector3(_laneCentre, 0, -_laneCentre);
+            Vector3 wpWestExit2 = _cellCentre + new Vector3(-_halfCellSize, 0, -_laneCentre);
 
             WaypointNode northEntry2 = new WaypointNode(wpNorthEntry2, cell, WaypointType.Entry);
             WaypointNode midpoint2 = new WaypointNode(wpMidpoint2, cell, WaypointType.Midpoint);
@@ -379,9 +423,9 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(westExit2);
 
             // Lane 3: East to North (right turn)
-            Vector3 wpEastEntry3 = cellCentre + new Vector3(halfCellSize, 0, -laneCentre);
-            Vector3 wpMidpoint3 = cellCentre + new Vector3(-laneCentre, 0, -laneCentre);
-            Vector3 wpNorthExit3 = cellCentre + new Vector3(-laneCentre, 0, halfCellSize);
+            Vector3 wpEastEntry3 = _cellCentre + new Vector3(_halfCellSize, 0, -_laneCentre);
+            Vector3 wpMidpoint3 = _cellCentre + new Vector3(-_laneCentre, 0, -_laneCentre);
+            Vector3 wpNorthExit3 = _cellCentre + new Vector3(-_laneCentre, 0, _halfCellSize);
 
             WaypointNode eastEntry3 = new WaypointNode(wpEastEntry3, cell, WaypointType.Entry);
             WaypointNode midpoint3 = new WaypointNode(wpMidpoint3, cell, WaypointType.Midpoint);
@@ -395,8 +439,8 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(northExit3);
 
             // Lane 4: East to West (straight through)
-            Vector3 wpEastEntry4 = cellCentre + new Vector3(halfCellSize, 0, -laneCentre);
-            Vector3 wpWestExit4 = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre);
+            Vector3 wpEastEntry4 = _cellCentre + new Vector3(_halfCellSize, 0, -_laneCentre);
+            Vector3 wpWestExit4 = _cellCentre + new Vector3(-_halfCellSize, 0, -_laneCentre);
 
             WaypointNode eastEntry4 = new WaypointNode(wpEastEntry4, cell, WaypointType.Entry);
             WaypointNode westExit4 = new WaypointNode(wpWestExit4, cell, WaypointType.Exit);
@@ -407,9 +451,9 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(westExit4);
 
             // Lane 5: West to North (left turn)
-            Vector3 wpWestEntry5 = cellCentre + new Vector3(-halfCellSize, 0, laneCentre);
-            Vector3 wpMidpoint5 = cellCentre + new Vector3(-laneCentre, 0, laneCentre);
-            Vector3 wpNorthExit5 = cellCentre + new Vector3(-laneCentre, 0, halfCellSize);
+            Vector3 wpWestEntry5 = _cellCentre + new Vector3(-_halfCellSize, 0, _laneCentre);
+            Vector3 wpMidpoint5 = _cellCentre + new Vector3(-_laneCentre, 0, _laneCentre);
+            Vector3 wpNorthExit5 = _cellCentre + new Vector3(-_laneCentre, 0, _halfCellSize);
 
             WaypointNode westEntry5 = new WaypointNode(wpWestEntry5, cell, WaypointType.Entry);
             WaypointNode midpoint5 = new WaypointNode(wpMidpoint5, cell, WaypointType.Midpoint);
@@ -423,8 +467,8 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(northExit5);
 
             // Lane 6: West to East (straight through)
-            Vector3 wpWestEntry6 = cellCentre + new Vector3(-halfCellSize, 0, laneCentre);
-            Vector3 wpEastExit6 = cellCentre + new Vector3(halfCellSize, 0, laneCentre);
+            Vector3 wpWestEntry6 = _cellCentre + new Vector3(-_halfCellSize, 0, _laneCentre);
+            Vector3 wpEastExit6 = _cellCentre + new Vector3(_halfCellSize, 0, _laneCentre);
 
             WaypointNode westEntry6 = new WaypointNode(wpWestEntry6, cell, WaypointType.Entry);
             WaypointNode eastExit6 = new WaypointNode(wpEastExit6, cell, WaypointType.Exit);
@@ -438,9 +482,9 @@ public class WaypointManager : MonoBehaviour
         else if (hasNorth && hasEast && hasSouth && !hasWest)
         {
             // Lane 1: North to East (left turn)
-            Vector3 wpNorthEntry1 = cellCentre + new Vector3(laneCentre, 0, halfCellSize);
-            Vector3 wpMidpoint1 = cellCentre + new Vector3(laneCentre, 0, laneCentre);
-            Vector3 wpEastExit1 = cellCentre + new Vector3(halfCellSize, 0, laneCentre);
+            Vector3 wpNorthEntry1 = _cellCentre + new Vector3(_laneCentre, 0, _halfCellSize);
+            Vector3 wpMidpoint1 = _cellCentre + new Vector3(_laneCentre, 0, _laneCentre);
+            Vector3 wpEastExit1 = _cellCentre + new Vector3(_halfCellSize, 0, _laneCentre);
 
             WaypointNode northEntry1 = new WaypointNode(wpNorthEntry1, cell, WaypointType.Entry);
             WaypointNode midpoint1 = new WaypointNode(wpMidpoint1, cell, WaypointType.Midpoint);
@@ -454,8 +498,8 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(eastExit1);
 
             // Lane 2: North to South (straight through)
-            Vector3 wpNorthEntry2 = cellCentre + new Vector3(laneCentre, 0, halfCellSize);
-            Vector3 wpSouthExit2 = cellCentre + new Vector3(laneCentre, 0, -halfCellSize);
+            Vector3 wpNorthEntry2 = _cellCentre + new Vector3(_laneCentre, 0, _halfCellSize);
+            Vector3 wpSouthExit2 = _cellCentre + new Vector3(_laneCentre, 0, -_halfCellSize);
 
             WaypointNode northEntry2 = new WaypointNode(wpNorthEntry2, cell, WaypointType.Entry);
             WaypointNode southExit2 = new WaypointNode(wpSouthExit2, cell, WaypointType.Exit);
@@ -466,9 +510,9 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(southExit2);
 
             // Lane 3: East to South (left turn)
-            Vector3 wpEastEntry3 = cellCentre + new Vector3(halfCellSize, 0, -laneCentre);
-            Vector3 wpMidpoint3 = cellCentre + new Vector3(laneCentre, 0, -laneCentre);
-            Vector3 wpSouthExit3 = cellCentre + new Vector3(laneCentre, 0, -halfCellSize);
+            Vector3 wpEastEntry3 = _cellCentre + new Vector3(_halfCellSize, 0, -_laneCentre);
+            Vector3 wpMidpoint3 = _cellCentre + new Vector3(_laneCentre, 0, -_laneCentre);
+            Vector3 wpSouthExit3 = _cellCentre + new Vector3(_laneCentre, 0, -_halfCellSize);
 
             WaypointNode eastEntry3 = new WaypointNode(wpEastEntry3, cell, WaypointType.Entry);
             WaypointNode midpoint3 = new WaypointNode(wpMidpoint3, cell, WaypointType.Midpoint);
@@ -482,9 +526,9 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(southExit3);
 
             // Lane 4: East to North (right turn)
-            Vector3 wpEastEntry4 = cellCentre + new Vector3(halfCellSize, 0, -laneCentre);
-            Vector3 wpMidpoint4 = cellCentre + new Vector3(-laneCentre, 0, -laneCentre);
-            Vector3 wpNorthExit4 = cellCentre + new Vector3(-laneCentre, 0, halfCellSize);
+            Vector3 wpEastEntry4 = _cellCentre + new Vector3(_halfCellSize, 0, -_laneCentre);
+            Vector3 wpMidpoint4 = _cellCentre + new Vector3(-_laneCentre, 0, -_laneCentre);
+            Vector3 wpNorthExit4 = _cellCentre + new Vector3(-_laneCentre, 0, _halfCellSize);
 
             WaypointNode eastEntry4 = new WaypointNode(wpEastEntry4, cell, WaypointType.Entry);
             WaypointNode midpoint4 = new WaypointNode(wpMidpoint4, cell, WaypointType.Midpoint);
@@ -498,8 +542,8 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(northExit4);
 
             // Lane 5: South to North (straight through)
-            Vector3 wpSouthEntry5 = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize);
-            Vector3 wpNorthExit5 = cellCentre + new Vector3(-laneCentre, 0, halfCellSize);
+            Vector3 wpSouthEntry5 = _cellCentre + new Vector3(-_laneCentre, 0, -_halfCellSize);
+            Vector3 wpNorthExit5 = _cellCentre + new Vector3(-_laneCentre, 0, _halfCellSize);
 
             WaypointNode southEntry5 = new WaypointNode(wpSouthEntry5, cell, WaypointType.Entry);
             WaypointNode northExit5 = new WaypointNode(wpNorthExit5, cell, WaypointType.Exit);
@@ -510,9 +554,9 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(northExit5);
 
             // Lane 6: South to East (right turn)
-            Vector3 wpSouthEntry6 = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize);
-            Vector3 wpMidpoint6 = cellCentre + new Vector3(-laneCentre, 0, laneCentre);
-            Vector3 wpEastExit6 = cellCentre + new Vector3(halfCellSize, 0, laneCentre);
+            Vector3 wpSouthEntry6 = _cellCentre + new Vector3(-_laneCentre, 0, -_halfCellSize);
+            Vector3 wpMidpoint6 = _cellCentre + new Vector3(-_laneCentre, 0, _laneCentre);
+            Vector3 wpEastExit6 = _cellCentre + new Vector3(_halfCellSize, 0, _laneCentre);
 
             WaypointNode southEntry6 = new WaypointNode(wpSouthEntry6, cell, WaypointType.Entry);
             WaypointNode midpoint6 = new WaypointNode(wpMidpoint6, cell, WaypointType.Midpoint);
@@ -529,8 +573,8 @@ public class WaypointManager : MonoBehaviour
         else if (hasNorth && hasSouth && hasWest && !hasEast)
         {
             // Lane 1: North to South (straight through)
-            Vector3 wpNorthEntry1 = cellCentre + new Vector3(laneCentre, 0, halfCellSize);
-            Vector3 wpSouthExit1 = cellCentre + new Vector3(laneCentre, 0, -halfCellSize);
+            Vector3 wpNorthEntry1 = _cellCentre + new Vector3(_laneCentre, 0, _halfCellSize);
+            Vector3 wpSouthExit1 = _cellCentre + new Vector3(_laneCentre, 0, -_halfCellSize);
 
             WaypointNode northEntry1 = new WaypointNode(wpNorthEntry1, cell, WaypointType.Entry);
             WaypointNode southExit1 = new WaypointNode(wpSouthExit1, cell, WaypointType.Exit);
@@ -541,9 +585,9 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(southExit1);
 
             // Lane 2: North to West (right turn)
-            Vector3 wpNorthEntry2 = cellCentre + new Vector3(laneCentre, 0, halfCellSize);
-            Vector3 wpMidpoint2 = cellCentre + new Vector3(laneCentre, 0, -laneCentre);
-            Vector3 wpWestExit2 = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre);
+            Vector3 wpNorthEntry2 = _cellCentre + new Vector3(_laneCentre, 0, _halfCellSize);
+            Vector3 wpMidpoint2 = _cellCentre + new Vector3(_laneCentre, 0, -_laneCentre);
+            Vector3 wpWestExit2 = _cellCentre + new Vector3(-_halfCellSize, 0, -_laneCentre);
 
             WaypointNode northEntry2 = new WaypointNode(wpNorthEntry2, cell, WaypointType.Entry);
             WaypointNode midpoint2 = new WaypointNode(wpMidpoint2, cell, WaypointType.Midpoint);
@@ -557,9 +601,9 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(westExit2);
 
             // Lane 3: South to West (left turn)
-            Vector3 wpSouthEntry3 = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize);
-            Vector3 wpMidpoint3 = cellCentre + new Vector3(-laneCentre, 0, -laneCentre);
-            Vector3 wpWestExit3 = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre);
+            Vector3 wpSouthEntry3 = _cellCentre + new Vector3(-_laneCentre, 0, -_halfCellSize);
+            Vector3 wpMidpoint3 = _cellCentre + new Vector3(-_laneCentre, 0, -_laneCentre);
+            Vector3 wpWestExit3 = _cellCentre + new Vector3(-_halfCellSize, 0, -_laneCentre);
 
             WaypointNode southEntry3 = new WaypointNode(wpSouthEntry3, cell, WaypointType.Entry);
             WaypointNode midpoint3 = new WaypointNode(wpMidpoint3, cell, WaypointType.Midpoint);
@@ -573,8 +617,8 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(westExit3);
 
             // Lane 4: South to North (straight through)
-            Vector3 wpSouthEntry4 = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize);
-            Vector3 wpNorthExit4 = cellCentre + new Vector3(-laneCentre, 0, halfCellSize);
+            Vector3 wpSouthEntry4 = _cellCentre + new Vector3(-_laneCentre, 0, -_halfCellSize);
+            Vector3 wpNorthExit4 = _cellCentre + new Vector3(-_laneCentre, 0, _halfCellSize);
 
             WaypointNode southEntry4 = new WaypointNode(wpSouthEntry4, cell, WaypointType.Entry);
             WaypointNode northExit4 = new WaypointNode(wpNorthExit4, cell, WaypointType.Exit);
@@ -585,9 +629,9 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(northExit4);
 
             // Lane 5: West to North (left turn)
-            Vector3 wpWestEntry5 = cellCentre + new Vector3(-halfCellSize, 0, laneCentre);
-            Vector3 wpMidpoint5 = cellCentre + new Vector3(-laneCentre, 0, laneCentre);
-            Vector3 wpNorthExit5 = cellCentre + new Vector3(-laneCentre, 0, halfCellSize);
+            Vector3 wpWestEntry5 = _cellCentre + new Vector3(-_halfCellSize, 0, _laneCentre);
+            Vector3 wpMidpoint5 = _cellCentre + new Vector3(-_laneCentre, 0, _laneCentre);
+            Vector3 wpNorthExit5 = _cellCentre + new Vector3(-_laneCentre, 0, _halfCellSize);
 
             WaypointNode westEntry5 = new WaypointNode(wpWestEntry5, cell, WaypointType.Entry);
             WaypointNode midpoint5 = new WaypointNode(wpMidpoint5, cell, WaypointType.Midpoint);
@@ -601,9 +645,9 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(northExit5);
 
             // Lane 6: West to South (right turn)
-            Vector3 wpWestEntry6 = cellCentre + new Vector3(-halfCellSize, 0, laneCentre);
-            Vector3 wpMidpoint6 = cellCentre + new Vector3(laneCentre, 0, laneCentre);
-            Vector3 wpSouthExit6 = cellCentre + new Vector3(laneCentre, 0, -halfCellSize);
+            Vector3 wpWestEntry6 = _cellCentre + new Vector3(-_halfCellSize, 0, _laneCentre);
+            Vector3 wpMidpoint6 = _cellCentre + new Vector3(_laneCentre, 0, _laneCentre);
+            Vector3 wpSouthExit6 = _cellCentre + new Vector3(_laneCentre, 0, -_halfCellSize);
 
             WaypointNode westEntry6 = new WaypointNode(wpWestEntry6, cell, WaypointType.Entry);
             WaypointNode midpoint6 = new WaypointNode(wpMidpoint6, cell, WaypointType.Midpoint);
@@ -620,8 +664,8 @@ public class WaypointManager : MonoBehaviour
         else if (hasEast && hasSouth && hasWest && !hasNorth)
         {
             // Lane 1: East to West (straight through)
-            Vector3 wpEastEntry1 = cellCentre + new Vector3(halfCellSize, 0, -laneCentre);
-            Vector3 wpWestExit1 = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre);
+            Vector3 wpEastEntry1 = _cellCentre + new Vector3(_halfCellSize, 0, -_laneCentre);
+            Vector3 wpWestExit1 = _cellCentre + new Vector3(-_halfCellSize, 0, -_laneCentre);
 
             WaypointNode eastEntry1 = new WaypointNode(wpEastEntry1, cell, WaypointType.Entry);
             WaypointNode westExit1 = new WaypointNode(wpWestExit1, cell, WaypointType.Exit);
@@ -632,9 +676,9 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(westExit1);
 
             // Lane 2: East to South (right turn)
-            Vector3 wpEastEntry2 = cellCentre + new Vector3(halfCellSize, 0, -laneCentre);
-            Vector3 wpMidpoint2 = cellCentre + new Vector3(laneCentre, 0, -laneCentre);
-            Vector3 wpSouthExit2 = cellCentre + new Vector3(laneCentre, 0, -halfCellSize);
+            Vector3 wpEastEntry2 = _cellCentre + new Vector3(_halfCellSize, 0, -_laneCentre);
+            Vector3 wpMidpoint2 = _cellCentre + new Vector3(_laneCentre, 0, -_laneCentre);
+            Vector3 wpSouthExit2 = _cellCentre + new Vector3(_laneCentre, 0, -_halfCellSize);
 
             WaypointNode eastEntry2 = new WaypointNode(wpEastEntry2, cell, WaypointType.Entry);
             WaypointNode midpoint2 = new WaypointNode(wpMidpoint2, cell, WaypointType.Midpoint);
@@ -648,9 +692,9 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(southExit2);
 
             // Lane 3: South to West (right turn)
-            Vector3 wpSouthEntry3 = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize);
-            Vector3 wpMidpoint3 = cellCentre + new Vector3(-laneCentre, 0, -laneCentre);
-            Vector3 wpWestExit3 = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre);
+            Vector3 wpSouthEntry3 = _cellCentre + new Vector3(-_laneCentre, 0, -_halfCellSize);
+            Vector3 wpMidpoint3 = _cellCentre + new Vector3(-_laneCentre, 0, -_laneCentre);
+            Vector3 wpWestExit3 = _cellCentre + new Vector3(-_halfCellSize, 0, -_laneCentre);
 
             WaypointNode southEntry3 = new WaypointNode(wpSouthEntry3, cell, WaypointType.Entry);
             WaypointNode midpoint3 = new WaypointNode(wpMidpoint3, cell, WaypointType.Midpoint);
@@ -664,9 +708,9 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(westExit3);
 
             // Lane 4: South to East (left turn)
-            Vector3 wpSouthEntry4 = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize);
-            Vector3 wpMidpoint4 = cellCentre + new Vector3(-laneCentre, 0, laneCentre);
-            Vector3 wpEastExit4 = cellCentre + new Vector3(halfCellSize, 0, laneCentre);
+            Vector3 wpSouthEntry4 = _cellCentre + new Vector3(-_laneCentre, 0, -_halfCellSize);
+            Vector3 wpMidpoint4 = _cellCentre + new Vector3(-_laneCentre, 0, _laneCentre);
+            Vector3 wpEastExit4 = _cellCentre + new Vector3(_halfCellSize, 0, _laneCentre);
 
             WaypointNode southEntry4 = new WaypointNode(wpSouthEntry4, cell, WaypointType.Entry);
             WaypointNode midpoint4 = new WaypointNode(wpMidpoint4, cell, WaypointType.Midpoint);
@@ -680,8 +724,8 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(eastExit4);
 
             // Lane 5: West to East (straight through)
-            Vector3 wpWestEntry5 = cellCentre + new Vector3(-halfCellSize, 0, laneCentre);
-            Vector3 wpEastExit5 = cellCentre + new Vector3(halfCellSize, 0, laneCentre);
+            Vector3 wpWestEntry5 = _cellCentre + new Vector3(-_halfCellSize, 0, _laneCentre);
+            Vector3 wpEastExit5 = _cellCentre + new Vector3(_halfCellSize, 0, _laneCentre);
 
             WaypointNode westEntry5 = new WaypointNode(wpWestEntry5, cell, WaypointType.Entry);
             WaypointNode eastExit5 = new WaypointNode(wpEastExit5, cell, WaypointType.Exit);
@@ -692,9 +736,9 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(eastExit5);
 
             // Lane 6: West to South (right turn)
-            Vector3 wpWestEntry6 = cellCentre + new Vector3(-halfCellSize, 0, laneCentre);
-            Vector3 wpMidpoint6 = cellCentre + new Vector3(laneCentre, 0, laneCentre);
-            Vector3 wpSouthExit6 = cellCentre + new Vector3(laneCentre, 0, -halfCellSize);
+            Vector3 wpWestEntry6 = _cellCentre + new Vector3(-_halfCellSize, 0, _laneCentre);
+            Vector3 wpMidpoint6 = _cellCentre + new Vector3(_laneCentre, 0, _laneCentre);
+            Vector3 wpSouthExit6 = _cellCentre + new Vector3(_laneCentre, 0, -_halfCellSize);
 
             WaypointNode westEntry6 = new WaypointNode(wpWestEntry6, cell, WaypointType.Entry);
             WaypointNode midpoint6 = new WaypointNode(wpMidpoint6, cell, WaypointType.Midpoint);
@@ -725,8 +769,8 @@ public class WaypointManager : MonoBehaviour
         if (hasNorth && hasSouth && hasEast && hasWest)
         {
             // Lane 1: North to South (straight through)
-            Vector3 wpNorthEntry1 = cellCentre + new Vector3(laneCentre, 0, halfCellSize);
-            Vector3 wpSouthExit1 = cellCentre + new Vector3(laneCentre, 0, -halfCellSize);
+            Vector3 wpNorthEntry1 = _cellCentre + new Vector3(_laneCentre, 0, _halfCellSize);
+            Vector3 wpSouthExit1 = _cellCentre + new Vector3(_laneCentre, 0, -_halfCellSize);
 
             WaypointNode northEntry1 = new WaypointNode(wpNorthEntry1, cell, WaypointType.Entry);
             WaypointNode southExit1 = new WaypointNode(wpSouthExit1, cell, WaypointType.Exit);
@@ -737,8 +781,8 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(southExit1);
 
             // Lane 2: South to North (straight through)
-            Vector3 wpSouthEntry2 = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize);
-            Vector3 wpNorthExit2 = cellCentre + new Vector3(-laneCentre, 0, halfCellSize);
+            Vector3 wpSouthEntry2 = _cellCentre + new Vector3(-_laneCentre, 0, -_halfCellSize);
+            Vector3 wpNorthExit2 = _cellCentre + new Vector3(-_laneCentre, 0, _halfCellSize);
 
             WaypointNode southEntry2 = new WaypointNode(wpSouthEntry2, cell, WaypointType.Entry);
             WaypointNode northExit2 = new WaypointNode(wpNorthExit2, cell, WaypointType.Exit);
@@ -749,8 +793,8 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(northExit2);
 
             // Lane 3: East to West (straight through)
-            Vector3 wpEastEntry3 = cellCentre + new Vector3(halfCellSize, 0, -laneCentre);
-            Vector3 wpWestExit3 = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre);
+            Vector3 wpEastEntry3 = _cellCentre + new Vector3(_halfCellSize, 0, -_laneCentre);
+            Vector3 wpWestExit3 = _cellCentre + new Vector3(-_halfCellSize, 0, -_laneCentre);
 
             WaypointNode eastEntry3 = new WaypointNode(wpEastEntry3, cell, WaypointType.Entry);
             WaypointNode westExit3 = new WaypointNode(wpWestExit3, cell, WaypointType.Exit);
@@ -761,8 +805,8 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(westExit3);
 
             // Lane 4: West to East (straight through)
-            Vector3 wpWestEntry4 = cellCentre + new Vector3(-halfCellSize, 0, laneCentre);
-            Vector3 wpEastExit4 = cellCentre + new Vector3(halfCellSize, 0, laneCentre);
+            Vector3 wpWestEntry4 = _cellCentre + new Vector3(-_halfCellSize, 0, _laneCentre);
+            Vector3 wpEastExit4 = _cellCentre + new Vector3(_halfCellSize, 0, _laneCentre);
 
             WaypointNode westEntry4 = new WaypointNode(wpWestEntry4, cell, WaypointType.Entry);
             WaypointNode eastExit4 = new WaypointNode(wpEastExit4, cell, WaypointType.Exit);
@@ -773,9 +817,9 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(eastExit4);
 
             // Lane 5: North to East (left turn)
-            Vector3 wpNorthEntry5 = cellCentre + new Vector3(laneCentre, 0, halfCellSize);
-            Vector3 wpMidpoint5 = cellCentre + new Vector3(laneCentre, 0, laneCentre);
-            Vector3 wpEastExit5 = cellCentre + new Vector3(halfCellSize, 0, laneCentre);
+            Vector3 wpNorthEntry5 = _cellCentre + new Vector3(_laneCentre, 0, _halfCellSize);
+            Vector3 wpMidpoint5 = _cellCentre + new Vector3(_laneCentre, 0, _laneCentre);
+            Vector3 wpEastExit5 = _cellCentre + new Vector3(_halfCellSize, 0, _laneCentre);
 
             WaypointNode northEntry5 = new WaypointNode(wpNorthEntry5, cell, WaypointType.Entry);
             WaypointNode midpoint5 = new WaypointNode(wpMidpoint5, cell, WaypointType.Midpoint);
@@ -789,9 +833,9 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(eastExit5);
 
             // Lane 6: North to West (right turn)
-            Vector3 wpNorthEntry6 = cellCentre + new Vector3(laneCentre, 0, halfCellSize);
-            Vector3 wpMidpoint6 = cellCentre + new Vector3(laneCentre, 0, -laneCentre);
-            Vector3 wpWestExit6 = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre);
+            Vector3 wpNorthEntry6 = _cellCentre + new Vector3(_laneCentre, 0, _halfCellSize);
+            Vector3 wpMidpoint6 = _cellCentre + new Vector3(_laneCentre, 0, -_laneCentre);
+            Vector3 wpWestExit6 = _cellCentre + new Vector3(-_halfCellSize, 0, -_laneCentre);
 
             WaypointNode northEntry6 = new WaypointNode(wpNorthEntry6, cell, WaypointType.Entry);
             WaypointNode midpoint6 = new WaypointNode(wpMidpoint6, cell, WaypointType.Midpoint);
@@ -805,9 +849,9 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(westExit6);
 
             // Lane 7: South to East (right turn)
-            Vector3 wpSouthEntry7 = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize);
-            Vector3 wpMidpoint7 = cellCentre + new Vector3(-laneCentre, 0, laneCentre);
-            Vector3 wpEastExit7 = cellCentre + new Vector3(halfCellSize, 0, laneCentre);
+            Vector3 wpSouthEntry7 = _cellCentre + new Vector3(-_laneCentre, 0, -_halfCellSize);
+            Vector3 wpMidpoint7 = _cellCentre + new Vector3(-_laneCentre, 0, _laneCentre);
+            Vector3 wpEastExit7 = _cellCentre + new Vector3(_halfCellSize, 0, _laneCentre);
 
             WaypointNode southEntry7 = new WaypointNode(wpSouthEntry7, cell, WaypointType.Entry);
             WaypointNode midpoint7 = new WaypointNode(wpMidpoint7, cell, WaypointType.Midpoint);
@@ -821,9 +865,9 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(eastExit7);
 
             // Lane 8: South to West (left turn)
-            Vector3 wpSouthEntry8 = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize);
-            Vector3 wpMidpoint8 = cellCentre + new Vector3(-laneCentre, 0, -laneCentre);
-            Vector3 wpWestExit8 = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre);
+            Vector3 wpSouthEntry8 = _cellCentre + new Vector3(-_laneCentre, 0, -_halfCellSize);
+            Vector3 wpMidpoint8 = _cellCentre + new Vector3(-_laneCentre, 0, -_laneCentre);
+            Vector3 wpWestExit8 = _cellCentre + new Vector3(-_halfCellSize, 0, -_laneCentre);
 
             WaypointNode southEntry8 = new WaypointNode(wpSouthEntry8, cell, WaypointType.Entry);
             WaypointNode midpoint8 = new WaypointNode(wpMidpoint8, cell, WaypointType.Midpoint);
@@ -837,9 +881,9 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(westExit8);
 
             // Lane 9: East to North (right turn)
-            Vector3 wpEastEntry9 = cellCentre + new Vector3(halfCellSize, 0, -laneCentre);
-            Vector3 wpMidpoint9 = cellCentre + new Vector3(-laneCentre, 0, -laneCentre);
-            Vector3 wpNorthExit9 = cellCentre + new Vector3(-laneCentre, 0, halfCellSize);
+            Vector3 wpEastEntry9 = _cellCentre + new Vector3(_halfCellSize, 0, -_laneCentre);
+            Vector3 wpMidpoint9 = _cellCentre + new Vector3(-_laneCentre, 0, -_laneCentre);
+            Vector3 wpNorthExit9 = _cellCentre + new Vector3(-_laneCentre, 0, _halfCellSize);
 
             WaypointNode eastEntry9 = new WaypointNode(wpEastEntry9, cell, WaypointType.Entry);
             WaypointNode midpoint9 = new WaypointNode(wpMidpoint9, cell, WaypointType.Midpoint);
@@ -853,9 +897,9 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(northExit9);
 
             // Lane 10: East to South (left turn)
-            Vector3 wpEastEntry10 = cellCentre + new Vector3(halfCellSize, 0, -laneCentre);
-            Vector3 wpMidpoint10 = cellCentre + new Vector3(laneCentre, 0, -laneCentre);
-            Vector3 wpSouthExit10 = cellCentre + new Vector3(laneCentre, 0, -halfCellSize);
+            Vector3 wpEastEntry10 = _cellCentre + new Vector3(_halfCellSize, 0, -_laneCentre);
+            Vector3 wpMidpoint10 = _cellCentre + new Vector3(_laneCentre, 0, -_laneCentre);
+            Vector3 wpSouthExit10 = _cellCentre + new Vector3(_laneCentre, 0, -_halfCellSize);
 
             WaypointNode eastEntry10 = new WaypointNode(wpEastEntry10, cell, WaypointType.Entry);
             WaypointNode midpoint10 = new WaypointNode(wpMidpoint10, cell, WaypointType.Midpoint);
@@ -869,9 +913,9 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(southExit10);
 
             // Lane 11: West to North (left turn)
-            Vector3 wpWestEntry11 = cellCentre + new Vector3(-halfCellSize, 0, laneCentre);
-            Vector3 wpMidpoint11 = cellCentre + new Vector3(-laneCentre, 0, laneCentre);
-            Vector3 wpNorthExit11 = cellCentre + new Vector3(-laneCentre, 0, halfCellSize);
+            Vector3 wpWestEntry11 = _cellCentre + new Vector3(-_halfCellSize, 0, _laneCentre);
+            Vector3 wpMidpoint11 = _cellCentre + new Vector3(-_laneCentre, 0, _laneCentre);
+            Vector3 wpNorthExit11 = _cellCentre + new Vector3(-_laneCentre, 0, _halfCellSize);
 
             WaypointNode westEntry11 = new WaypointNode(wpWestEntry11, cell, WaypointType.Entry);
             WaypointNode midpoint11 = new WaypointNode(wpMidpoint11, cell, WaypointType.Midpoint);
@@ -885,9 +929,9 @@ public class WaypointManager : MonoBehaviour
             waypoints.Add(northExit11);
 
             // Lane 12: West to South (right turn)
-            Vector3 wpWestEntry12 = cellCentre + new Vector3(-halfCellSize, 0, laneCentre);
-            Vector3 wpMidpoint12 = cellCentre + new Vector3(laneCentre, 0, laneCentre);
-            Vector3 wpSouthExit12 = cellCentre + new Vector3(laneCentre, 0, -halfCellSize);
+            Vector3 wpWestEntry12 = _cellCentre + new Vector3(-_halfCellSize, 0, _laneCentre);
+            Vector3 wpMidpoint12 = _cellCentre + new Vector3(_laneCentre, 0, _laneCentre);
+            Vector3 wpSouthExit12 = _cellCentre + new Vector3(_laneCentre, 0, -_halfCellSize);
 
             WaypointNode westEntry12 = new WaypointNode(wpWestEntry12, cell, WaypointType.Entry);
             WaypointNode midpoint12 = new WaypointNode(wpMidpoint12, cell, WaypointType.Midpoint);
@@ -918,35 +962,35 @@ public class WaypointManager : MonoBehaviour
 
         if (hasNorth)
         {
-            wpEntry = cellCentre + new Vector3(laneCentre, 0, halfCellSize);
-            wpMidpoint1 = cellCentre + new Vector3(laneCentre, 0, 0);
-            wpUTurn = cellCentre - new Vector3(0, 0, quarterCellSize);
-            wpMidpoint2 = cellCentre + new Vector3(-laneCentre, 0, 0);
-            wpExit = cellCentre + new Vector3(-laneCentre, 0, halfCellSize);
+            wpEntry = _cellCentre + new Vector3(_laneCentre, 0, _halfCellSize);
+            wpMidpoint1 = _cellCentre + new Vector3(_laneCentre, 0, 0);
+            wpUTurn = _cellCentre - new Vector3(0, 0, _quarterCellSize);
+            wpMidpoint2 = _cellCentre + new Vector3(-_laneCentre, 0, 0);
+            wpExit = _cellCentre + new Vector3(-_laneCentre, 0, _halfCellSize);
         }
         else if (hasSouth)
         {
-            wpEntry = cellCentre + new Vector3(-laneCentre, 0, -halfCellSize);
-            wpMidpoint1 = cellCentre + new Vector3(-laneCentre, 0, 0);
-            wpUTurn = cellCentre - new Vector3(0, 0, -quarterCellSize);
-            wpMidpoint2 = cellCentre + new Vector3(laneCentre, 0, 0);
-            wpExit = cellCentre + new Vector3(laneCentre, 0, -halfCellSize);
+            wpEntry = _cellCentre + new Vector3(-_laneCentre, 0, -_halfCellSize);
+            wpMidpoint1 = _cellCentre + new Vector3(-_laneCentre, 0, 0);
+            wpUTurn = _cellCentre - new Vector3(0, 0, -_quarterCellSize);
+            wpMidpoint2 = _cellCentre + new Vector3(_laneCentre, 0, 0);
+            wpExit = _cellCentre + new Vector3(_laneCentre, 0, -_halfCellSize);
         }
         else if (hasEast)
         {
-            wpEntry = cellCentre + new Vector3(halfCellSize, 0, -laneCentre);
-            wpMidpoint1 = cellCentre + new Vector3(0, 0, -laneCentre);
-            wpUTurn = cellCentre - new Vector3(quarterCellSize, 0, 0);
-            wpMidpoint2 = cellCentre + new Vector3(0, 0, laneCentre);
-            wpExit = cellCentre + new Vector3(halfCellSize, 0, laneCentre);
+            wpEntry = _cellCentre + new Vector3(_halfCellSize, 0, -_laneCentre);
+            wpMidpoint1 = _cellCentre + new Vector3(0, 0, -_laneCentre);
+            wpUTurn = _cellCentre - new Vector3(_quarterCellSize, 0, 0);
+            wpMidpoint2 = _cellCentre + new Vector3(0, 0, _laneCentre);
+            wpExit = _cellCentre + new Vector3(_halfCellSize, 0, _laneCentre);
         }
         else if (hasWest)
         {
-            wpEntry = cellCentre + new Vector3(-halfCellSize, 0, laneCentre);
-            wpMidpoint1 = cellCentre + new Vector3(0, 0, laneCentre);
-            wpUTurn = cellCentre - new Vector3(-quarterCellSize, 0, 0);
-            wpMidpoint2 = cellCentre + new Vector3(0, 0, -laneCentre);
-            wpExit = cellCentre + new Vector3(-halfCellSize, 0, -laneCentre);
+            wpEntry = _cellCentre + new Vector3(-_halfCellSize, 0, _laneCentre);
+            wpMidpoint1 = _cellCentre + new Vector3(0, 0, _laneCentre);
+            wpUTurn = _cellCentre - new Vector3(-_quarterCellSize, 0, 0);
+            wpMidpoint2 = _cellCentre + new Vector3(0, 0, -_laneCentre);
+            wpExit = _cellCentre + new Vector3(-_halfCellSize, 0, -_laneCentre);
         }
 
         entry = new WaypointNode(wpEntry, cell, WaypointType.Entry);
@@ -973,7 +1017,7 @@ public class WaypointManager : MonoBehaviour
     public void ConnectAllCells()
     {
         // After all cells have been created, connect neighboring cells
-        foreach (var kvp in cellWaypoints)
+        foreach (var kvp in _cellWaypoints)
         {
             GridCell cell = kvp.Key;
             List<WaypointNode> waypoints = kvp.Value;
@@ -1005,7 +1049,7 @@ public class WaypointManager : MonoBehaviour
 
     private void ConnectWaypointsToNeighbor(GridCell cell, List<WaypointNode> waypoints, GridCell neighbor, int direction)
     {
-        if (!cellWaypoints.ContainsKey(neighbor))
+        if (!_cellWaypoints.ContainsKey(neighbor))
             return;
 
         List<WaypointNode> cellExitWaypoints = new List<WaypointNode>();
@@ -1013,7 +1057,7 @@ public class WaypointManager : MonoBehaviour
 
         // Get exit waypoints from current cell and entry waypoints from neighbor
         cellExitWaypoints = waypoints.Where(w => w.Type == WaypointType.Exit).ToList();
-        neighborEntryWaypoints = cellWaypoints[neighbor].Where(w => w.Type == WaypointType.Entry).ToList();
+        neighborEntryWaypoints = _cellWaypoints[neighbor].Where(w => w.Type == WaypointType.Entry).ToList();
 
         // Connect exit waypoints to entry waypoints only if they are at the same position (or very close)
         foreach (var exitWaypoint in cellExitWaypoints)
@@ -1034,36 +1078,94 @@ public class WaypointManager : MonoBehaviour
 
     public List<WaypointNode> GetAllWaypoints()
     {
-        return allWaypoints;
+        return _allWaypoints;
     }
 
-    // public void OnDrawGizmos()
-    // {
-    //     if (allWaypoints.Count == 0) return;
+    public void PopulateSaveData(GameSaveData saveData)
+    {
+        var waypointData = new WaypointSaveData();
 
-    //     // Draw all waypoints
-    //     foreach (var waypoint in allWaypoints)
-    //     {
-    //         // Color based on waypoint type
-    //         Color color = waypoint.Type switch
-    //         {
-    //             WaypointType.Entry => Color.green,
-    //             WaypointType.Exit => Color.red,
-    //             WaypointType.Midpoint => Color.blue,
-    //             WaypointType.UTurn => Color.magenta,
-    //             _ => Color.white
-    //         };
+        foreach (var node in _allWaypoints)
+        {
+            var nodeData = new WaypointNodeSaveData
+            {
+                id = node.Id,
+                x = node.Position.x,
+                z = node.Position.z,
+                type = node.Type,
+                parentCellX = node.ParentCell.Position.x,
+                parentCellZ = node.ParentCell.Position.z
+            };
 
-    //         // Draw sphere at waypoint position
-    //         Gizmos.color = color;
-    //         Gizmos.DrawSphere(waypoint.Position, 0.1f);
+            foreach (var connection in node.Connections)
+            {
+                nodeData.connections.Add(new WaypointConnectionSaveData
+                {
+                    targetNodeId = connection.TargetWaypoint.Id,
+                    cost = connection.Cost
+                });
+            }
 
-    //         // Draw connections to neighboring waypoints
-    //         foreach (var connection in waypoint.Connections)
-    //         {
-    //             Gizmos.color = Color.yellow;
-    //             Gizmos.DrawLine(waypoint.Position, connection.TargetWaypoint.Position);
-    //         }
-    //     }
-    // }
+            waypointData.nodes.Add(nodeData);
+        }
+
+        saveData.waypoints = waypointData;
+    }
+
+    public void LoadFromSaveData(GameSaveData saveData)
+    {
+        if (saveData.waypoints == null)
+        {
+            Debug.LogWarning("[WaypointManager] No waypoint data in save file.");
+            return;
+        }
+
+        _allWaypoints.Clear();
+        var nodeLookup = new Dictionary<string, WaypointNode>();
+
+        // First pass — create all nodes
+        foreach (var nodeData in saveData.waypoints.nodes)
+        {
+            // Retrieve the parent cell from the grid
+            var parentCell = GridManager.Instance.GetCell(nodeData.parentCellX, nodeData.parentCellZ);
+            if (parentCell == null)
+            {
+                Debug.LogWarning($"[WaypointManager] Parent cell ({nodeData.parentCellX}, {nodeData.parentCellZ}) not found for node {nodeData.id}.");
+                continue;
+            }
+
+            var node = new WaypointNode(
+                new Vector3(nodeData.x, 0f, nodeData.z),
+                parentCell,
+                nodeData.type
+            );
+
+            // Restore the saved ID rather than using the new GUID generated in the constructor
+            node.Id = nodeData.id;
+
+            _allWaypoints.Add(node);
+            nodeLookup[node.Id] = node;
+        }
+
+        // Second pass — restore connections
+        foreach (var nodeData in saveData.waypoints.nodes)
+        {
+            if (!nodeLookup.TryGetValue(nodeData.id, out var node))
+                continue;
+
+            foreach (var connectionData in nodeData.connections)
+            {
+                if (nodeLookup.TryGetValue(connectionData.targetNodeId, out var targetNode))
+                {
+                    node.Connections.Add(new WaypointConnection(targetNode, connectionData.cost));
+                }
+                else
+                {
+                    Debug.LogWarning($"[WaypointManager] Target node {connectionData.targetNodeId} not found for connection.");
+                }
+            }
+        }
+
+        Debug.Log($"[WaypointManager] Loaded {_allWaypoints.Count} waypoint nodes.");
+    }
 }

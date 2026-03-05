@@ -6,7 +6,7 @@ public class VehicleManager : MonoBehaviour
 {
     public static VehicleManager Instance { get; private set; }
 
-    private List<VehicleController> activeVehicles = new List<VehicleController>();
+    private List<VehicleController> _activeVehicles = new List<VehicleController>();
 
     private void Awake()
     {
@@ -20,17 +20,17 @@ public class VehicleManager : MonoBehaviour
 
     public void RegisterVehicle(VehicleController vehicle)
     {
-        if (vehicle != null && !activeVehicles.Contains(vehicle))
+        if (vehicle != null && !_activeVehicles.Contains(vehicle))
         {
-            activeVehicles.Add(vehicle);
+            _activeVehicles.Add(vehicle);
         }
     }
 
     public void UnregisterVehicle(VehicleController vehicle)
     {
-        if (activeVehicles.Contains(vehicle))
+        if (_activeVehicles.Contains(vehicle))
         {
-            activeVehicles.Remove(vehicle);
+            _activeVehicles.Remove(vehicle);
         }
     }
 
@@ -95,20 +95,20 @@ public class VehicleManager : MonoBehaviour
 
     public void RemoveVehicle(VehicleController vehicle)
     {
-        if (activeVehicles.Contains(vehicle))
+        if (_activeVehicles.Contains(vehicle))
         {
-            activeVehicles.Remove(vehicle);
+            _activeVehicles.Remove(vehicle);
         }
         Destroy(vehicle.gameObject);
     }
 
     public void RecalculateAllVehiclePaths()
     {
-        Debug.Log($"Recalculating paths for {activeVehicles.Count} vehicles...");
+        Debug.Log($"Recalculating paths for {_activeVehicles.Count} vehicles...");
 
         List<VehicleController> vehiclesToRemove = new List<VehicleController>();
 
-        foreach (var vehicle in activeVehicles)
+        foreach (var vehicle in _activeVehicles)
         {
             if (vehicle == null || vehicle.CurrentWaypoint == null || vehicle.TargetWaypoint == null)
             {
@@ -143,11 +143,11 @@ public class VehicleManager : MonoBehaviour
 
     public void RecheckAllVehiclePaths()
     {
-        Debug.Log($"Rechecking paths for {activeVehicles.Count} vehicles...");
+        Debug.Log($"Rechecking paths for {_activeVehicles.Count} vehicles...");
 
         List<VehicleController> vehiclesToRemove = new List<VehicleController>();
 
-        foreach (var vehicle in activeVehicles)
+        foreach (var vehicle in _activeVehicles)
         {
             if (vehicle == null)
             {
@@ -191,11 +191,11 @@ public class VehicleManager : MonoBehaviour
 
     public int GetActiveVehicleCount()
     {
-        return activeVehicles.Count;
+        return _activeVehicles.Count;
     }
 
-    public List<VehicleController> GetActiveVehicles()
+    public List<VehicleController> Get_ActiveVehicles()
     {
-        return new List<VehicleController>(activeVehicles);
+        return new List<VehicleController>(_activeVehicles);
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
-    [SerializeField] private List<ButtonGroup> topLevelGroups;
+    [SerializeField] private List<ButtonGroup> _topLevelGroups;
 
     private void Awake()
     {
@@ -18,14 +18,14 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
-        foreach (ButtonGroup group in topLevelGroups)
+        foreach (ButtonGroup group in _topLevelGroups)
             group.OnSelectionChanged += _ => OnAnyTopLevelGroupChanged(group);
     }
 
     private void OnAnyTopLevelGroupChanged(ButtonGroup activeGroup)
     {
         // Deselect all other top-level groups
-        foreach (ButtonGroup group in topLevelGroups)
+        foreach (ButtonGroup group in _topLevelGroups)
         {
             if (group != activeGroup)
                 group.Deselect();

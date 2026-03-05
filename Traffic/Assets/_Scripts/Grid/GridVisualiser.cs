@@ -5,15 +5,15 @@ public class GridVisualiser : MonoBehaviour
 {
     public static GridVisualiser Instance { get; private set; }
 
-    [SerializeField] private Material highlightMaterial;
-    [SerializeField] private LineRenderer previewLine;
-    [SerializeField] private float previewLineWidthMultiplier = 0.75f;
-    private float cellSize;
+    [SerializeField] private Material _highlightMaterial;
+    [SerializeField] private LineRenderer _previewLine;
+    [SerializeField] private float _previewLineWidthMultiplier = 0.75f;
+    private float _cellSize;
 
-    private GameObject highlightedCell;
-    private List<Vector3Int> cellsAlongDragLine = new List<Vector3Int>();
-    private Vector3 dragStartPosition;
-    private bool isDragging = false;
+    private GameObject _highlightedCell;
+    private List<Vector3Int> _cellsAlongDragLine = new List<Vector3Int>();
+    private Vector3 _dragStartPosition;
+    private bool _isDragging = false;
 
     private void Awake()
     {
@@ -27,26 +27,26 @@ public class GridVisualiser : MonoBehaviour
 
     private void Start()
     {
-        cellSize = GridManager.Instance.CellSize;
+        _cellSize = GridManager.Instance.CellSize;
 
-        if (previewLine == null)
+        if (_previewLine == null)
         {
             GameObject previewObj = new GameObject("RoadPreview");
             previewObj.transform.parent = transform;
-            previewLine = previewObj.AddComponent<LineRenderer>();
-            previewLine.startWidth = cellSize * previewLineWidthMultiplier;
-            previewLine.endWidth = cellSize * previewLineWidthMultiplier;
-            previewLine.material = new Material(Shader.Find("Sprites/Default"));
-            previewLine.startColor = Color.gray;
-            previewLine.endColor = Color.gray;
+            _previewLine = previewObj.AddComponent<LineRenderer>();
+            _previewLine.startWidth = _cellSize * _previewLineWidthMultiplier;
+            _previewLine.endWidth = _cellSize * _previewLineWidthMultiplier;
+            _previewLine.material = new Material(Shader.Find("Sprites/Default"));
+            _previewLine.startColor = Color.gray;
+            _previewLine.endColor = Color.gray;
 
             // Fix billboarding - align to Transform Z so it lies flat on the ground
-            previewLine.alignment = LineAlignment.TransformZ;
+            _previewLine.alignment = LineAlignment.TransformZ;
 
             // Rotate the parent object so the Z axis points downward into the ground plane
             previewObj.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
 
-            previewLine.enabled = false;
+            _previewLine.enabled = false;
         }
 
         // Subscribe to input events
@@ -70,9 +70,9 @@ public class GridVisualiser : MonoBehaviour
         // Unsubscribe from simulation state changes
         SimulationManager.Instance.OnStateChanged -= HandleStateChanged;
 
-        if (highlightedCell != null)
+        if (_highlightedCell != null)
         {
-            Destroy(highlightedCell);
+            Destroy(_highlightedCell);
         }
     }
 
@@ -99,21 +99,21 @@ public class GridVisualiser : MonoBehaviour
 
     public void EnableRoadPlacementVisuals()
     {
-        if (highlightedCell != null)
+        if (_highlightedCell != null)
         {
-            highlightedCell.SetActive(true);
+            _highlightedCell.SetActive(true);
         }
     }
 
     public void DisableRoadPlacementVisuals()
     {
-        if (highlightedCell != null)
+        if (_highlightedCell != null)
         {
-            highlightedCell.SetActive(false);
+            _highlightedCell.SetActive(false);
         }
-        previewLine.enabled = false;
-        isDragging = false;
-        cellsAlongDragLine.Clear();
+        _previewLine.enabled = false;
+        _isDragging = false;
+        _cellsAlongDragLine.Clear();
     }
 
     private void HandleLeftClickPressed(Vector2 screenPosition)
@@ -125,9 +125,9 @@ public class GridVisualiser : MonoBehaviour
         Vector3? hitPoint = GridManager.Instance.GetGroundHitPoint();
         if (hitPoint.HasValue)
         {
-            dragStartPosition = hitPoint.Value;
-            isDragging = true;
-            cellsAlongDragLine.Clear();
+            _dragStartPosition = hitPoint.Value;
+            _isDragging = true;
+            _cellsAlongDragLine.Clear();
         }
     }
 
@@ -137,13 +137,13 @@ public class GridVisualiser : MonoBehaviour
         if (SimulationManager.Instance.CurrentState.SimulationState != SimulationState.Roads)
             return;
 
-        if (!isDragging)
+        if (!_isDragging)
             return;
 
         Vector3? hitPoint = GridManager.Instance.GetGroundHitPoint();
         if (hitPoint.HasValue)
         {
-            Vector3 snappedStart = GridManager.Instance.SnapToGrid(dragStartPosition);
+            Vector3 snappedStart = GridManager.Instance.SnapToGrid(_dragStartPosition);
             Vector3 snappedEnd = GridManager.Instance.SnapToGrid(hitPoint.Value);
             Vector3 alignedEnd = GridManager.Instance.AlignToCardinalDirection(snappedStart, snappedEnd);
 
@@ -162,10 +162,10 @@ public class GridVisualiser : MonoBehaviour
             else
             {
                 // Drag - place road along the dragged path
-                cellsAlongDragLine = GridManager.Instance.GetCellsAlongLine(snappedStart, alignedEnd);
+                _cellsAlongDragLine = GridManager.Instance.GetCellsAlongLine(snappedStart, alignedEnd);
 
                 // Place roads for all cells along the line
-                foreach (Vector3Int gridPos in cellsAlongDragLine)
+                foreach (Vector3Int gridPos in _cellsAlongDragLine)
                 {
                     if (GridManager.Instance.IsValidGridPosition(gridPos))
                     {
@@ -178,9 +178,9 @@ public class GridVisualiser : MonoBehaviour
             // Update visual representation
             GridManager.Instance.UpdateRoadGrid();
 
-            isDragging = false;
-            previewLine.enabled = false;
-            cellsAlongDragLine.Clear();
+            _isDragging = false;
+            _previewLine.enabled = false;
+            _cellsAlongDragLine.Clear();
         }
     }
 
@@ -210,22 +210,22 @@ public class GridVisualiser : MonoBehaviour
         if (SimulationManager.Instance.CurrentState.SimulationState != SimulationState.Roads)
             return;
 
-        if (isDragging)
+        if (_isDragging)
         {
             Vector3? currentPoint = GridManager.Instance.GetGroundHitPoint();
             if (currentPoint.HasValue)
             {
                 Vector3 snappedEnd = GridManager.Instance.SnapToGrid(currentPoint.Value);
-                Vector3 alignedEnd = GridManager.Instance.AlignToCardinalDirection(dragStartPosition, snappedEnd);
+                Vector3 alignedEnd = GridManager.Instance.AlignToCardinalDirection(_dragStartPosition, snappedEnd);
 
                 // Calculate cells along the drag line
-                cellsAlongDragLine = GridManager.Instance.GetCellsAlongLine(dragStartPosition, alignedEnd);
+                _cellsAlongDragLine = GridManager.Instance.GetCellsAlongLine(_dragStartPosition, alignedEnd);
 
                 // Calculate the actual preview line endpoints based on cells
-                if (cellsAlongDragLine.Count > 0)
+                if (_cellsAlongDragLine.Count > 0)
                 {
-                    Vector3Int firstCell = cellsAlongDragLine[0];
-                    Vector3Int lastCell = cellsAlongDragLine[cellsAlongDragLine.Count - 1];
+                    Vector3Int firstCell = _cellsAlongDragLine[0];
+                    Vector3Int lastCell = _cellsAlongDragLine[_cellsAlongDragLine.Count - 1];
 
                     Vector3 firstCellCenter = GridManager.Instance.GridToWorldPosition(firstCell.x, firstCell.z);
                     Vector3 lastCellCenter = GridManager.Instance.GridToWorldPosition(lastCell.x, lastCell.z);
@@ -234,27 +234,27 @@ public class GridVisualiser : MonoBehaviour
                     Vector3 direction = (lastCellCenter - firstCellCenter).normalized;
 
                     // If single cell, show no line or a point
-                    if (cellsAlongDragLine.Count == 1)
+                    if (_cellsAlongDragLine.Count == 1)
                     {
                         direction = Vector3.right; // Default direction for single cell
                     }
 
                     // Extend to the edges of the cells
-                    float halfCell = cellSize / 2f;
+                    float halfCell = _cellSize / 2f;
                     Vector3 previewStart = firstCellCenter - direction * halfCell;
                     previewStart.y = 0.5f;
                     Vector3 previewEnd = lastCellCenter + direction * halfCell;
                     previewEnd.y = 0.5f;
 
-                    previewLine.SetPosition(0, previewStart);
-                    previewLine.SetPosition(1, previewEnd);
-                    previewLine.enabled = true;
+                    _previewLine.SetPosition(0, previewStart);
+                    _previewLine.SetPosition(1, previewEnd);
+                    _previewLine.enabled = true;
                 }
                 else
                 {
                     // If no cells, just show a point at the start
-                    previewLine.SetPosition(0, dragStartPosition);
-                    previewLine.SetPosition(1, dragStartPosition);
+                    _previewLine.SetPosition(0, _dragStartPosition);
+                    _previewLine.SetPosition(1, _dragStartPosition);
                 }
             }
         }
@@ -268,17 +268,17 @@ public class GridVisualiser : MonoBehaviour
         {
             Vector3 cellWorldPos = GridManager.Instance.GridToWorldPosition(gridPos.x, gridPos.z);
 
-            if (highlightedCell == null)
+            if (_highlightedCell == null)
             {
-                highlightedCell = CreateHighlightCell();
+                _highlightedCell = CreateHighlightCell();
             }
 
-            highlightedCell.transform.position = cellWorldPos;
-            highlightedCell.SetActive(true);
+            _highlightedCell.transform.position = cellWorldPos;
+            _highlightedCell.SetActive(true);
         }
-        else if (highlightedCell != null)
+        else if (_highlightedCell != null)
         {
-            highlightedCell.SetActive(false);
+            _highlightedCell.SetActive(false);
         }
     }
 
@@ -293,16 +293,16 @@ public class GridVisualiser : MonoBehaviour
         Mesh mesh = new Mesh();
         mesh.vertices = new Vector3[]
         {
-            new Vector3(-cellSize / 2, 0.01f, -cellSize / 2),
-            new Vector3(cellSize / 2, 0.01f, -cellSize / 2),
-            new Vector3(cellSize / 2, 0.01f, cellSize / 2),
-            new Vector3(-cellSize / 2, 0.01f, cellSize / 2)
+            new Vector3(-_cellSize / 2, 0.01f, -_cellSize / 2),
+            new Vector3(_cellSize / 2, 0.01f, -_cellSize / 2),
+            new Vector3(_cellSize / 2, 0.01f, _cellSize / 2),
+            new Vector3(-_cellSize / 2, 0.01f, _cellSize / 2)
         };
         mesh.triangles = new int[] { 0, 2, 1, 0, 3, 2 };
         mesh.RecalculateNormals();
 
         meshFilter.mesh = mesh;
-        meshRenderer.material = highlightMaterial;
+        meshRenderer.material = _highlightMaterial;
 
         return highlight;
     }

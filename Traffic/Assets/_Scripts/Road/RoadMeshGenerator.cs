@@ -2,15 +2,11 @@ using UnityEngine;
 
 public class RoadMeshGenerator
 {
-    private RoadConfig config;
-    private float halfLaneWidth;
-    private float halfPavementWidth;
+    private RoadConfig _config;
 
     public RoadMeshGenerator(RoadConfig config)
     {
-        this.config = config;
-        halfLaneWidth = config.laneWidth / 2f;
-        halfPavementWidth = config.pavementWidth / 2f;
+        _config = config;
     }
 
     public MeshData GenerateRoadNetwork(GridCell[,] grid, Vector3 gridOrigin, float cellSize)
@@ -98,7 +94,7 @@ public class RoadMeshGenerator
     private void GenerateSingle(MeshData meshData, Vector3 cellCenter, float cellSize, bool isRoad)
     {
         float halfCell = cellSize / 2f;
-        float pavementWidth = config.pavementWidth;
+        float pavementWidth = _config.pavementWidth;
 
         if (isRoad)
         {
@@ -106,36 +102,36 @@ public class RoadMeshGenerator
             // Road is centered in the cell
             Vector3 roadMin = cellCenter + new Vector3(-roadWidth / 2f, 0, -roadWidth / 2f);
             Vector3 roadMax = cellCenter + new Vector3(roadWidth / 2f, 0, roadWidth / 2f);
-            meshData.AddCuboid(roadMin, roadMax, config.roadThickness);
+            meshData.AddCuboid(roadMin, roadMax, _config.roadThickness);
         }
         else
         {
             // Left pavement
             Vector3 leftMin = cellCenter + new Vector3(-halfCell, 0, -halfCell);
             Vector3 leftMax = cellCenter + new Vector3(-halfCell + pavementWidth, 0, halfCell);
-            meshData.AddCuboid(leftMin, leftMax, config.pavementThickness);
+            meshData.AddCuboid(leftMin, leftMax, _config.pavementThickness);
 
             // Right pavement
             Vector3 rightMin = cellCenter + new Vector3(halfCell - pavementWidth, 0, -halfCell);
             Vector3 rightMax = cellCenter + new Vector3(halfCell, 0, halfCell);
-            meshData.AddCuboid(rightMin, rightMax, config.pavementThickness);
+            meshData.AddCuboid(rightMin, rightMax, _config.pavementThickness);
 
             // Top pavement
             Vector3 topMin = cellCenter + new Vector3(-halfCell + pavementWidth, 0, halfCell - pavementWidth);
             Vector3 topMax = cellCenter + new Vector3(halfCell - pavementWidth, 0, halfCell);
-            meshData.AddCuboid(topMin, topMax, config.pavementThickness);
+            meshData.AddCuboid(topMin, topMax, _config.pavementThickness);
 
             // Bottom pavement
             Vector3 bottomMin = cellCenter + new Vector3(-halfCell + pavementWidth, 0, -halfCell);
             Vector3 bottomMax = cellCenter + new Vector3(halfCell - pavementWidth, 0, -halfCell + pavementWidth);
-            meshData.AddCuboid(bottomMin, bottomMax, config.pavementThickness);
+            meshData.AddCuboid(bottomMin, bottomMax, _config.pavementThickness);
         }
     }
 
     private void GenerateStraight(MeshData meshData, Vector3 cellCenter, float cellSize, GridCell[,] grid, int x, int z, bool isRoad)
     {
         float halfCell = cellSize / 2f;
-        float pavementWidth = config.pavementWidth;
+        float pavementWidth = _config.pavementWidth;
 
         // Check neighbors to determine direction
         int[] dx = { -1, 1, 0, 0 };
@@ -175,7 +171,7 @@ public class RoadMeshGenerator
                     break;
             }
 
-            meshData.AddCuboid(roadMin, roadMax, config.roadThickness);
+            meshData.AddCuboid(roadMin, roadMax, _config.roadThickness);
         }
         else
         {
@@ -188,12 +184,12 @@ public class RoadMeshGenerator
                     meshData.AddCuboid(
                         cellCenter + new Vector3(-halfCell, 0, -halfCell),
                         cellCenter + new Vector3(halfCell, 0, -halfCell + pavementWidth),
-                        config.pavementThickness);
+                        _config.pavementThickness);
                     // Top pavement
                     meshData.AddCuboid(
                         cellCenter + new Vector3(-halfCell, 0, halfCell - pavementWidth),
                         cellCenter + new Vector3(halfCell, 0, halfCell),
-                        config.pavementThickness);
+                        _config.pavementThickness);
                     break;
 
                 case 2: // Up neighbor - pavement on left, right
@@ -202,12 +198,12 @@ public class RoadMeshGenerator
                     meshData.AddCuboid(
                         cellCenter + new Vector3(-halfCell, 0, -halfCell),
                         cellCenter + new Vector3(-halfCell + pavementWidth, 0, halfCell),
-                        config.pavementThickness);
+                        _config.pavementThickness);
                     // Right pavement
                     meshData.AddCuboid(
                         cellCenter + new Vector3(halfCell - pavementWidth, 0, -halfCell),
                         cellCenter + new Vector3(halfCell, 0, halfCell),
-                        config.pavementThickness);
+                        _config.pavementThickness);
                     break;
             }
         }
@@ -216,7 +212,7 @@ public class RoadMeshGenerator
     private void GenerateCorner(MeshData meshData, Vector3 cellCenter, float cellSize, GridCell[,] grid, int x, int z, bool isRoad)
     {
         float halfCell = cellSize / 2f;
-        float pavementWidth = config.pavementWidth;
+        float pavementWidth = _config.pavementWidth;
 
         // Check neighbors to determine the corner shape
         int[] dx = { -1, 1, 0, 0 };
@@ -282,7 +278,7 @@ public class RoadMeshGenerator
                 roadMax = cellCenter + new Vector3(halfCell, 0, halfCell - pavementWidth);
             }
 
-            meshData.AddCuboid(roadMin, roadMax, config.roadThickness);
+            meshData.AddCuboid(roadMin, roadMax, _config.roadThickness);
         }
         else
         {
@@ -295,19 +291,19 @@ public class RoadMeshGenerator
                 meshData.AddCuboid(
                     cellCenter + new Vector3(-halfCell, 0, -halfCell),
                     cellCenter + new Vector3(halfCell, 0, -halfCell + pavementWidth),
-                    config.pavementThickness);
+                    _config.pavementThickness);
 
                 // right pavement
                 meshData.AddCuboid(
                     cellCenter + new Vector3(halfCell - pavementWidth, 0, -halfCell + pavementWidth),
                     cellCenter + new Vector3(halfCell, 0, halfCell),
-                    config.pavementThickness);
+                    _config.pavementThickness);
 
                 // top left corner for linking to pavements of neighbours
                 meshData.AddCuboid(
                     cellCenter + new Vector3(-halfCell, 0, halfCell - pavementWidth),
                     cellCenter + new Vector3(-halfCell + pavementWidth, 0, halfCell),
-                    config.pavementThickness);
+                    _config.pavementThickness);
             }
             else if ((neighborDirection1 == 0 && neighborDirection2 == 2) || // Left and Down
                      (neighborDirection1 == 2 && neighborDirection2 == 0)) // Down and Left
@@ -317,19 +313,19 @@ public class RoadMeshGenerator
                 meshData.AddCuboid(
                     cellCenter + new Vector3(halfCell - pavementWidth, 0, -halfCell),
                     cellCenter + new Vector3(halfCell, 0, halfCell),
-                    config.pavementThickness);
+                    _config.pavementThickness);
 
                 // top pavement
                 meshData.AddCuboid(
                     cellCenter + new Vector3(-halfCell, 0, halfCell - pavementWidth),
                     cellCenter + new Vector3(halfCell - pavementWidth, 0, halfCell),
-                    config.pavementThickness);
+                    _config.pavementThickness);
 
                 // bottom left corner for linking to pavements of neighbours
                 meshData.AddCuboid(
                     cellCenter + new Vector3(-halfCell, 0, -halfCell),
                     cellCenter + new Vector3(-halfCell + pavementWidth, 0, -halfCell + pavementWidth),
-                    config.pavementThickness);
+                    _config.pavementThickness);
             }
             else if ((neighborDirection1 == 1 && neighborDirection2 == 3) || // Right and Up
                      (neighborDirection1 == 3 && neighborDirection2 == 1)) // Up and Right
@@ -339,19 +335,19 @@ public class RoadMeshGenerator
                 meshData.AddCuboid(
                     cellCenter + new Vector3(-halfCell, 0, -halfCell),
                     cellCenter + new Vector3(-halfCell + pavementWidth, 0, halfCell),
-                    config.pavementThickness);
+                    _config.pavementThickness);
 
                 // bottom pavement
                 meshData.AddCuboid(
                     cellCenter + new Vector3(-halfCell + pavementWidth, 0, -halfCell),
                     cellCenter + new Vector3(halfCell, 0, -halfCell + pavementWidth),
-                    config.pavementThickness);
+                    _config.pavementThickness);
 
                 // top right corner for linking to pavements of neighbours
                 meshData.AddCuboid(
                     cellCenter + new Vector3(halfCell - pavementWidth, 0, halfCell - pavementWidth),
                     cellCenter + new Vector3(halfCell, 0, halfCell),
-                    config.pavementThickness);
+                    _config.pavementThickness);
             }
             else if ((neighborDirection1 == 1 && neighborDirection2 == 2) || // Right and Down
                      (neighborDirection1 == 2 && neighborDirection2 == 1)) // Down and Right
@@ -361,19 +357,19 @@ public class RoadMeshGenerator
                 meshData.AddCuboid(
                     cellCenter + new Vector3(-halfCell, 0, halfCell - pavementWidth),
                     cellCenter + new Vector3(halfCell, 0, halfCell),
-                    config.pavementThickness);
+                    _config.pavementThickness);
 
                 // left pavement
                 meshData.AddCuboid(
                     cellCenter + new Vector3(-halfCell, 0, -halfCell),
                     cellCenter + new Vector3(-halfCell + pavementWidth, 0, halfCell - pavementWidth),
-                    config.pavementThickness);
+                    _config.pavementThickness);
 
                 // bottom right corner for linking to pavements of neighbours
                 meshData.AddCuboid(
                     cellCenter + new Vector3(halfCell - pavementWidth, 0, -halfCell),
                     cellCenter + new Vector3(halfCell, 0, -halfCell + pavementWidth),
-                    config.pavementThickness);
+                    _config.pavementThickness);
             }
         }
     }
@@ -381,7 +377,7 @@ public class RoadMeshGenerator
     private void GenerateDeadEnd(MeshData meshData, Vector3 cellCenter, float cellSize, GridCell[,] grid, int x, int z, bool isRoad)
     {
         float halfCell = cellSize / 2f;
-        float pavementWidth = config.pavementWidth;
+        float pavementWidth = _config.pavementWidth;
 
         // Check neighbors to determine which direction the dead end faces
         int[] dx = { -1, 1, 0, 0 };  // Left, Right, Up, Down
@@ -431,7 +427,7 @@ public class RoadMeshGenerator
                     break;
             }
 
-            meshData.AddCuboid(roadMin, roadMax, config.roadThickness);
+            meshData.AddCuboid(roadMin, roadMax, _config.roadThickness);
         }
         else
         {
@@ -443,17 +439,17 @@ public class RoadMeshGenerator
                     meshData.AddCuboid(
                         cellCenter + new Vector3(halfCell - pavementWidth, 0, -halfCell),
                         cellCenter + new Vector3(halfCell, 0, halfCell),
-                        config.pavementThickness);
+                        _config.pavementThickness);
                     // Top pavement
                     meshData.AddCuboid(
                         cellCenter + new Vector3(-halfCell, 0, halfCell - pavementWidth),
                         cellCenter + new Vector3(halfCell - pavementWidth, 0, halfCell),
-                        config.pavementThickness);
+                        _config.pavementThickness);
                     // Bottom pavement
                     meshData.AddCuboid(
                         cellCenter + new Vector3(-halfCell, 0, -halfCell),
                         cellCenter + new Vector3(halfCell - pavementWidth, 0, -halfCell + pavementWidth),
-                        config.pavementThickness);
+                        _config.pavementThickness);
                     break;
 
                 case 1: // Right neighbor - pavement on left, top, and bottom
@@ -461,17 +457,17 @@ public class RoadMeshGenerator
                     meshData.AddCuboid(
                         cellCenter + new Vector3(-halfCell, 0, -halfCell),
                         cellCenter + new Vector3(-halfCell + pavementWidth, 0, halfCell),
-                        config.pavementThickness);
+                        _config.pavementThickness);
                     // Top pavement
                     meshData.AddCuboid(
                         cellCenter + new Vector3(-halfCell + pavementWidth, 0, halfCell - pavementWidth),
                         cellCenter + new Vector3(halfCell, 0, halfCell),
-                        config.pavementThickness);
+                        _config.pavementThickness);
                     //Bottom pavement
                     meshData.AddCuboid(
                         cellCenter + new Vector3(-halfCell + pavementWidth, 0, -halfCell),
                         cellCenter + new Vector3(halfCell, 0, -halfCell + pavementWidth),
-                        config.pavementThickness);
+                        _config.pavementThickness);
                     break;
 
                 case 2: // Up neighbor - pavement on left, right, and bottom
@@ -479,17 +475,17 @@ public class RoadMeshGenerator
                     meshData.AddCuboid(
                         cellCenter + new Vector3(-halfCell, 0, halfCell - pavementWidth),
                         cellCenter + new Vector3(halfCell, 0, halfCell),
-                        config.pavementThickness);
+                        _config.pavementThickness);
                     // Left pavement
                     meshData.AddCuboid(
                         cellCenter + new Vector3(-halfCell, 0, -halfCell),
                         cellCenter + new Vector3(-halfCell + pavementWidth, 0, halfCell - pavementWidth),
-                        config.pavementThickness);
+                        _config.pavementThickness);
                     // Right pavement
                     meshData.AddCuboid(
                         cellCenter + new Vector3(halfCell - pavementWidth, 0, -halfCell),
                         cellCenter + new Vector3(halfCell, 0, halfCell - pavementWidth),
-                        config.pavementThickness);
+                        _config.pavementThickness);
                     break;
 
                 case 3: // Down neighbor - pavement on left, right, and top
@@ -497,17 +493,17 @@ public class RoadMeshGenerator
                     meshData.AddCuboid(
                         cellCenter + new Vector3(-halfCell, 0, -halfCell),
                         cellCenter + new Vector3(halfCell, 0, -halfCell + pavementWidth),
-                        config.pavementThickness);
+                        _config.pavementThickness);
                     // Left pavement
                     meshData.AddCuboid(
                         cellCenter + new Vector3(-halfCell, 0, -halfCell + pavementWidth),
                         cellCenter + new Vector3(-halfCell + pavementWidth, 0, halfCell),
-                        config.pavementThickness);
+                        _config.pavementThickness);
                     // Right pavement
                     meshData.AddCuboid(
                         cellCenter + new Vector3(halfCell - pavementWidth, 0, -halfCell + pavementWidth),
                         cellCenter + new Vector3(halfCell, 0, halfCell),
-                        config.pavementThickness);
+                        _config.pavementThickness);
                     break;
             }
         }
@@ -516,7 +512,7 @@ public class RoadMeshGenerator
     private void GenerateTJunction(MeshData meshData, Vector3 cellCenter, float cellSize, GridCell[,] grid, int x, int z, bool isRoad)
     {
         float halfCell = cellSize / 2f;
-        float pavementWidth = config.pavementWidth;
+        float pavementWidth = _config.pavementWidth;
 
         // Check neighbors to determine the corner shape
         int[] dx = { -1, 1, 0, 0 };
@@ -545,7 +541,7 @@ public class RoadMeshGenerator
                 meshData.AddCuboid(
                     cellCenter + new Vector3(-halfCell + pavementWidth, 0, -halfCell),
                     cellCenter + new Vector3(halfCell, 0, halfCell),
-                    config.roadThickness);
+                    _config.roadThickness);
             }
             // no road right (T like -|)
             else if (!neighbours[1])
@@ -553,7 +549,7 @@ public class RoadMeshGenerator
                 meshData.AddCuboid(
                     cellCenter + new Vector3(-halfCell, 0, -halfCell),
                     cellCenter + new Vector3(halfCell - pavementWidth, 0, halfCell),
-                    config.roadThickness);
+                    _config.roadThickness);
             }
             // no road below (upside down T)
             else if (!neighbours[2])
@@ -561,7 +557,7 @@ public class RoadMeshGenerator
                 meshData.AddCuboid(
                     cellCenter + new Vector3(-halfCell, 0, -halfCell + pavementWidth),
                     cellCenter + new Vector3(halfCell, 0, halfCell),
-                    config.roadThickness);
+                    _config.roadThickness);
             }
             // no road above (classic T shape)
             else if (!neighbours[3])
@@ -569,7 +565,7 @@ public class RoadMeshGenerator
                 meshData.AddCuboid(
                     cellCenter + new Vector3(-halfCell, 0, -halfCell),
                     cellCenter + new Vector3(halfCell, 0, halfCell - pavementWidth),
-                    config.roadThickness);
+                    _config.roadThickness);
             }
             else
             {
@@ -585,19 +581,19 @@ public class RoadMeshGenerator
                 meshData.AddCuboid(
                     cellCenter + new Vector3(-halfCell, 0, -halfCell),
                     cellCenter + new Vector3(-halfCell + pavementWidth, 0, halfCell),
-                    config.pavementThickness);
+                    _config.pavementThickness);
 
                 // nubbin top right
                 meshData.AddCuboid(
                     cellCenter + new Vector3(halfCell - pavementWidth, 0, halfCell - pavementWidth),
                     cellCenter + new Vector3(halfCell, 0, halfCell),
-                    config.pavementThickness);
+                    _config.pavementThickness);
 
                 // nubbing bottom right
                 meshData.AddCuboid(
                     cellCenter + new Vector3(halfCell - pavementWidth, 0, -halfCell),
                     cellCenter + new Vector3(halfCell, 0, -halfCell + pavementWidth),
-                    config.pavementThickness);
+                    _config.pavementThickness);
             }
             // no road right (T like -|)
             else if (!neighbours[1])
@@ -606,19 +602,19 @@ public class RoadMeshGenerator
                 meshData.AddCuboid(
                     cellCenter + new Vector3(halfCell - pavementWidth, 0, -halfCell),
                     cellCenter + new Vector3(halfCell, 0, halfCell),
-                    config.pavementThickness);
+                    _config.pavementThickness);
 
                 // nubbin top left
                 meshData.AddCuboid(
                     cellCenter + new Vector3(-halfCell, 0, halfCell - pavementWidth),
                     cellCenter + new Vector3(-halfCell + pavementWidth, 0, halfCell),
-                    config.pavementThickness);
+                    _config.pavementThickness);
 
                 // nubbing bottom left
                 meshData.AddCuboid(
                     cellCenter + new Vector3(-halfCell, 0, -halfCell),
                     cellCenter + new Vector3(-halfCell + pavementWidth, 0, -halfCell + pavementWidth),
-                    config.pavementThickness);
+                    _config.pavementThickness);
             }
             // no road below (upside down T)
             else if (!neighbours[2])
@@ -627,19 +623,19 @@ public class RoadMeshGenerator
                 meshData.AddCuboid(
                     cellCenter + new Vector3(-halfCell, 0, -halfCell),
                     cellCenter + new Vector3(halfCell, 0, -halfCell + pavementWidth),
-                    config.pavementThickness);
+                    _config.pavementThickness);
 
                 // nubbin top left
                 meshData.AddCuboid(
                     cellCenter + new Vector3(-halfCell, 0, halfCell - pavementWidth),
                     cellCenter + new Vector3(-halfCell + pavementWidth, 0, halfCell),
-                    config.pavementThickness);
+                    _config.pavementThickness);
 
                 // nubbing top right
                 meshData.AddCuboid(
                     cellCenter + new Vector3(halfCell - pavementWidth, 0, halfCell - pavementWidth),
                     cellCenter + new Vector3(halfCell, 0, halfCell),
-                    config.pavementThickness);
+                    _config.pavementThickness);
             }
             // no road above (classic T shape)
             else if (!neighbours[3])
@@ -648,19 +644,19 @@ public class RoadMeshGenerator
                 meshData.AddCuboid(
                     cellCenter + new Vector3(-halfCell, 0, halfCell - pavementWidth),
                     cellCenter + new Vector3(halfCell, 0, halfCell),
-                    config.pavementThickness);
+                    _config.pavementThickness);
 
                 // nubbin bottom left
                 meshData.AddCuboid(
                     cellCenter + new Vector3(-halfCell, 0, -halfCell),
                     cellCenter + new Vector3(-halfCell + pavementWidth, 0, -halfCell + pavementWidth),
-                    config.pavementThickness);
+                    _config.pavementThickness);
 
                 // nubbing bottom right
                 meshData.AddCuboid(
                     cellCenter + new Vector3(halfCell - pavementWidth, 0, -halfCell),
                     cellCenter + new Vector3(halfCell, 0, -halfCell + pavementWidth),
-                    config.pavementThickness);
+                    _config.pavementThickness);
             }
             else
             {
@@ -672,14 +668,14 @@ public class RoadMeshGenerator
     private void GenerateCrossroad(MeshData meshData, Vector3 cellCenter, float cellSize, bool isRoad)
     {
         float halfCell = cellSize / 2f;
-        float pavementWidth = config.pavementWidth;
+        float pavementWidth = _config.pavementWidth;
 
         if (isRoad)
         {
             // Road is centered in the cell
             Vector3 roadMin = cellCenter + new Vector3(-halfCell, 0, -halfCell);
             Vector3 roadMax = cellCenter + new Vector3(halfCell, 0, halfCell);
-            meshData.AddCuboid(roadMin, roadMax, config.roadThickness);
+            meshData.AddCuboid(roadMin, roadMax, _config.roadThickness);
         }
         else
         {
@@ -687,25 +683,25 @@ public class RoadMeshGenerator
             meshData.AddCuboid(
                 cellCenter + new Vector3(-halfCell, 0, halfCell - pavementWidth),
                 cellCenter + new Vector3(-halfCell + pavementWidth, 0, halfCell),
-                config.pavementThickness);
+                _config.pavementThickness);
 
             // top right pavement
             meshData.AddCuboid(
                 cellCenter + new Vector3(halfCell - pavementWidth, 0, halfCell - pavementWidth),
                 cellCenter + new Vector3(halfCell, 0, halfCell),
-                config.pavementThickness);
+                _config.pavementThickness);
 
             // bottom left pavement
             meshData.AddCuboid(
                 cellCenter + new Vector3(-halfCell, 0, -halfCell),
                 cellCenter + new Vector3(-halfCell + pavementWidth, 0, -halfCell + pavementWidth),
-                config.pavementThickness);
+                _config.pavementThickness);
 
             // bottom right pavement
             meshData.AddCuboid(
                 cellCenter + new Vector3(halfCell - pavementWidth, 0, -halfCell),
                 cellCenter + new Vector3(halfCell, 0, -halfCell + pavementWidth),
-                config.pavementThickness);
+                _config.pavementThickness);
         }
     }
 

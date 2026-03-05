@@ -6,22 +6,24 @@ public class GridManager : MonoBehaviour, ISaveable
 {
     public static GridManager Instance { get; private set; }
 
-    [SerializeField] private int gridWidth = 50;
-    [SerializeField] private int gridHeight = 50;
-    [SerializeField] private float cellSize = 1f;
-    [SerializeField] private LayerMask planeLayer;
+    [SerializeField] private int _gridWidth = 50;
+    [SerializeField] private int _gridHeight = 50;
+    [SerializeField] private float _cellSize = 1f;
+    [SerializeField] private LayerMask _planeLayer;
 
-    private GridCell[,] grid;
-    private Vector3 gridOrigin;
+    private GridCell[,] _grid;
+    private Vector3 _gridOrigin;
 
-    public int GridWidth => gridWidth;
-    public int GridHeight => gridHeight;
-    public float CellSize => cellSize;
-    public Vector3 GridOrigin => gridOrigin;
+    public int GridWidth => _gridWidth;
+    public int GridHeight => _gridHeight;
+    public float CellSize => _cellSize;
+    public Vector3 GridOrigin => _gridOrigin;
 
     public string SaveKey => "Grid";
 
     public static event Action OnRoadGridUpdated;
+
+    private bool _subscribedToSaveManager = false;
 
     private void Awake()
     {
@@ -38,29 +40,45 @@ public class GridManager : MonoBehaviour, ISaveable
         InitializeGrid();
     }
 
+    private void Update()
+    {
+        if (!_subscribedToSaveManager)
+            TryToSubscribeToSaveManager();
+    }
+
     private void OnEnable()
     {
-        if (SaveManager.Instance != null)
-            SaveManager.Instance.RegisterSaveable(this);
+        TryToSubscribeToSaveManager();
     }
 
     private void OnDisable()
     {
         if (SaveManager.Instance != null)
+        {
             SaveManager.Instance.UnregisterSaveable(this);
+            _subscribedToSaveManager = false;
+        }
+    }
+
+    private void TryToSubscribeToSaveManager()
+    {
+        if (SaveManager.Instance == null) return;
+
+        SaveManager.Instance.RegisterSaveable(this);
+        _subscribedToSaveManager = true;
     }
 
     private void InitializeGrid()
     {
-        grid = new GridCell[gridWidth, gridHeight];
-        gridOrigin = transform.position;
+        _grid = new GridCell[_gridWidth, _gridHeight];
+        _gridOrigin = transform.position;
 
         // Initialize grid cells
-        for (int x = 0; x < gridWidth; x++)
+        for (int x = 0; x < _gridWidth; x++)
         {
-            for (int z = 0; z < gridHeight; z++)
+            for (int z = 0; z < _gridHeight; z++)
             {
-                grid[x, z] = new GridCell
+                _grid[x, z] = new GridCell
                 {
                     Position = new Vector3Int(x, 0, z),
                     CellType = CellType.Empty
@@ -72,7 +90,7 @@ public class GridManager : MonoBehaviour, ISaveable
     // Grid data access
     public GridCell GetCell(int x, int z)
     {
-        return IsValidGridPosition(new Vector3Int(x, 0, z)) ? grid[x, z] : null;
+        return IsValidGridPosition(new Vector3Int(x, 0, z)) ? _grid[x, z] : null;
     }
 
     public GridCell GetCellAtWorldPosition(Vector3 worldPos)
@@ -83,42 +101,42 @@ public class GridManager : MonoBehaviour, ISaveable
 
     public GridCell[,] GetGrid()
     {
-        return grid;
+        return _grid;
     }
 
     // Grid queries
     public bool IsValidGridPosition(Vector3Int gridPos)
     {
-        return gridPos.x >= 0 && gridPos.x < gridWidth &&
-               gridPos.z >= 0 && gridPos.z < gridHeight;
+        return gridPos.x >= 0 && gridPos.x < _gridWidth &&
+               gridPos.z >= 0 && gridPos.z < _gridHeight;
     }
 
     public Vector3Int WorldToGridPosition(Vector3 worldPos)
     {
-        Vector3 relativePos = worldPos - gridOrigin;
-        int x = Mathf.RoundToInt(relativePos.x / cellSize);
-        int z = Mathf.RoundToInt(relativePos.z / cellSize);
+        Vector3 relativePos = worldPos - _gridOrigin;
+        int x = Mathf.RoundToInt(relativePos.x / _cellSize);
+        int z = Mathf.RoundToInt(relativePos.z / _cellSize);
         return new Vector3Int(x, 0, z);
     }
 
     public Vector3 GridToWorldPosition(int x, int z)
     {
-        return gridOrigin + new Vector3(x * cellSize, 0, z * cellSize);
+        return _gridOrigin + new Vector3(x * _cellSize, 0, z * _cellSize);
     }
 
     public Vector3 SnapToGrid(Vector3 worldPos)
     {
-        Vector3 relativePos = worldPos - gridOrigin;
-        int x = Mathf.RoundToInt(relativePos.x / cellSize);
-        int z = Mathf.RoundToInt(relativePos.z / cellSize);
-        return gridOrigin + new Vector3(x * cellSize, 0, z * cellSize);
+        Vector3 relativePos = worldPos - _gridOrigin;
+        int x = Mathf.RoundToInt(relativePos.x / _cellSize);
+        int z = Mathf.RoundToInt(relativePos.z / _cellSize);
+        return _gridOrigin + new Vector3(x * _cellSize, 0, z * _cellSize);
     }
 
     public Vector3? GetGroundHitPoint()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, planeLayer))
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, _planeLayer))
         {
             return hit.point;
         }
@@ -129,7 +147,7 @@ public class GridManager : MonoBehaviour, ISaveable
     public Vector3Int GetGridPositionFromMouse()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        Plane gridPlane = new Plane(Vector3.up, gridOrigin.y);
+        Plane gridPlane = new Plane(Vector3.up, _gridOrigin.y);
 
         if (gridPlane.Raycast(ray, out float distance))
         {
@@ -205,20 +223,20 @@ public class GridManager : MonoBehaviour, ISaveable
     }
     public Vector3 GetCellCentre(GridCell cell)
     {
-        return gridOrigin + new Vector3(cell.Position.x * cellSize, 0, cell.Position.z * cellSize);
+        return _gridOrigin + new Vector3(cell.Position.x * _cellSize, 0, cell.Position.z * _cellSize);
     }
 
     // Road type management
     public void UpdateRoadTypes(Vector3Int placedCell)
     {
-        if (grid[placedCell.x, placedCell.z].CellType == CellType.Empty)
+        if (_grid[placedCell.x, placedCell.z].CellType == CellType.Empty)
         {
-            grid[placedCell.x, placedCell.z].RoadType = RoadType.Empty;
+            _grid[placedCell.x, placedCell.z].RoadType = RoadType.Empty;
         }
         else
         {
             // Update the placed cell
-            grid[placedCell.x, placedCell.z].RoadType = GetRoadType(placedCell.x, placedCell.z);
+            _grid[placedCell.x, placedCell.z].RoadType = GetRoadType(placedCell.x, placedCell.z);
         }
 
         // Create a list of cells to update
@@ -234,7 +252,7 @@ public class GridManager : MonoBehaviour, ISaveable
             int nx = placedCell.x + dx[i];
             int nz = placedCell.z + dz[i];
 
-            if (IsValidGridPosition(new Vector3Int(nx, 0, nz)) && grid[nx, nz].CellType == CellType.Road)
+            if (IsValidGridPosition(new Vector3Int(nx, 0, nz)) && _grid[nx, nz].CellType == CellType.Road)
             {
                 cellsToUpdate.Add(new Vector3Int(nx, 0, nz));
             }
@@ -243,14 +261,14 @@ public class GridManager : MonoBehaviour, ISaveable
         // Update the road type of all cells in the list
         foreach (Vector3Int cell in cellsToUpdate)
         {
-            grid[cell.x, cell.z].RoadType = GetRoadType(cell.x, cell.z);
+            _grid[cell.x, cell.z].RoadType = GetRoadType(cell.x, cell.z);
         }
     }
 
     private RoadType GetRoadType(int x, int z)
     {
         // First check if this cell is even a road
-        if (grid[x, z].CellType != CellType.Road)
+        if (_grid[x, z].CellType != CellType.Road)
             return RoadType.Empty;
 
         int roadCount = 0;
@@ -265,7 +283,7 @@ public class GridManager : MonoBehaviour, ISaveable
             int nx = x + dx[i];
             int nz = z + dz[i];
 
-            if (IsValidGridPosition(new Vector3Int(nx, 0, nz)) && grid[nx, nz].CellType == CellType.Road)
+            if (IsValidGridPosition(new Vector3Int(nx, 0, nz)) && _grid[nx, nz].CellType == CellType.Road)
             {
                 roadCount++;
                 adjacentRoads.Add(new Vector3Int(nx, 0, nz));
@@ -305,7 +323,7 @@ public class GridManager : MonoBehaviour, ISaveable
     {
         if (IsValidGridPosition(position))
         {
-            grid[position.x, position.z].CellType = type;
+            _grid[position.x, position.z].CellType = type;
         }
     }
 
@@ -332,7 +350,7 @@ public class GridManager : MonoBehaviour, ISaveable
         if (!IsValidGridPosition(new Vector3Int(newX, 0, newZ)))
             return false;
 
-        return grid[newX, newZ].CellType == CellType.Road;
+        return _grid[newX, newZ].CellType == CellType.Road;
     }
 
     public GridCell GetNeighborInDirection(GridCell cell, RoadDirection direction)
@@ -351,7 +369,7 @@ public class GridManager : MonoBehaviour, ISaveable
         if (!IsValidGridPosition(new Vector3Int(newX, 0, newZ)))
             return null;
 
-        return grid[newX, newZ];
+        return _grid[newX, newZ];
     }
 
     public void UpdateRoadGrid()
@@ -363,13 +381,13 @@ public class GridManager : MonoBehaviour, ISaveable
 
     public void PopulateSaveData(GameSaveData saveData)
     {
-        var gridData = new GridSaveData { width = gridWidth, height = gridHeight };
+        var gridData = new GridSaveData { width = _gridWidth, height = _gridHeight };
 
-        for (int x = 0; x < gridWidth; x++)
+        for (int x = 0; x < _gridWidth; x++)
         {
-            for (int z = 0; z < gridHeight; z++)
+            for (int z = 0; z < _gridHeight; z++)
             {
-                var cell = grid[x, z];
+                var cell = _grid[x, z];
 
                 // Only save non-empty cells
                 if (cell.CellType == CellType.Empty)
@@ -378,7 +396,6 @@ public class GridManager : MonoBehaviour, ISaveable
                 var cellData = new GridCellSaveData
                 {
                     x = cell.Position.x,
-                    y = cell.Position.y,
                     z = cell.Position.z,
                     cellType = cell.CellType,
                     roadType = cell.RoadType,
@@ -400,16 +417,16 @@ public class GridManager : MonoBehaviour, ISaveable
         }
 
         var gridData = saveData.grid;
-        gridWidth = gridData.width;
-        gridHeight = gridData.height;
+        _gridWidth = gridData.width;
+        _gridHeight = gridData.height;
 
         // Initialize grid with all Empty cells
-        grid = new GridCell[gridWidth, gridHeight];
-        for (int x = 0; x < gridWidth; x++)
+        _grid = new GridCell[_gridWidth, _gridHeight];
+        for (int x = 0; x < _gridWidth; x++)
         {
-            for (int z = 0; z < gridHeight; z++)
+            for (int z = 0; z < _gridHeight; z++)
             {
-                grid[x, z] = new GridCell
+                _grid[x, z] = new GridCell
                 {
                     Position = new Vector3Int(x, 0, z),
                     CellType = CellType.Empty,
@@ -422,7 +439,7 @@ public class GridManager : MonoBehaviour, ISaveable
         // Only load the non-empty cells from save data
         foreach (var cellData in gridData.cells)
         {
-            var position = new Vector3Int(cellData.x, cellData.y, cellData.z);
+            var position = new Vector3Int(cellData.x, 0, cellData.z);
             var cell = new GridCell
             {
                 Position = position,
@@ -434,13 +451,14 @@ public class GridManager : MonoBehaviour, ISaveable
             int gridX = cellData.x;
             int gridZ = cellData.z;
 
-            if (gridX >= 0 && gridX < gridWidth && gridZ >= 0 && gridZ < gridHeight)
-                grid[gridX, gridZ] = cell;
+            if (IsValidGridPosition(new Vector3Int(gridX, 0, gridZ)))
+                _grid[gridX, gridZ] = cell;
             else
                 Debug.LogWarning($"[GridManager] Cell at ({gridX}, {gridZ}) is out of bounds.");
         }
 
-        Debug.Log($"[GridManager] Loaded {gridWidth}x{gridHeight} grid with {gridData.cells.Count} non-empty cells.");
-        OnRoadGridUpdated?.Invoke();
+        Debug.Log($"[GridManager] Loaded {_gridWidth}x{_gridHeight} grid with {gridData.cells.Count} non-empty cells.");
+
+        RoadMeshRenderer.Instance.UpdateRoadMesh(false);
     }
 }

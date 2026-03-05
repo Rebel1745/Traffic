@@ -172,8 +172,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a44b2ee19e99be4ab8ac6dc54dcf8f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameStateButton
-  simulationState: 5
-  setSimulationState: 1
+  _simulationState: 5
+  _setSimulationState: 1
   roadSubState: 0
   vehicleSubState: 0
   trafficLightSubState: 0
@@ -189,11 +189,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a006db7d9e4712449afa6be9f0db53c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToggleButton
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
-  subGroup: {fileID: 1468431309}
-  autoSelectFirstSubGroupButton: 1
-  collapsible: 0
+  _normalColor: {r: 1, g: 1, b: 1, a: 1}
+  _activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
+  _subGroup: {fileID: 1468431309}
+  _autoSelectFirstSubGroupButton: 1
+  _collapsible: 0
 --- !u!114 &3498931
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -737,8 +737,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a44b2ee19e99be4ab8ac6dc54dcf8f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameStateButton
-  simulationState: 0
-  setSimulationState: 0
+  _simulationState: 0
+  _setSimulationState: 0
   roadSubState: 0
   vehicleSubState: 0
   trafficLightSubState: 2
@@ -754,11 +754,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a006db7d9e4712449afa6be9f0db53c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToggleButton
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
-  subGroup: {fileID: 0}
-  autoSelectFirstSubGroupButton: 0
-  collapsible: 0
+  _normalColor: {r: 1, g: 1, b: 1, a: 1}
+  _activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
+  _subGroup: {fileID: 0}
+  _autoSelectFirstSubGroupButton: 1
+  _collapsible: 0
 --- !u!114 &118419128
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -906,11 +906,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a006db7d9e4712449afa6be9f0db53c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToggleButton
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
-  subGroup: {fileID: 0}
-  autoSelectFirstSubGroupButton: 0
-  collapsible: 0
+  _normalColor: {r: 1, g: 1, b: 1, a: 1}
+  _activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
+  _subGroup: {fileID: 0}
+  _autoSelectFirstSubGroupButton: 1
+  _collapsible: 0
 --- !u!114 &130653193
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1005,8 +1005,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a44b2ee19e99be4ab8ac6dc54dcf8f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameStateButton
-  simulationState: 0
-  setSimulationState: 0
+  _simulationState: 0
+  _setSimulationState: 0
   roadSubState: 0
   vehicleSubState: 2
   trafficLightSubState: 0
@@ -1067,9 +1067,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c2e01f03efc3294eb87c66519421f19, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoadMeshRenderer
-  roadMeshFilter: {fileID: 0}
-  pavementMeshFilter: {fileID: 0}
-  config: {fileID: 11400000, guid: ac9c0926cd1df9549b1b42924525d025, type: 2}
+  _roadMeshFilter: {fileID: 0}
+  _pavementMeshFilter: {fileID: 0}
+  _config: {fileID: 11400000, guid: ac9c0926cd1df9549b1b42924525d025, type: 2}
 --- !u!1 &132440635
 GameObject:
   m_ObjectHideFlags: 0
@@ -1123,11 +1123,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a006db7d9e4712449afa6be9f0db53c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToggleButton
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
-  subGroup: {fileID: 0}
-  autoSelectFirstSubGroupButton: 0
-  collapsible: 0
+  _normalColor: {r: 1, g: 1, b: 1, a: 1}
+  _activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
+  _subGroup: {fileID: 0}
+  _autoSelectFirstSubGroupButton: 1
+  _collapsible: 0
 --- !u!114 &132440638
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1222,8 +1222,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a44b2ee19e99be4ab8ac6dc54dcf8f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameStateButton
-  simulationState: 0
-  setSimulationState: 0
+  _simulationState: 0
+  _setSimulationState: 0
   roadSubState: 0
   vehicleSubState: 1
   trafficLightSubState: 0
@@ -1278,14 +1278,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ca59d34db4bf9c4ebb1d807503bc909, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonGroup
-  buttons:
+  _buttons:
   - {fileID: 1909409263}
   - {fileID: 118419127}
-  hideOnStartup: 1
-  isVertical: 0
-  animationDuration: 0.2
-  staggerDelay: 0.05
-  slideDistance: 50
+  _hideOnStartup: 1
+  _isVertical: 1
+  _animationDuration: 0.2
+  _staggerDelay: 0.05
+  _slideDistance: 50
 --- !u!114 &161661845
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1434,7 +1434,6 @@ GameObject:
   m_Component:
   - component: {fileID: 234034574}
   - component: {fileID: 234034576}
-  - component: {fileID: 234034575}
   m_Layer: 0
   m_Name: InputManager
   m_TagString: Untagged
@@ -1457,18 +1456,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1031994652}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &234034575
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 234034573}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cba87b015489e2e45bdb2746b6603f10, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InputTesting
 --- !u!114 &234034576
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1662,10 +1649,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6fcd15519473a94daa80e9a0d61614c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridManager
-  gridWidth: 20
-  gridHeight: 20
-  cellSize: 5
-  planeLayer:
+  _gridWidth: 50
+  _gridHeight: 50
+  _cellSize: 5
+  _planeLayer:
     serializedVersion: 2
     m_Bits: 64
 --- !u!114 &321188082
@@ -1680,9 +1667,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ccea3109243b1d4c9f0163687daad27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridVisualiser
-  highlightMaterial: {fileID: 2100000, guid: fe6b55402d41d2844a269e9096682f86, type: 2}
-  previewLine: {fileID: 0}
-  previewLineWidthMultiplier: 0.75
+  _highlightMaterial: {fileID: 2100000, guid: fe6b55402d41d2844a269e9096682f86, type: 2}
+  _previewLine: {fileID: 0}
+  _previewLineWidthMultiplier: 0.75
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -1833,14 +1820,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f62bc26e14cf6f445b34504bd6b5d62a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraController
-  panSpeed: 0.1
-  invertPan: 1
-  zoomSpeed: 5
-  minZoom: 5
-  maxZoom: 100
-  moveSpeed: 20
-  clampToBoundary: 1
-  boundaryPadding: 5
+  _panSpeed: 0.1
+  _invertPan: 1
+  _zoomSpeed: 5
+  _minZoom: 5
+  _maxZoom: 100
+  _moveSpeed: 20
+  _clampToBoundary: 1
+  _boundaryPadding: 5
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -2021,11 +2008,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a006db7d9e4712449afa6be9f0db53c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToggleButton
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
-  subGroup: {fileID: 0}
-  autoSelectFirstSubGroupButton: 0
-  collapsible: 0
+  _normalColor: {r: 1, g: 1, b: 1, a: 1}
+  _activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
+  _subGroup: {fileID: 0}
+  _autoSelectFirstSubGroupButton: 1
+  _collapsible: 0
 --- !u!114 &442702710
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2120,8 +2107,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a44b2ee19e99be4ab8ac6dc54dcf8f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameStateButton
-  simulationState: 0
-  setSimulationState: 0
+  _simulationState: 0
+  _setSimulationState: 0
   roadSubState: 3
   vehicleSubState: 0
   trafficLightSubState: 0
@@ -2532,11 +2519,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a006db7d9e4712449afa6be9f0db53c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToggleButton
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
-  subGroup: {fileID: 0}
-  autoSelectFirstSubGroupButton: 0
-  collapsible: 0
+  _normalColor: {r: 1, g: 1, b: 1, a: 1}
+  _activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
+  _subGroup: {fileID: 0}
+  _autoSelectFirstSubGroupButton: 1
+  _collapsible: 0
 --- !u!114 &880858900
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2631,8 +2618,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a44b2ee19e99be4ab8ac6dc54dcf8f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameStateButton
-  simulationState: 0
-  setSimulationState: 0
+  _simulationState: 0
+  _setSimulationState: 0
   roadSubState: 0
   vehicleSubState: 0
   trafficLightSubState: 2
@@ -2688,11 +2675,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a006db7d9e4712449afa6be9f0db53c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToggleButton
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
-  subGroup: {fileID: 161661844}
-  autoSelectFirstSubGroupButton: 0
-  collapsible: 1
+  _normalColor: {r: 1, g: 1, b: 1, a: 1}
+  _activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
+  _subGroup: {fileID: 161661844}
+  _autoSelectFirstSubGroupButton: 0
+  _collapsible: 1
 --- !u!114 &942569806
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2829,16 +2816,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ca59d34db4bf9c4ebb1d807503bc909, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonGroup
-  buttons:
+  _buttons:
   - {fileID: 1979241375}
   - {fileID: 1042404817}
   - {fileID: 3498930}
   - {fileID: 942569805}
-  hideOnStartup: 1
-  isVertical: 1
-  animationDuration: 0.2
-  staggerDelay: 0.05
-  slideDistance: 50
+  _hideOnStartup: 1
+  _isVertical: 1
+  _animationDuration: 0.2
+  _staggerDelay: 0.05
+  _slideDistance: 50
 --- !u!114 &946503453
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3259,6 +3246,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 489753006}
   - {fileID: 869878539}
   - {fileID: 234034574}
   - {fileID: 321188080}
@@ -3266,7 +3254,6 @@ Transform:
   - {fileID: 1772376712}
   - {fileID: 1534480481}
   - {fileID: 1312704887}
-  - {fileID: 489753006}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1042404814
@@ -3322,8 +3309,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a44b2ee19e99be4ab8ac6dc54dcf8f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameStateButton
-  simulationState: 4
-  setSimulationState: 1
+  _simulationState: 4
+  _setSimulationState: 1
   roadSubState: 0
   vehicleSubState: 0
   trafficLightSubState: 0
@@ -3339,11 +3326,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a006db7d9e4712449afa6be9f0db53c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToggleButton
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
-  subGroup: {fileID: 1266757694}
-  autoSelectFirstSubGroupButton: 0
-  collapsible: 0
+  _normalColor: {r: 1, g: 1, b: 1, a: 1}
+  _activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
+  _subGroup: {fileID: 1266757694}
+  _autoSelectFirstSubGroupButton: 1
+  _collapsible: 0
 --- !u!114 &1042404818
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3544,11 +3531,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a006db7d9e4712449afa6be9f0db53c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToggleButton
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
-  subGroup: {fileID: 0}
-  autoSelectFirstSubGroupButton: 0
-  collapsible: 0
+  _normalColor: {r: 1, g: 1, b: 1, a: 1}
+  _activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
+  _subGroup: {fileID: 0}
+  _autoSelectFirstSubGroupButton: 1
+  _collapsible: 0
 --- !u!114 &1083717941
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3643,8 +3630,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a44b2ee19e99be4ab8ac6dc54dcf8f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameStateButton
-  simulationState: 0
-  setSimulationState: 0
+  _simulationState: 0
+  _setSimulationState: 0
   roadSubState: 0
   vehicleSubState: 0
   trafficLightSubState: 3
@@ -3971,14 +3958,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ca59d34db4bf9c4ebb1d807503bc909, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonGroup
-  buttons:
+  _buttons:
   - {fileID: 132440637}
   - {fileID: 130653192}
-  hideOnStartup: 1
-  isVertical: 0
-  animationDuration: 0.2
-  staggerDelay: 0.05
-  slideDistance: 50
+  _hideOnStartup: 1
+  _isVertical: 1
+  _animationDuration: 0.2
+  _staggerDelay: 0.05
+  _slideDistance: 50
 --- !u!114 &1266757695
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4049,7 +4036,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13ee5ba550b28dc428d0f98a4464fd08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIManager
-  topLevelGroups: []
+  _topLevelGroups:
+  - {fileID: 2135813883}
 --- !u!1 &1468431307
 GameObject:
   m_ObjectHideFlags: 0
@@ -4102,15 +4090,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ca59d34db4bf9c4ebb1d807503bc909, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonGroup
-  buttons:
+  _buttons:
   - {fileID: 1786382796}
   - {fileID: 880858899}
   - {fileID: 1083717940}
-  hideOnStartup: 1
-  isVertical: 0
-  animationDuration: 0.2
-  staggerDelay: 0.05
-  slideDistance: 50
+  _hideOnStartup: 1
+  _isVertical: 1
+  _animationDuration: 0.2
+  _staggerDelay: 0.05
+  _slideDistance: 50
 --- !u!114 &1468431310
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4194,37 +4182,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92300cfed88e88c449d30fb6b5bf4c8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VehicleSpawner
-  vehiclePrefabs:
-  - {fileID: 745840342607436273, guid: 6466ed3cdd39edf4092c98bca5bee098, type: 3}
-  - {fileID: 1728580139902556458, guid: 4d15a838a94f2a342b4efbb0735fc6b1, type: 3}
-  - {fileID: 6731394386037983234, guid: 41b1c5ab4f6e8594f8c2743449bc3e1c, type: 3}
-  - {fileID: 7841182199824339414, guid: b014b1ff5da58874ab1ddbbc1adb265f, type: 3}
-  - {fileID: 8771818666568609582, guid: 048a72f0947c82e4bafbabe718dc2595, type: 3}
-  - {fileID: 1368987628937346580, guid: fc2df3895b93d1c44a94a03557d070e6, type: 3}
-  - {fileID: 7016505517690548514, guid: bf218f2c44c4dba40bf726812d2c0211, type: 3}
-  - {fileID: 5749143265638265230, guid: 3a7faf49a7a6cfa44a51ff81958177bf, type: 3}
-  - {fileID: 5784187287185257967, guid: 9d855a670d462fd40a10db91de21a07f, type: 3}
-  - {fileID: 3328528146091031285, guid: db5fbb1c353b24342b25165d4cf30d31, type: 3}
-  - {fileID: 1097046652423555117, guid: 2bc58ea08161e2e41b9116b8547ea50e, type: 3}
-  - {fileID: 5252952434866964494, guid: 784c9aaea7f399a4997bff0b4996cfdf, type: 3}
-  - {fileID: 8171023532871801069, guid: e970f07fad5f0f54597c6b275b993def, type: 3}
-  - {fileID: 8977044175792122185, guid: 4e520dd5969fdf843a488617697cd93f, type: 3}
-  - {fileID: 8797766204459412402, guid: 5efeb3e780622864aa48cc1b8855d69d, type: 3}
-  - {fileID: 5736084787871144891, guid: 6b03f9f21dcd9394f93683330aa6292e, type: 3}
-  - {fileID: 667078789436323096, guid: 3be5a5b2837f94a4788ee62a0b25790a, type: 3}
-  - {fileID: 5927135232366602275, guid: 55439ff3d595c9d4f9ad771a67f7bf34, type: 3}
-  - {fileID: 1440477631632843334, guid: 2ce7c521b31dd98429fe145cbebd0078, type: 3}
-  - {fileID: 617628466407512147, guid: 64b8a3cfa1ebc2b4aaeed4b658830171, type: 3}
-  - {fileID: 1472232342652978516, guid: ee9c8bd24cb7433468bd2e26556b5f3e, type: 3}
-  - {fileID: 7753790990956334517, guid: 72b29e4c64ccb6e43b3649236a55a790, type: 3}
-  - {fileID: 472942641087041512, guid: eaf436c61d4a52c47a46c740867bc506, type: 3}
-  - {fileID: 5592896954331125021, guid: 5f91b43e6588de7428331926dc44fac0, type: 3}
-  - {fileID: 7357310552915965623, guid: 68358c81f5f0c5c4c82a722e9e784f33, type: 3}
-  - {fileID: 50206990137832804, guid: 6206ac7e85d5588418dae932b9865ce5, type: 3}
-  - {fileID: 741585190955630048, guid: 53a2d75c63d3942498b35be9302da747, type: 3}
-  - {fileID: 1268748593649726711, guid: f5347e7b53c8ab446a66e4204875b05b, type: 3}
-  - {fileID: 5017341593527303699, guid: 657933c8b8a070d4a88ea8f131fe4bf7, type: 3}
-  - {fileID: 4429995737872905909, guid: d8875a5fec2079940993e3f91191d1b3, type: 3}
+  _vehiclePrefabs:
+  - {fileID: 7565497750436915594, guid: 8f9aad0861abc9b43a113c7aa234116f, type: 3}
+  - {fileID: 2918600399711409909, guid: 84158327ffde7ea41b33d0c7bb836b9f, type: 3}
+  - {fileID: 4956111222285402539, guid: 2ebe4b759dbad124995e809d1a276fb2, type: 3}
 --- !u!1 &1593568247
 GameObject:
   m_ObjectHideFlags: 0
@@ -4413,11 +4374,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a006db7d9e4712449afa6be9f0db53c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToggleButton
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
-  subGroup: {fileID: 946503452}
-  autoSelectFirstSubGroupButton: 0
-  collapsible: 1
+  _normalColor: {r: 1, g: 1, b: 1, a: 1}
+  _activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
+  _subGroup: {fileID: 946503452}
+  _autoSelectFirstSubGroupButton: 0
+  _collapsible: 1
 --- !u!114 &1613731756
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5063,11 +5024,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a006db7d9e4712449afa6be9f0db53c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToggleButton
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
-  subGroup: {fileID: 0}
-  autoSelectFirstSubGroupButton: 0
-  collapsible: 0
+  _normalColor: {r: 1, g: 1, b: 1, a: 1}
+  _activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
+  _subGroup: {fileID: 0}
+  _autoSelectFirstSubGroupButton: 1
+  _collapsible: 0
 --- !u!114 &1733796016
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5162,8 +5123,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a44b2ee19e99be4ab8ac6dc54dcf8f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameStateButton
-  simulationState: 0
-  setSimulationState: 0
+  _simulationState: 0
+  _setSimulationState: 0
   roadSubState: 1
   vehicleSubState: 0
   trafficLightSubState: 0
@@ -5177,7 +5138,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1772376712}
   - component: {fileID: 1772376713}
-  - component: {fileID: 1772376714}
   m_Layer: 0
   m_Name: WaypointManager
   m_TagString: Untagged
@@ -5212,18 +5172,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6d629f8850eea3409653f572a0b17f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WaypointManager
---- !u!114 &1772376714
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1772376711}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 23d619edcf2f6db4485715baabd18631, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PathfinderTest
 --- !u!1 &1786382794
 GameObject:
   m_ObjectHideFlags: 0
@@ -5277,11 +5225,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a006db7d9e4712449afa6be9f0db53c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToggleButton
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
-  subGroup: {fileID: 0}
-  autoSelectFirstSubGroupButton: 0
-  collapsible: 0
+  _normalColor: {r: 1, g: 1, b: 1, a: 1}
+  _activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
+  _subGroup: {fileID: 0}
+  _autoSelectFirstSubGroupButton: 1
+  _collapsible: 0
 --- !u!114 &1786382797
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5376,8 +5324,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a44b2ee19e99be4ab8ac6dc54dcf8f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameStateButton
-  simulationState: 0
-  setSimulationState: 0
+  _simulationState: 0
+  _setSimulationState: 0
   roadSubState: 0
   vehicleSubState: 0
   trafficLightSubState: 1
@@ -5569,15 +5517,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ca59d34db4bf9c4ebb1d807503bc909, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonGroup
-  buttons:
+  _buttons:
   - {fileID: 1733796015}
   - {fileID: 2020872342}
   - {fileID: 442702709}
-  hideOnStartup: 1
-  isVertical: 0
-  animationDuration: 0.2
-  staggerDelay: 0.05
-  slideDistance: 50
+  _hideOnStartup: 1
+  _isVertical: 1
+  _animationDuration: 0.2
+  _staggerDelay: 0.05
+  _slideDistance: 50
 --- !u!114 &1809089617
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5657,8 +5605,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a44b2ee19e99be4ab8ac6dc54dcf8f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameStateButton
-  simulationState: 0
-  setSimulationState: 0
+  _simulationState: 0
+  _setSimulationState: 0
   roadSubState: 0
   vehicleSubState: 0
   trafficLightSubState: 1
@@ -5674,11 +5622,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a006db7d9e4712449afa6be9f0db53c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToggleButton
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
-  subGroup: {fileID: 0}
-  autoSelectFirstSubGroupButton: 0
-  collapsible: 0
+  _normalColor: {r: 1, g: 1, b: 1, a: 1}
+  _activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
+  _subGroup: {fileID: 0}
+  _autoSelectFirstSubGroupButton: 1
+  _collapsible: 0
 --- !u!114 &1909409264
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5826,8 +5774,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a44b2ee19e99be4ab8ac6dc54dcf8f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameStateButton
-  simulationState: 3
-  setSimulationState: 1
+  _simulationState: 3
+  _setSimulationState: 1
   roadSubState: 0
   vehicleSubState: 0
   trafficLightSubState: 0
@@ -5843,11 +5791,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a006db7d9e4712449afa6be9f0db53c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToggleButton
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
-  subGroup: {fileID: 1809089616}
-  autoSelectFirstSubGroupButton: 1
-  collapsible: 0
+  _normalColor: {r: 1, g: 1, b: 1, a: 1}
+  _activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
+  _subGroup: {fileID: 1809089616}
+  _autoSelectFirstSubGroupButton: 1
+  _collapsible: 0
 --- !u!114 &1979241376
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5983,11 +5931,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a006db7d9e4712449afa6be9f0db53c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToggleButton
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
-  subGroup: {fileID: 0}
-  autoSelectFirstSubGroupButton: 0
-  collapsible: 0
+  _normalColor: {r: 1, g: 1, b: 1, a: 1}
+  _activeColor: {r: 0.6, g: 0.8, b: 1, a: 1}
+  _subGroup: {fileID: 0}
+  _autoSelectFirstSubGroupButton: 1
+  _collapsible: 0
 --- !u!114 &2020872343
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6082,8 +6030,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a44b2ee19e99be4ab8ac6dc54dcf8f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameStateButton
-  simulationState: 0
-  setSimulationState: 0
+  _simulationState: 0
+  _setSimulationState: 0
   roadSubState: 2
   vehicleSubState: 0
   trafficLightSubState: 0
@@ -6274,13 +6222,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ca59d34db4bf9c4ebb1d807503bc909, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonGroup
-  buttons:
+  _buttons:
   - {fileID: 1613731755}
-  hideOnStartup: 0
-  isVertical: 1
-  animationDuration: 0.2
-  staggerDelay: 0.05
-  slideDistance: 50
+  _hideOnStartup: 0
+  _isVertical: 1
+  _animationDuration: 0.2
+  _staggerDelay: 0.05
+  _slideDistance: 50
 --- !u!114 &2135813884
 MonoBehaviour:
   m_ObjectHideFlags: 0

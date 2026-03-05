@@ -5,26 +5,26 @@ public class CameraController : MonoBehaviour
     public static CameraController Instance { get; private set; }
 
     [Header("Pan Settings")]
-    [SerializeField] private float panSpeed = 0.1f;
-    [SerializeField] private bool invertPan = true;
+    [SerializeField] private float _panSpeed = 0.1f;
+    [SerializeField] private bool _invertPan = true;
 
     [Header("Zoom Settings")]
-    [SerializeField] private float zoomSpeed = 5f;
-    [SerializeField] private float minZoom = 5f;
-    [SerializeField] private float maxZoom = 100f;
+    [SerializeField] private float _zoomSpeed = 5f;
+    [SerializeField] private float _minZoom = 5f;
+    [SerializeField] private float _maxZoom = 100f;
 
     [Header("Move Settings")]
-    [SerializeField] private float moveSpeed = 20f;
+    [SerializeField] private float _moveSpeed = 20f;
 
     [Header("Boundary Settings")]
-    [SerializeField] private bool clampToBoundary = true;
-    [SerializeField] private float boundaryPadding = 5f;
+    [SerializeField] private bool _clampToBoundary = true;
+    [SerializeField] private float _boundaryPadding = 5f;
 
-    private Camera mainCamera;
-    private Vector2 currentMoveDirection;
-    private float gridWidth;
-    private float gridHeight;
-    private float cellSize;
+    private Camera _mainCamera;
+    private Vector2 _currentMoveDirection;
+    private float _gridWidth;
+    private float _gridHeight;
+    private float _cellSize;
 
     private void Awake()
     {
@@ -38,12 +38,12 @@ public class CameraController : MonoBehaviour
 
     private void Start()
     {
-        mainCamera = Camera.main;
+        _mainCamera = Camera.main;
 
         // Get grid bounds for clamping
-        gridWidth = GridManager.Instance.GridWidth * GridManager.Instance.CellSize;
-        gridHeight = GridManager.Instance.GridHeight * GridManager.Instance.CellSize;
-        cellSize = GridManager.Instance.CellSize;
+        _cellSize = GridManager.Instance.CellSize;
+        _gridWidth = GridManager.Instance.GridWidth * _cellSize;
+        _gridHeight = GridManager.Instance.GridHeight * _cellSize;
     }
 
     private void OnEnable()
@@ -63,81 +63,81 @@ public class CameraController : MonoBehaviour
     private void Update()
     {
         // Handle continuous WASD movement
-        if (currentMoveDirection != Vector2.zero)
+        if (_currentMoveDirection != Vector2.zero)
         {
-            ApplyMovement(currentMoveDirection);
+            ApplyMovement(_currentMoveDirection);
         }
     }
 
     private void HandlePan(Vector2 panDelta)
     {
         // Convert screen space pan delta to world space movement
-        float panMultiplier = invertPan ? -1f : 1f;
+        float panMultiplier = _invertPan ? -1f : 1f;
 
         Vector3 movement = new Vector3(
-            panDelta.x * panSpeed * panMultiplier,
+            panDelta.x * _panSpeed * panMultiplier,
             0f,
-            panDelta.y * panSpeed * panMultiplier
+            panDelta.y * _panSpeed * panMultiplier
         );
 
-        transform.position = ClampToBoundary(transform.position + movement);
+        transform.position = _ClampToBoundary(transform.position + movement);
     }
 
     private void HandleZoom(float zoomDelta)
     {
         // Orthographic zoom
-        if (mainCamera.orthographic)
+        if (_mainCamera.orthographic)
         {
-            mainCamera.orthographicSize = Mathf.Clamp(
-                mainCamera.orthographicSize - zoomDelta * zoomSpeed,
-                minZoom,
-                maxZoom
+            _mainCamera.orthographicSize = Mathf.Clamp(
+                _mainCamera.orthographicSize - zoomDelta * _zoomSpeed,
+                _minZoom,
+                _maxZoom
             );
         }
         // Perspective zoom - move camera along its forward axis
         else
         {
-            Vector3 zoomMovement = mainCamera.transform.forward * zoomDelta * zoomSpeed;
+            Vector3 zoomMovement = _mainCamera.transform.forward * zoomDelta * _zoomSpeed;
             Vector3 newPosition = transform.position + zoomMovement;
-            newPosition.y = Mathf.Clamp(newPosition.y, minZoom, maxZoom);
-            transform.position = ClampToBoundary(newPosition);
+            newPosition.y = Mathf.Clamp(newPosition.y, _minZoom, _maxZoom);
+            transform.position = _ClampToBoundary(newPosition);
         }
     }
 
     private void HandleMove(Vector2 moveDirection)
     {
         // Store the current move direction for use in Update
-        currentMoveDirection = moveDirection;
+        _currentMoveDirection = moveDirection;
     }
 
     private void ApplyMovement(Vector2 direction)
     {
         Vector3 movement = new Vector3(
-            direction.x * moveSpeed * Time.unscaledDeltaTime,
+            direction.x * _moveSpeed * Time.unscaledDeltaTime,
             0f,
-            direction.y * moveSpeed * Time.unscaledDeltaTime
+            direction.y * _moveSpeed * Time.unscaledDeltaTime
         );
 
-        transform.position = ClampToBoundary(transform.position + movement);
+        transform.position = _ClampToBoundary(transform.position + movement);
     }
 
-    private Vector3 ClampToBoundary(Vector3 position)
+    private Vector3 _ClampToBoundary(Vector3 position)
     {
-        if (!clampToBoundary)
+        if (!_clampToBoundary)
             return position;
 
         Vector3 gridOrigin = GridManager.Instance.GridOrigin;
 
         position.x = Mathf.Clamp(
             position.x,
-            gridOrigin.x - boundaryPadding,
-            gridOrigin.x + gridWidth + boundaryPadding
+            gridOrigin.x - _boundaryPadding,
+            gridOrigin.x + _gridWidth + _boundaryPadding
         );
 
         position.z = Mathf.Clamp(
             position.z,
-            gridOrigin.z - boundaryPadding,
-            gridOrigin.z + gridHeight + boundaryPadding
+            gridOrigin.z - _boundaryPadding,
+            gridOrigin.z + _gridHeight + _boundaryPadding
         );
 
         return position;

@@ -9,7 +9,7 @@ public class InputManager : MonoBehaviour
     public static InputManager Instance { get; private set; }
 
     // Input Actions reference
-    private GameInputActions inputActions;
+    private GameInputActions _inputActions;
 
     // Mouse events
     public static event Action<Vector2> OnLeftClickPressed;
@@ -42,51 +42,51 @@ public class InputManager : MonoBehaviour
         Instance = this;
 
         // Initialize input actions
-        inputActions = new GameInputActions();
+        _inputActions = new GameInputActions();
     }
 
     private void OnEnable()
     {
         // Enable action maps
-        inputActions.Gameplay.Enable();
-        inputActions.Camera.Enable();
+        _inputActions.Gameplay.Enable();
+        _inputActions.Camera.Enable();
 
         // Subscribe to Gameplay actions
-        inputActions.Gameplay.LeftClick.performed += OnLeftClickPerformed;
-        inputActions.Gameplay.LeftClick.canceled += OnLeftClickCanceled;
-        inputActions.Gameplay.RightClick.performed += OnRightClickPerformed;
-        inputActions.Gameplay.RightClick.canceled += OnRightClickCanceled;
-        inputActions.Gameplay.MiddleClick.performed += OnMiddleClickPerformed;
-        inputActions.Gameplay.MiddleClick.canceled += OnMiddleClickCanceled;
-        inputActions.Gameplay.MousePosition.performed += OnMousePositionChanged;
+        _inputActions.Gameplay.LeftClick.performed += OnLeftClickPerformed;
+        _inputActions.Gameplay.LeftClick.canceled += OnLeftClickCanceled;
+        _inputActions.Gameplay.RightClick.performed += OnRightClickPerformed;
+        _inputActions.Gameplay.RightClick.canceled += OnRightClickCanceled;
+        _inputActions.Gameplay.MiddleClick.performed += OnMiddleClickPerformed;
+        _inputActions.Gameplay.MiddleClick.canceled += OnMiddleClickCanceled;
+        _inputActions.Gameplay.MousePosition.performed += OnMousePositionChanged;
 
         // Subscribe to Camera actions
-        inputActions.Camera.Pan.performed += OnPanPerformed;
-        inputActions.Camera.Zoom.performed += OnZoomPerformed;
-        inputActions.Camera.Move.performed += OnMovePerformed;
-        inputActions.Camera.Move.canceled += OnMoveCanceled;
+        _inputActions.Camera.Pan.performed += OnPanPerformed;
+        _inputActions.Camera.Zoom.performed += OnZoomPerformed;
+        _inputActions.Camera.Move.performed += OnMovePerformed;
+        _inputActions.Camera.Move.canceled += OnMoveCanceled;
     }
 
     private void OnDisable()
     {
         // Unsubscribe from Gameplay actions
-        inputActions.Gameplay.LeftClick.performed -= OnLeftClickPerformed;
-        inputActions.Gameplay.LeftClick.canceled -= OnLeftClickCanceled;
-        inputActions.Gameplay.RightClick.performed -= OnRightClickPerformed;
-        inputActions.Gameplay.RightClick.canceled -= OnRightClickCanceled;
-        inputActions.Gameplay.MiddleClick.performed -= OnMiddleClickPerformed;
-        inputActions.Gameplay.MiddleClick.canceled -= OnMiddleClickCanceled;
-        inputActions.Gameplay.MousePosition.performed -= OnMousePositionChanged;
+        _inputActions.Gameplay.LeftClick.performed -= OnLeftClickPerformed;
+        _inputActions.Gameplay.LeftClick.canceled -= OnLeftClickCanceled;
+        _inputActions.Gameplay.RightClick.performed -= OnRightClickPerformed;
+        _inputActions.Gameplay.RightClick.canceled -= OnRightClickCanceled;
+        _inputActions.Gameplay.MiddleClick.performed -= OnMiddleClickPerformed;
+        _inputActions.Gameplay.MiddleClick.canceled -= OnMiddleClickCanceled;
+        _inputActions.Gameplay.MousePosition.performed -= OnMousePositionChanged;
 
         // Unsubscribe from Camera actions
-        inputActions.Camera.Pan.performed -= OnPanPerformed;
-        inputActions.Camera.Zoom.performed -= OnZoomPerformed;
-        inputActions.Camera.Move.performed -= OnMovePerformed;
-        inputActions.Camera.Move.canceled -= OnMoveCanceled;
+        _inputActions.Camera.Pan.performed -= OnPanPerformed;
+        _inputActions.Camera.Zoom.performed -= OnZoomPerformed;
+        _inputActions.Camera.Move.performed -= OnMovePerformed;
+        _inputActions.Camera.Move.canceled -= OnMoveCanceled;
 
         // Disable action maps
-        inputActions.Gameplay.Disable();
-        inputActions.Camera.Disable();
+        _inputActions.Gameplay.Disable();
+        _inputActions.Camera.Disable();
     }
     private void Update()
     {
@@ -98,13 +98,13 @@ public class InputManager : MonoBehaviour
     {
         if (EventSystem.current.IsPointerOverGameObject())
         {
-            inputActions.Gameplay.Disable();
-            inputActions.Camera.Disable();
+            _inputActions.Gameplay.Disable();
+            _inputActions.Camera.Disable();
         }
         else
         {
-            inputActions.Gameplay.Enable();
-            inputActions.Camera.Enable();
+            _inputActions.Gameplay.Enable();
+            _inputActions.Camera.Enable();
         }
     }
 

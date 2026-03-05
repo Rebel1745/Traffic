@@ -3,19 +3,21 @@ using UnityEngine;
 
 public class VehicleController : MonoBehaviour
 {
-    [Header("Movement Settings")][SerializeField] private float moveSpeed = 5f;
-    [SerializeField] private float rotationSpeed = 5f;
-    [SerializeField] private float waypointReachThreshold = 0.1f;
+    [Header("Movement Settings")]
+    [SerializeField] private float _moveSpeed = 5f;
+    [SerializeField] private float _rotationSpeed = 5f;
+    [SerializeField] private float _waypointReachThreshold = 0.1f;
 
-    [Header("Debug")][SerializeField] private bool showDebugInfo = true;
+    [Header("Debug")]
+    [SerializeField] private bool _showDebugInfo = true;
 
     // Path information
     public List<WaypointNode> Path { get; private set; }
     public WaypointNode CurrentWaypoint { get; private set; }
     public WaypointNode TargetWaypoint { get; private set; }
 
-    private int currentWaypointIndex = 0;
-    private bool isMoving = false;
+    private int _currentWaypointIndex = 0;
+    private bool _isMoving = false;
 
     public void Initialize(List<WaypointNode> path, WaypointNode target)
     {
@@ -28,13 +30,13 @@ public class VehicleController : MonoBehaviour
         Path = new List<WaypointNode>(path);
         TargetWaypoint = target;
         CurrentWaypoint = path[0];
-        currentWaypointIndex = 0;
-        isMoving = true;
+        _currentWaypointIndex = 0;
+        _isMoving = true;
 
         // Position vehicle at first waypoint
         transform.position = Path[0].Position;
 
-        if (showDebugInfo)
+        if (_showDebugInfo)
         {
             Debug.Log($"Vehicle initialized with path of {Path.Count} waypoints");
         }
@@ -42,7 +44,7 @@ public class VehicleController : MonoBehaviour
 
     private void Update()
     {
-        if (!isMoving || Path == null || Path.Count == 0)
+        if (!_isMoving || Path == null || Path.Count == 0)
             return;
 
         MoveTowardsNextWaypoint();
@@ -50,49 +52,49 @@ public class VehicleController : MonoBehaviour
 
     private void MoveTowardsNextWaypoint()
     {
-        if (currentWaypointIndex >= Path.Count)
+        if (_currentWaypointIndex >= Path.Count)
         {
             // Reached the end of the path
             OnReachedTarget();
             return;
         }
 
-        WaypointNode targetWaypoint = Path[currentWaypointIndex];
+        WaypointNode targetWaypoint = Path[_currentWaypointIndex];
         Vector3 targetPosition = targetWaypoint.Position;
 
         // Move towards target
         Vector3 direction = (targetPosition - transform.position).normalized;
-        transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+        transform.position = Vector3.MoveTowards(transform.position, targetPosition, _moveSpeed * Time.deltaTime);
 
         // Rotate towards target
         if (direction != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(direction);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, _rotationSpeed * Time.deltaTime);
         }
 
         // Check if reached waypoint
         float distance = Vector3.Distance(transform.position, targetPosition);
-        if (distance < waypointReachThreshold)
+        if (distance < _waypointReachThreshold)
         {
             CurrentWaypoint = targetWaypoint;
-            currentWaypointIndex++;
+            _currentWaypointIndex++;
 
-            if (showDebugInfo)
+            if (_showDebugInfo)
             {
-                Debug.Log($"Vehicle reached waypoint {currentWaypointIndex}/{Path.Count}");
+                Debug.Log($"Vehicle reached waypoint {_currentWaypointIndex}/{Path.Count}");
             }
         }
     }
 
     private void OnReachedTarget()
     {
-        if (showDebugInfo)
+        if (_showDebugInfo)
         {
             Debug.Log("Vehicle reached target destination!");
         }
 
-        isMoving = false;
+        _isMoving = false;
 
         // Request new target from VehicleManager
         VehicleManager.Instance.RequestNewTarget(this);
@@ -108,11 +110,11 @@ public class VehicleController : MonoBehaviour
 
         Path = new List<WaypointNode>(newPath);
         TargetWaypoint = newTarget;
-        currentWaypointIndex = 0;
+        _currentWaypointIndex = 0;
         CurrentWaypoint = newPath[0];
-        isMoving = true;
+        _isMoving = true;
 
-        if (showDebugInfo)
+        if (_showDebugInfo)
         {
             Debug.Log($"New path set with {Path.Count} waypoints");
         }
@@ -142,7 +144,7 @@ public class VehicleController : MonoBehaviour
 
             if (!connectionExists)
             {
-                if (showDebugInfo)
+                if (_showDebugInfo)
                 {
                     Debug.LogWarning($"Connection broken between waypoint {i} and {i + 1}");
                 }
@@ -155,14 +157,14 @@ public class VehicleController : MonoBehaviour
 
     public void StopVehicle()
     {
-        isMoving = false;
+        _isMoving = false;
     }
 
     public void ResumeVehicle()
     {
         if (Path != null && Path.Count > 0)
         {
-            isMoving = true;
+            _isMoving = true;
         }
     }
 }
