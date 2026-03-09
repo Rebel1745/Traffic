@@ -8,6 +8,8 @@ public class WaypointNode
     public List<WaypointConnection> Connections { get; set; }
     public GridCell ParentCell { get; set; }
     public WaypointType Type { get; set; }
+    public TrafficLightController AssignedLight { get; set; }
+    public WaypointNode PairedCrossingWaypoint { get; set; }
 
     public WaypointNode(Vector3 position, GridCell parentCell, WaypointType type)
     {
@@ -16,6 +18,8 @@ public class WaypointNode
         ParentCell = parentCell;
         Type = type;
         Connections = new List<WaypointConnection>();
+        AssignedLight = null;
+        PairedCrossingWaypoint = null;
     }
 }
 
@@ -24,5 +28,6 @@ public enum WaypointType
     Entry,
     Exit,
     Midpoint,
-    UTurn
+    UTurn,
+    TrafficLightLocation
 }

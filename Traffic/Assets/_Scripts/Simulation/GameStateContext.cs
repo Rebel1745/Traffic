@@ -45,7 +45,6 @@ public enum VehicleSubState
 public enum TrafficLightSubState
 {
     None,
-    PlaceTrafficLight,
-    DeleteTrafficLight,
-    EditTrafficLight
+    AddJunctionLights,      // T-junctions and crossroads
+    AddPedestrianCrossings  // Straight roads only
 }
