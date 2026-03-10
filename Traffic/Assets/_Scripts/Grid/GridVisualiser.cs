@@ -5,6 +5,7 @@ public class GridVisualiser : MonoBehaviour
 {
     public static GridVisualiser Instance { get; private set; }
 
+    [Header("Cell Highlighting")]
     [SerializeField] private Material _highlightMaterial;
     [SerializeField] private LineRenderer _previewLine;
     [SerializeField] private float _previewLineWidthMultiplier = 0.75f;
@@ -14,6 +15,12 @@ public class GridVisualiser : MonoBehaviour
     private List<Vector3Int> _cellsAlongDragLine = new List<Vector3Int>();
     private Vector3 _dragStartPosition;
     private bool _isDragging = false;
+
+    [Header("Traffic Light Preview")]
+    private GameObject _trafficLightPrefab;
+
+    private List<GameObject> _previewLights = new List<GameObject>();
+    private GridCell _lastPreviewCell = null;
 
     private void Awake()
     {
@@ -57,6 +64,8 @@ public class GridVisualiser : MonoBehaviour
 
         // Subscribe to simulation state changes
         SimulationManager.Instance.OnStateChanged += HandleStateChanged;
+
+        _trafficLightPrefab = TrafficLightManager.Instance.TrafficLightPrefab;
     }
 
     private void OnDisable()
@@ -83,6 +92,10 @@ public class GridVisualiser : MonoBehaviour
         {
             UpdateHoverHighlight();
         }
+        else if (SimulationManager.Instance.CurrentState.SimulationState == SimulationState.TrafficLights)
+        {
+            UpdateTrafficLightPreview();
+        }
     }
 
     private void HandleStateChanged(GameStateContext newState)
@@ -90,10 +103,17 @@ public class GridVisualiser : MonoBehaviour
         if (newState.SimulationState == SimulationState.Roads)
         {
             EnableRoadPlacementVisuals();
+            DisableTrafficLightVisuals();
+        }
+        else if (newState.SimulationState == SimulationState.TrafficLights)
+        {
+            DisableRoadPlacementVisuals();
+            // Visuals are handled dynamically on mouse move
         }
         else
         {
             DisableRoadPlacementVisuals();
+            DisableTrafficLightVisuals();
         }
     }
 
@@ -119,15 +139,20 @@ public class GridVisualiser : MonoBehaviour
     private void HandleLeftClickPressed(Vector2 screenPosition)
     {
         // Only handle input when in road placement mode
-        if (SimulationManager.Instance.CurrentState.SimulationState != SimulationState.Roads)
-            return;
-
-        Vector3? hitPoint = GridManager.Instance.GetGroundHitPoint();
-        if (hitPoint.HasValue)
+        if (SimulationManager.Instance.CurrentState.SimulationState == SimulationState.Roads)
         {
-            _dragStartPosition = hitPoint.Value;
-            _isDragging = true;
-            _cellsAlongDragLine.Clear();
+
+            Vector3? hitPoint = GridManager.Instance.GetGroundHitPoint();
+            if (hitPoint.HasValue)
+            {
+                _dragStartPosition = hitPoint.Value;
+                _isDragging = true;
+                _cellsAlongDragLine.Clear();
+            }
+        }
+        else if (SimulationManager.Instance.CurrentState.SimulationState == SimulationState.TrafficLights)
+        {
+            HandleTrafficLightPlacement();
         }
     }
 
@@ -187,20 +212,25 @@ public class GridVisualiser : MonoBehaviour
     private void HandleRightClickPressed(Vector2 screenPosition)
     {
         // Only handle input when in road placement mode
-        if (SimulationManager.Instance.CurrentState.SimulationState != SimulationState.Roads)
-            return;
-
-        Vector3? hitPoint = GridManager.Instance.GetGroundHitPoint();
-        if (hitPoint.HasValue)
+        if (SimulationManager.Instance.CurrentState.SimulationState == SimulationState.Roads)
         {
-            Vector3 snappedStart = GridManager.Instance.SnapToGrid(hitPoint.Value);
-            Vector3Int gridPos = GridManager.Instance.WorldToGridPosition(snappedStart);
-            if (GridManager.Instance.IsValidGridPosition(gridPos))
+
+            Vector3? hitPoint = GridManager.Instance.GetGroundHitPoint();
+            if (hitPoint.HasValue)
             {
-                GridManager.Instance.SetCellType(gridPos, CellType.Empty);
-                GridManager.Instance.UpdateRoadTypes(gridPos);
-                GridManager.Instance.UpdateRoadGrid();
+                Vector3 snappedStart = GridManager.Instance.SnapToGrid(hitPoint.Value);
+                Vector3Int gridPos = GridManager.Instance.WorldToGridPosition(snappedStart);
+                if (GridManager.Instance.IsValidGridPosition(gridPos))
+                {
+                    GridManager.Instance.SetCellType(gridPos, CellType.Empty);
+                    GridManager.Instance.UpdateRoadTypes(gridPos);
+                    GridManager.Instance.UpdateRoadGrid();
+                }
             }
+        }
+        else if (SimulationManager.Instance.CurrentState.SimulationState == SimulationState.TrafficLights)
+        {
+            HandleTrafficLightRemoval();
         }
     }
 
@@ -307,13 +337,160 @@ public class GridVisualiser : MonoBehaviour
         return highlight;
     }
 
-    private Vector3? GetGroundHitPoint()
+    private void UpdateTrafficLightPreview()
     {
-        Ray ray = Camera.main.ScreenPointToRay(InputManager.Instance.MousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("Ground")))
+        Vector3Int gridPos = GridManager.Instance.GetGridPositionFromMouse();
+
+        if (!GridManager.Instance.IsValidGridPosition(gridPos))
         {
-            return hit.point;
+            ClearPreviewLights();
+            _lastPreviewCell = null;
+            return;
         }
-        return null;
+
+        GridCell cell = GridManager.Instance.GetCell(gridPos);
+
+        // Only show preview on road cells
+        if (cell == null || cell.CellType != CellType.Road)
+        {
+            ClearPreviewLights();
+            _lastPreviewCell = null;
+            return;
+        }
+
+        // Only regenerate preview if we've moved to a different cell
+        if (cell == _lastPreviewCell)
+            return;
+
+        _lastPreviewCell = cell;
+        ClearPreviewLights();
+
+        // Get valid TrafficLightLocation waypoints for the current substate
+        List<WaypointNode> validWaypoints = GetValidWaypointsForSubState(cell);
+
+        // Spawn a preview light at each valid waypoint
+        foreach (WaypointNode waypoint in validWaypoints)
+        {
+            // Skip waypoints that already have a confirmed light
+            if (waypoint.AssignedLight != null)
+                continue;
+
+            GameObject preview = Instantiate(_trafficLightPrefab, waypoint.Position, Quaternion.identity);
+
+            // Make preview semi-transparent to distinguish from confirmed lights
+            SetPreviewTransparency(preview, 0.5f);
+
+            _previewLights.Add(preview);
+        }
+    }
+
+    private List<WaypointNode> GetValidWaypointsForSubState(GridCell cell)
+    {
+        TrafficLightSubState subState = SimulationManager.Instance.CurrentState.TrafficLightSubState;
+
+        // Filter waypoints by type and substate
+        return WaypointManager.Instance.GetCellWaypoints(cell).FindAll(w =>
+        {
+            if (w.Type != WaypointType.TrafficLightLocation)
+                return false;
+
+            return subState switch
+            {
+                TrafficLightSubState.AddJunctionLights =>
+                    cell.RoadType == RoadType.TJunction || cell.RoadType == RoadType.Crossroads,
+                TrafficLightSubState.AddPedestrianCrossings =>
+                    cell.RoadType == RoadType.Straight,
+                _ => false
+            };
+        });
+    }
+
+    private void SetPreviewTransparency(GameObject previewObj, float alpha)
+    {
+        foreach (Renderer renderer in previewObj.GetComponentsInChildren<Renderer>())
+        {
+            foreach (Material mat in renderer.materials)
+            {
+                // Enable transparency on the material
+                mat.SetFloat("_Mode", 3); // Transparent mode
+                mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                mat.SetInt("_ZWrite", 0);
+                mat.DisableKeyword("_ALPHATEST_ON");
+                mat.EnableKeyword("_ALPHABLEND_ON");
+                mat.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+                mat.renderQueue = 3000;
+
+                Color colour = mat.color;
+                colour.a = alpha;
+                mat.color = colour;
+            }
+        }
+    }
+
+    private void ClearPreviewLights()
+    {
+        foreach (GameObject preview in _previewLights)
+        {
+            if (preview != null)
+                Destroy(preview);
+        }
+        _previewLights.Clear();
+    }
+
+    private void DisableTrafficLightVisuals()
+    {
+        ClearPreviewLights();
+        _lastPreviewCell = null;
+    }
+
+    private void HandleTrafficLightPlacement()
+    {
+        Vector3Int gridPos = GridManager.Instance.GetGridPositionFromMouse();
+        if (!GridManager.Instance.IsValidGridPosition(gridPos))
+            return;
+
+        GridCell cell = GridManager.Instance.GetCell(gridPos);
+        if (cell == null || cell.CellType != CellType.Road)
+            return;
+
+        List<WaypointNode> validWaypoints = GetValidWaypointsForSubState(cell);
+        if (validWaypoints.Count == 0)
+            return;
+
+        // Confirm all previewed lights for this cell
+        foreach (WaypointNode waypoint in validWaypoints)
+        {
+            if (waypoint.AssignedLight != null)
+                continue;
+
+            TrafficLightManager.Instance.PlaceLightAtWaypoint(waypoint);
+        }
+
+        // Refresh preview for the same cell (to hide confirmed previews)
+        _lastPreviewCell = null;
+    }
+
+    private void HandleTrafficLightRemoval()
+    {
+        Vector3Int gridPos = GridManager.Instance.GetGridPositionFromMouse();
+        if (!GridManager.Instance.IsValidGridPosition(gridPos))
+            return;
+
+        GridCell cell = GridManager.Instance.GetCell(gridPos);
+        if (cell == null || cell.CellType != CellType.Road)
+            return;
+
+        // Remove all confirmed lights on this cell
+        foreach (WaypointNode waypoint in WaypointManager.Instance.GetCellWaypoints(cell))
+        {
+            if (waypoint.Type == WaypointType.TrafficLightLocation && waypoint.AssignedLight != null)
+            {
+                TrafficLightManager.Instance.RemoveLightAtWaypoint(waypoint);
+            }
+        }
+
+        // Refresh preview
+        _lastPreviewCell = null;
     }
 }

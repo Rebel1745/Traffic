@@ -3,103 +3,60 @@ using UnityEngine;
 
 public class TrafficLightManager : MonoBehaviour
 {
-    [SerializeField] private GameObject trafficLightPrefab;
-    [SerializeField] private Camera mainCamera;
-    [SerializeField] private SimulationManager SimulationManager; // Reference to your state manager
+    public static TrafficLightManager Instance { get; private set; }
+
+    [SerializeField] private GameObject _trafficLightPrefab;
+    public GameObject TrafficLightPrefab { get { return _trafficLightPrefab; } }
+    [SerializeField] private Camera _mainCamera;
 
     private List<TrafficLightGroupController> _allGroups = new();
+
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+    }
 
     private void Update()
     {
         // Only process input if we're in TrafficLights state
-        if (SimulationManager.CurrentState.SimulationState != SimulationState.TrafficLights)
+        if (SimulationManager.Instance.CurrentState.SimulationState != SimulationState.TrafficLights)
+            return;
+    }
+
+    public void PlaceLightAtWaypoint(WaypointNode waypoint)
+    {
+        if (waypoint == null || waypoint.AssignedLight != null)
             return;
 
-        if (Input.GetMouseButtonDown(0)) // Left click = place
-            PlaceLightAtMouse();
-        else if (Input.GetMouseButtonDown(1)) // Right click = remove
-            RemoveLightAtMouse();
+        GameObject lightObj = Instantiate(_trafficLightPrefab, waypoint.Position, Quaternion.identity);
+        TrafficLightController light = lightObj.GetComponent<TrafficLightController>();
+        waypoint.AssignedLight = light;
+
+        TrafficLightGroupController group = FindOrCreateGroupForWaypoint(waypoint);
+        group.RegisterLight(light);
+
+        Debug.Log($"Confirmed traffic light at {waypoint.Id}");
     }
 
-    private void PlaceLightAtMouse()
+    public void RemoveLightAtWaypoint(WaypointNode waypoint)
     {
-        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit, 100f, LayerMask.GetMask("Waypoint")))
-        {
-            WaypointNode waypoint = hit.collider.GetComponent<WaypointNode>();
-            if (waypoint == null || waypoint.Type != WaypointType.TrafficLightLocation)
-            {
-                Debug.LogWarning("Cannot place light here — not a TrafficLightLocation waypoint.");
-                return;
-            }
+        if (waypoint?.AssignedLight == null)
+            return;
 
-            // Validate based on current substate
-            TrafficLightSubState currentSubState = SimulationManager.CurrentState.TrafficLightSubState;
+        TrafficLightGroupController group = FindGroupForLight(waypoint.AssignedLight);
+        if (group != null)
+            group.RemoveLight(waypoint.AssignedLight);
 
-            if (currentSubState == TrafficLightSubState.AddJunctionLights)
-            {
-                // Only allow placement on T-junctions and crossroads
-                if (waypoint.ParentCell.RoadType != RoadType.TJunction &&
-                    waypoint.ParentCell.RoadType != RoadType.Crossroads)
-                {
-                    Debug.LogWarning("Junction lights can only be placed on T-junctions and crossroads.");
-                    return;
-                }
-            }
-            else if (currentSubState == TrafficLightSubState.AddPedestrianCrossings)
-            {
-                // Only allow placement on straight roads
-                if (waypoint.ParentCell.RoadType != RoadType.Straight)
-                {
-                    Debug.LogWarning("Pedestrian crossing lights can only be placed on straight roads.");
-                    return;
-                }
-            }
-            else
-            {
-                Debug.LogWarning("Invalid traffic light substate.");
-                return;
-            }
+        Destroy(waypoint.AssignedLight.gameObject);
+        waypoint.AssignedLight = null;
 
-            if (waypoint.AssignedLight != null)
-            {
-                Debug.LogWarning("Light already exists here.");
-                return;
-            }
-
-            // Spawn light
-            GameObject lightObj = Instantiate(trafficLightPrefab, waypoint.Position, Quaternion.identity);
-            TrafficLightController light = lightObj.GetComponent<TrafficLightController>();
-            waypoint.AssignedLight = light;
-
-            // Find or create group
-            TrafficLightGroupController group = FindOrCreateGroupForWaypoint(waypoint);
-            group.RegisterLight(light);
-
-            Debug.Log($"Placed {currentSubState} traffic light at {waypoint.Id}");
-        }
-    }
-
-    private void RemoveLightAtMouse()
-    {
-        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit, 100f, LayerMask.GetMask("Waypoint")))
-        {
-            WaypointNode waypoint = hit.collider.GetComponent<WaypointNode>();
-            if (waypoint?.AssignedLight != null)
-            {
-                // Remove from group
-                TrafficLightGroupController group = FindGroupForLight(waypoint.AssignedLight);
-                if (group != null)
-                    group.RemoveLight(waypoint.AssignedLight);
-
-                // Destroy light
-                Destroy(waypoint.AssignedLight.gameObject);
-                waypoint.AssignedLight = null;
-
-                Debug.Log("Removed traffic light.");
-            }
-        }
+        Debug.Log($"Removed traffic light at {waypoint.Id}");
     }
 
     private TrafficLightGroupController FindOrCreateGroupForWaypoint(WaypointNode waypoint)

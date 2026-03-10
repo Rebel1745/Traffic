@@ -3523,9 +3523,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a6c9664920b22d488cc07f785676c7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TrafficLightManager
-  trafficLightPrefab: {fileID: 8884444932007774847, guid: 67b4c3946709f804e990d8cd041b216d, type: 3}
-  mainCamera: {fileID: 330585545}
-  SimulationManager: {fileID: 869878540}
+  _trafficLightPrefab: {fileID: 8884444932007774847, guid: 67b4c3946709f804e990d8cd041b216d, type: 3}
+  _mainCamera: {fileID: 330585545}
 --- !u!1 &1260741614
 GameObject:
   m_ObjectHideFlags: 0

@@ -97,4 +97,9 @@ public class RoadMeshRenderer : MonoBehaviour
     {
         return _config.laneWidth;
     }
+
+    public float GetPavementWidth()
+    {
+        return _config.pavementWidth;
+    }
 }

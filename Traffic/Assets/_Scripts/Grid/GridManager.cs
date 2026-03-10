@@ -93,6 +93,11 @@ public class GridManager : MonoBehaviour, ISaveable
         return IsValidGridPosition(new Vector3Int(x, 0, z)) ? _grid[x, z] : null;
     }
 
+    public GridCell GetCell(Vector3Int pos)
+    {
+        return IsValidGridPosition(new Vector3Int(pos.x, 0, pos.z)) ? _grid[pos.x, pos.z] : null;
+    }
+
     public GridCell GetCellAtWorldPosition(Vector3 worldPos)
     {
         Vector3Int gridPos = WorldToGridPosition(worldPos);

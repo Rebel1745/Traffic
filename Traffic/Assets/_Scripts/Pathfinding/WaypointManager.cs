@@ -16,6 +16,7 @@ public class WaypointManager : MonoBehaviour, ISaveable
     private float _laneCentre;
     private float _halfCellSize;
     private float _quarterCellSize;
+    private float _halfPavementSize;
 
     private bool _subscribedToSaveManager = false;
     private bool _subscribedToRoadMeshRenderer = false;
@@ -91,6 +92,7 @@ public class WaypointManager : MonoBehaviour, ISaveable
         _laneCentre = RoadMeshRenderer.Instance.GetLaneWidth() / 2f;
         _halfCellSize = GridManager.Instance.CellSize / 2f;
         _quarterCellSize = _halfCellSize / 2f;
+        _halfPavementSize = RoadMeshRenderer.Instance.GetPavementWidth() / 2f;
 
         // First pass: Create waypoints for each cell
         for (int x = 0; x < grid.GetLength(0); x++)
@@ -178,6 +180,19 @@ public class WaypointManager : MonoBehaviour, ISaveable
             waypoints.Add(northEntry);
             waypoints.Add(southExit);
 
+            // Trafflic light loaction waypoints
+            Vector3 wpLeftLight = _cellCentre + new Vector3(-_halfCellSize + _halfPavementSize, 0, 0);
+            Vector3 wpRightLight = _cellCentre + new Vector3(_halfCellSize - _halfPavementSize, 0, 0);
+
+            WaypointNode trafficLight1 = new WaypointNode(wpLeftLight, cell, WaypointType.TrafficLightLocation);
+            WaypointNode trafficLight2 = new WaypointNode(wpRightLight, cell, WaypointType.TrafficLightLocation);
+
+            trafficLight1.PairedCrossingWaypoint = trafficLight2;
+            trafficLight2.PairedCrossingWaypoint = trafficLight1;
+
+            waypoints.Add(trafficLight1);
+            waypoints.Add(trafficLight2);
+
         }
         else if (hasEast && hasWest) // Horizontal road
         {
@@ -204,6 +219,19 @@ public class WaypointManager : MonoBehaviour, ISaveable
 
             waypoints.Add(eastEntry);
             waypoints.Add(westExit);
+
+            // Trafflic light loaction waypoints
+            Vector3 wpTopLight = _cellCentre + new Vector3(0, 0, -_halfCellSize + _halfPavementSize);
+            Vector3 wpBottomLight = _cellCentre + new Vector3(0, 0, _halfCellSize - _halfPavementSize);
+
+            WaypointNode trafficLight1 = new WaypointNode(wpTopLight, cell, WaypointType.TrafficLightLocation);
+            WaypointNode trafficLight2 = new WaypointNode(wpBottomLight, cell, WaypointType.TrafficLightLocation);
+
+            trafficLight1.PairedCrossingWaypoint = trafficLight2;
+            trafficLight2.PairedCrossingWaypoint = trafficLight1;
+
+            waypoints.Add(trafficLight1);
+            waypoints.Add(trafficLight2);
         }
 
         return waypoints;
@@ -752,6 +780,22 @@ public class WaypointManager : MonoBehaviour, ISaveable
             waypoints.Add(southExit6);
         }
 
+        // Trafflic light loaction waypoints
+        Vector3 wpTopLeftLight = _cellCentre + new Vector3(-_halfCellSize + _halfPavementSize, 0, _halfCellSize - _halfPavementSize);
+        Vector3 wpTopRightLight = _cellCentre + new Vector3(_halfCellSize - _halfPavementSize, 0, _halfCellSize - _halfPavementSize);
+        Vector3 wpBottomLeftLight = _cellCentre + new Vector3(-_halfCellSize + _halfPavementSize, 0, -_halfCellSize + _halfPavementSize);
+        Vector3 wpBottomRightLight = _cellCentre + new Vector3(_halfCellSize - _halfPavementSize, 0, -_halfCellSize + _halfPavementSize);
+
+        WaypointNode trafficLight1 = new WaypointNode(wpTopLeftLight, cell, WaypointType.TrafficLightLocation);
+        WaypointNode trafficLight2 = new WaypointNode(wpTopRightLight, cell, WaypointType.TrafficLightLocation);
+        WaypointNode trafficLight3 = new WaypointNode(wpBottomLeftLight, cell, WaypointType.TrafficLightLocation);
+        WaypointNode trafficLight4 = new WaypointNode(wpBottomRightLight, cell, WaypointType.TrafficLightLocation);
+
+        if (hasWest) waypoints.Add(trafficLight1);
+        if (hasNorth) waypoints.Add(trafficLight2);
+        if (hasSouth) waypoints.Add(trafficLight3);
+        if (hasEast) waypoints.Add(trafficLight4);
+
         return waypoints;
     }
 
@@ -943,6 +987,22 @@ public class WaypointManager : MonoBehaviour, ISaveable
             waypoints.Add(westEntry12);
             waypoints.Add(midpoint12);
             waypoints.Add(southExit12);
+
+            // Trafflic light loaction waypoints
+            Vector3 wpTopLeftLight = _cellCentre + new Vector3(-_halfCellSize + _halfPavementSize, 0, _halfCellSize - _halfPavementSize);
+            Vector3 wpTopRightLight = _cellCentre + new Vector3(_halfCellSize - _halfPavementSize, 0, _halfCellSize - _halfPavementSize);
+            Vector3 wpBottomLeftLight = _cellCentre + new Vector3(-_halfCellSize + _halfPavementSize, 0, -_halfCellSize + _halfPavementSize);
+            Vector3 wpBottomRightLight = _cellCentre + new Vector3(_halfCellSize - _halfPavementSize, 0, -_halfCellSize + _halfPavementSize);
+
+            WaypointNode trafficLight1 = new WaypointNode(wpTopLeftLight, cell, WaypointType.TrafficLightLocation);
+            WaypointNode trafficLight2 = new WaypointNode(wpTopRightLight, cell, WaypointType.TrafficLightLocation);
+            WaypointNode trafficLight3 = new WaypointNode(wpBottomLeftLight, cell, WaypointType.TrafficLightLocation);
+            WaypointNode trafficLight4 = new WaypointNode(wpBottomRightLight, cell, WaypointType.TrafficLightLocation);
+
+            waypoints.Add(trafficLight1);
+            waypoints.Add(trafficLight2);
+            waypoints.Add(trafficLight3);
+            waypoints.Add(trafficLight4);
         }
 
         return waypoints;
@@ -1081,6 +1141,19 @@ public class WaypointManager : MonoBehaviour, ISaveable
         return _allWaypoints;
     }
 
+    public List<WaypointNode> GetCellWaypoints(GridCell cell)
+    {
+        List<WaypointNode> cellWaypoints = new();
+
+        foreach (WaypointNode node in _allWaypoints)
+        {
+            if (node.ParentCell == cell)
+                cellWaypoints.Add(node);
+        }
+
+        return cellWaypoints;
+    }
+
     public void PopulateSaveData(GameSaveData saveData)
     {
         var waypointData = new WaypointSaveData();
@@ -1167,5 +1240,19 @@ public class WaypointManager : MonoBehaviour, ISaveable
         }
 
         Debug.Log($"[WaypointManager] Loaded {_allWaypoints.Count} waypoint nodes.");
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (_allWaypoints.Count == 0) return;
+
+        foreach (WaypointNode node in _allWaypoints)
+        {
+            if (node.Type == WaypointType.TrafficLightLocation)
+            {
+                Gizmos.color = Color.yellow;
+                Gizmos.DrawSphere(node.Position, 0.5f);
+            }
+        }
     }
 }
