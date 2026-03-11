@@ -7,4 +7,5 @@ public class GameSaveData
     public string saveDate;
     public GridSaveData grid;
     public WaypointSaveData waypoints;
+    public TrafficLightsSaveData trafficLights;
 }

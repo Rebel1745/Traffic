@@ -6,12 +6,14 @@ public class TrafficLightController : MonoBehaviour
 
     public LightState CurrentState { get; private set; } = LightState.Red;
 
-    [Header("Material for each light")]
-    [SerializeField] private Material redLight;
-    [SerializeField] private Material yellowLight;
-    [SerializeField] private Material greenLight;
+    public WaypointNode AssignedWaypoint { get; set; }
 
-    [SerializeField] private Renderer bum;
+    [Header("Material for each light")]
+    [SerializeField] private Material _redLight;
+    [SerializeField] private Material _yellowLight;
+    [SerializeField] private Material _greenLight;
+
+    [SerializeField] private Renderer _ren;
 
     public void SetState(LightState newState)
     {
@@ -26,13 +28,13 @@ public class TrafficLightController : MonoBehaviour
         switch (CurrentState)
         {
             case LightState.Red:
-                bum.material = redLight;
+                _ren.material = _redLight;
                 break;
             case LightState.Yellow:
-                bum.material = yellowLight;
+                _ren.material = _yellowLight;
                 break;
             case LightState.Green:
-                bum.material = greenLight;
+                _ren.material = _greenLight;
                 break;
 
         }

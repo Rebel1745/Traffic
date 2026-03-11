@@ -10,6 +10,7 @@ public class WaypointNode
     public WaypointType Type { get; set; }
     public TrafficLightController AssignedLight { get; set; }
     public WaypointNode PairedCrossingWaypoint { get; set; }
+    public string PairedCrossingWaypointId { get; set; }
 
     public WaypointNode(Vector3 position, GridCell parentCell, WaypointType type)
     {

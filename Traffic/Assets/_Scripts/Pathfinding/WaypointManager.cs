@@ -1167,7 +1167,8 @@ public class WaypointManager : MonoBehaviour, ISaveable
                 z = node.Position.z,
                 type = node.Type,
                 parentCellX = node.ParentCell.Position.x,
-                parentCellZ = node.ParentCell.Position.z
+                parentCellZ = node.ParentCell.Position.z,
+                pairedCrossingWaypointId = node.PairedCrossingWaypoint?.Id
             };
 
             foreach (var connection in node.Connections)
@@ -1216,6 +1217,12 @@ public class WaypointManager : MonoBehaviour, ISaveable
             // Restore the saved ID rather than using the new GUID generated in the constructor
             node.Id = nodeData.id;
 
+            // Restore paired crossing waypoint reference (if any)
+            if (!string.IsNullOrEmpty(nodeData.pairedCrossingWaypointId))
+            {
+                node.PairedCrossingWaypointId = nodeData.pairedCrossingWaypointId;  // Store ID for later resolution
+            }
+
             _allWaypoints.Add(node);
             nodeLookup[node.Id] = node;
         }
@@ -1239,7 +1246,27 @@ public class WaypointManager : MonoBehaviour, ISaveable
             }
         }
 
+        // Third pass — resolve paired crossing waypoints (after all nodes are created)
+        foreach (var node in _allWaypoints)
+        {
+            if (!string.IsNullOrEmpty(node.PairedCrossingWaypointId) &&
+                nodeLookup.TryGetValue(node.PairedCrossingWaypointId, out var pairedNode))
+            {
+                node.PairedCrossingWaypoint = pairedNode;
+            }
+        }
+
         Debug.Log($"[WaypointManager] Loaded {_allWaypoints.Count} waypoint nodes.");
+    }
+
+    public Dictionary<string, WaypointNode> GetAllWaypointLookup()
+    {
+        var lookup = new Dictionary<string, WaypointNode>();
+        foreach (var node in _allWaypoints)
+        {
+            lookup[node.Id] = node;
+        }
+        return lookup;
     }
 
     private void OnDrawGizmos()

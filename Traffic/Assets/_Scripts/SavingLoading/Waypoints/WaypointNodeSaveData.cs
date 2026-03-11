@@ -10,4 +10,5 @@ public class WaypointNodeSaveData
     public int parentCellX;     // Reference parent cell by grid position
     public int parentCellZ;
     public List<WaypointConnectionSaveData> connections = new();
+    public string pairedCrossingWaypointId;
 }

@@ -302,7 +302,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ae2ab7fe32bf674b9f94b5b94fef2c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TrafficLightController
-  redLight: {fileID: 2100000, guid: d347e8d5247383043b44765462584ded, type: 2}
-  yellowLight: {fileID: 2100000, guid: 2555c76d0c6a07341b5ab4f1c32daa84, type: 2}
-  greenLight: {fileID: 2100000, guid: c58d4bf62598cc64b8807adbba675566, type: 2}
-  bum: {fileID: 2447572572952838541}
+  _redLight: {fileID: 2100000, guid: d347e8d5247383043b44765462584ded, type: 2}
+  _yellowLight: {fileID: 2100000, guid: 2555c76d0c6a07341b5ab4f1c32daa84, type: 2}
+  _greenLight: {fileID: 2100000, guid: c58d4bf62598cc64b8807adbba675566, type: 2}
+  _ren: {fileID: 2447572572952838541}
