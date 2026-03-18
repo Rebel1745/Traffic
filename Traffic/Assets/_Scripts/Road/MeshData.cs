@@ -24,21 +24,43 @@ public class MeshData
         triangles.Add(startIndex + 2);
     }
 
-    public void AddQuad(Vector3 v0, Vector3 v1, Vector3 v2, Vector3 v3)
+    public void AddQuad(Vector3 v0, Vector3 v1, Vector3 v2, Vector3 v3, Vector2[] quadUVs)
     {
-        Vector2 uv0 = new Vector2(0, 0);
-        Vector2 uv1 = new Vector2(1, 0);
-        Vector2 uv2 = new Vector2(1, 1);
-        Vector2 uv3 = new Vector2(0, 1);
+        Vector2 uv0 = quadUVs[0];
+        Vector2 uv1 = quadUVs[1];
+        Vector2 uv2 = quadUVs[2];
+        Vector2 uv3 = quadUVs[3];
 
         AddTriangle(v0, v1, v2, uv0, uv1, uv2);
         AddTriangle(v0, v2, v3, uv0, uv2, uv3);
     }
 
-    public void AddCuboid(Vector3 v0, Vector3 v1, float thickness)
+    public void AddCuboid(Vector3 v0, Vector3 v1, float thickness, RoadType roadType)
     {
         Vector3 min = Vector3.Min(v0, v1);
         Vector3 max = Vector3.Max(v0, v1);
+        Vector2[] roadUVs, defaultUVs;
+
+        defaultUVs = new[] {
+            new Vector2(0, 0),
+            new Vector2(1, 0),
+            new Vector2(1, 1),
+            new Vector2(0, 1)
+        };
+
+        // Get the correct UVs for this road type
+        if (roadType != RoadType.Empty)
+            roadUVs = RoadMarkingUVs.GetUVsForRoadType(roadType);
+        else roadUVs = defaultUVs;
+
+        if (roadType != RoadType.Empty)
+        {
+            foreach (Vector3 v in roadUVs)
+            {
+                Debug.Log(v);
+            }
+
+        }
 
         // Bottom quad corners (y = 0)
         Vector3 bbl = new Vector3(min.x, 0, min.z);           // bottom-bottom-left
@@ -53,109 +75,109 @@ public class MeshData
         Vector3 ttl = new Vector3(min.x, thickness, max.z);   // top-top-left
 
         // Bottom face (y = 0, facing -Y)
-        AddQuad(bbl, bbr, btr, btl);
+        AddQuad(bbl, bbr, btr, btl, defaultUVs);
 
         // Top face (y = thickness, facing +Y)
-        AddQuad(tbl, ttl, ttr, tbr);
+        AddQuad(tbl, ttl, ttr, tbr, roadUVs);
 
         // Front face (z = min.z, facing -Z)
-        AddQuad(bbl, tbl, tbr, bbr);
+        AddQuad(bbl, tbl, tbr, bbr, defaultUVs);
 
         // Back face (z = max.z, facing +Z)
-        AddQuad(btr, ttr, ttl, btl);
+        AddQuad(btr, ttr, ttl, btl, defaultUVs);
 
         // Left face (x = min.x, facing -X)
-        AddQuad(btl, ttl, tbl, bbl);
+        AddQuad(btl, ttl, tbl, bbl, defaultUVs);
 
         // Right face (x = max.x, facing +X)
-        AddQuad(bbr, tbr, ttr, btr);
+        AddQuad(bbr, tbr, ttr, btr, defaultUVs);
     }
 
-    public void AddTrapezium(Vector3 v0, Vector3 v1, Vector3 v2, Vector3 v3)
-    {
-        // trapezium is made up of 2 triangles (like a quad)
-        // Assuming v0, v1, v2, v3 are in order (counter-clockwise)
-        Vector2 uv0 = new Vector2(0, 0);
-        Vector2 uv1 = new Vector2(1, 0);
-        Vector2 uv2 = new Vector2(1, 1);
-        Vector2 uv3 = new Vector2(0, 1);
+    // public void AddTrapezium(Vector3 v0, Vector3 v1, Vector3 v2, Vector3 v3)
+    // {
+    //     // trapezium is made up of 2 triangles (like a quad)
+    //     // Assuming v0, v1, v2, v3 are in order (counter-clockwise)
+    //     Vector2 uv0 = new Vector2(0, 0);
+    //     Vector2 uv1 = new Vector2(1, 0);
+    //     Vector2 uv2 = new Vector2(1, 1);
+    //     Vector2 uv3 = new Vector2(0, 1);
 
-        // 1st triangle
-        AddTriangle(v0, v1, v2, uv0, uv1, uv2);
+    //     // 1st triangle
+    //     AddTriangle(v0, v1, v2, uv0, uv1, uv2);
 
-        // 2nd triangle
-        AddTriangle(v0, v2, v3, uv0, uv2, uv3);
-    }
+    //     // 2nd triangle
+    //     AddTriangle(v0, v2, v3, uv0, uv2, uv3);
+    // }
 
-    public void AddTriangularPrism(Vector3 v0, Vector3 v1, Vector3 v2, float thickness)
-    {
-        // Top triangle vertices (y = thickness)
-        Vector3 t0 = new Vector3(v0.x, v0.y + thickness, v0.z);
-        Vector3 t1 = new Vector3(v1.x, v1.y + thickness, v1.z);
-        Vector3 t2 = new Vector3(v2.x, v2.y + thickness, v2.z);
+    // public void AddTriangularPrism(Vector3 v0, Vector3 v1, Vector3 v2, float thickness)
+    // {
+    //     // Top triangle vertices (y = thickness)
+    //     Vector3 t0 = new Vector3(v0.x, v0.y + thickness, v0.z);
+    //     Vector3 t1 = new Vector3(v1.x, v1.y + thickness, v1.z);
+    //     Vector3 t2 = new Vector3(v2.x, v2.y + thickness, v2.z);
 
-        // Bottom triangle vertices (y = 0)
-        Vector3 b0 = new Vector3(v0.x, v0.y, v0.z);
-        Vector3 b1 = new Vector3(v1.x, v1.y, v1.z);
-        Vector3 b2 = new Vector3(v2.x, v2.y, v2.z);
+    //     // Bottom triangle vertices (y = 0)
+    //     Vector3 b0 = new Vector3(v0.x, v0.y, v0.z);
+    //     Vector3 b1 = new Vector3(v1.x, v1.y, v1.z);
+    //     Vector3 b2 = new Vector3(v2.x, v2.y, v2.z);
 
-        Vector2 uv0 = new Vector2(0, 0);
-        Vector2 uv1 = new Vector2(1, 0);
-        Vector2 uv2 = new Vector2(0.5f, 1);
+    //     Vector2 uv0 = new Vector2(0, 0);
+    //     Vector2 uv1 = new Vector2(1, 0);
+    //     Vector2 uv2 = new Vector2(0.5f, 1);
 
-        // Top triangle (facing +Y): CCW when viewed from outside (above)
-        AddTriangle(t0, t1, t2, uv0, uv1, uv2); // CCW from above → correct
+    //     // Top triangle (facing +Y): CCW when viewed from outside (above)
+    //     AddTriangle(t0, t1, t2, uv0, uv1, uv2); // CCW from above → correct
 
-        // Bottom triangle (facing -Y): CCW when viewed from outside (below)
-        AddTriangle(b0, b2, b1, uv0, uv2, uv1); // CCW from below → correct
+    //     // Bottom triangle (facing -Y): CCW when viewed from outside (below)
+    //     AddTriangle(b0, b2, b1, uv0, uv2, uv1); // CCW from below → correct
 
-        // 1st quad (connecting v0-v1 edge)
-        AddQuad(b0, b1, t1, t0);
+    //     // 1st quad (connecting v0-v1 edge)
+    //     AddQuad(b0, b1, t1, t0);
 
-        // 2nd quad (connecting v1-v2 edge)
-        AddQuad(b1, b2, t2, t1);
+    //     // 2nd quad (connecting v1-v2 edge)
+    //     AddQuad(b1, b2, t2, t1);
 
-        // 3rd quad (connecting v2-v0 edge)
-        AddQuad(b2, b0, t0, t2);
-    }
+    //     // 3rd quad (connecting v2-v0 edge)
+    //     AddQuad(b2, b0, t0, t2);
+    // }
 
-    public void AddTrapezoidalPrism(Vector3 v0, Vector3 v1, Vector3 v2, Vector3 v3, float thickness)
-    {
-        // Top trapezium vertices (y = thickness)
-        Vector3 t0 = new Vector3(v0.x, v0.y + thickness, v0.z);
-        Vector3 t1 = new Vector3(v1.x, v1.y + thickness, v1.z);
-        Vector3 t2 = new Vector3(v2.x, v2.y + thickness, v2.z);
-        Vector3 t3 = new Vector3(v3.x, v3.y + thickness, v3.z);
+    // public void AddTrapezoidalPrism(Vector3 v0, Vector3 v1, Vector3 v2, Vector3 v3, float thickness)
+    // {
+    //     // Top trapezium vertices (y = thickness)
+    //     Vector3 t0 = new Vector3(v0.x, v0.y + thickness, v0.z);
+    //     Vector3 t1 = new Vector3(v1.x, v1.y + thickness, v1.z);
+    //     Vector3 t2 = new Vector3(v2.x, v2.y + thickness, v2.z);
+    //     Vector3 t3 = new Vector3(v3.x, v3.y + thickness, v3.z);
 
-        // Bottom trapezium vertices (y = 0)
-        Vector3 b0 = new Vector3(v0.x, v0.y, v0.z);
-        Vector3 b1 = new Vector3(v1.x, v1.y, v1.z);
-        Vector3 b2 = new Vector3(v2.x, v2.y, v2.z);
-        Vector3 b3 = new Vector3(v3.x, v3.y, v3.z);
+    //     // Bottom trapezium vertices (y = 0)
+    //     Vector3 b0 = new Vector3(v0.x, v0.y, v0.z);
+    //     Vector3 b1 = new Vector3(v1.x, v1.y, v1.z);
+    //     Vector3 b2 = new Vector3(v2.x, v2.y, v2.z);
+    //     Vector3 b3 = new Vector3(v3.x, v3.y, v3.z);
 
-        Vector2 uv0 = new Vector2(0, 0);
-        Vector2 uv1 = new Vector2(1, 0);
-        Vector2 uv2 = new Vector2(1, 1);
-        Vector2 uv3 = new Vector2(0, 1);
+    //     Vector2 uv0 = new Vector2(0, 0);
+    //     Vector2 uv1 = new Vector2(1, 0);
+    //     Vector2 uv2 = new Vector2(1, 1);
+    //     Vector2 uv3 = new Vector2(0, 1);
 
-        // Top trapezium (facing +Y): CCW when viewed from above
-        AddTriangle(t0, t1, t2, uv0, uv1, uv2);
-        AddTriangle(t0, t2, t3, uv0, uv2, uv3);
+    //     // Top trapezium (facing +Y): CCW when viewed from above
+    //     AddTriangle(t0, t1, t2, uv0, uv1, uv2);
+    //     AddTriangle(t0, t2, t3, uv0, uv2, uv3);
 
-        // Bottom trapezium (facing -Y): CCW when viewed from below
-        AddTriangle(b0, b3, b2, uv0, uv3, uv2); // CCW from below → reverse order
-        AddTriangle(b0, b2, b1, uv0, uv2, uv1); // CCW from below → reverse order
+    //     // Bottom trapezium (facing -Y): CCW when viewed from below
+    //     AddTriangle(b0, b3, b2, uv0, uv3, uv2); // CCW from below → reverse order
+    //     AddTriangle(b0, b2, b1, uv0, uv2, uv1); // CCW from below → reverse order
 
-        // 1st quad (connecting v0-v1 edge)
-        AddQuad(b0, b1, t1, t0);
+    //     // 1st quad (connecting v0-v1 edge)
+    //     AddQuad(b0, b1, t1, t0);
 
-        // 2nd quad (connecting v1-v2 edge)
-        AddQuad(b1, b2, t2, t1);
+    //     // 2nd quad (connecting v1-v2 edge)
+    //     AddQuad(b1, b2, t2, t1);
 
-        // 3rd quad (connecting v2-v3 edge)
-        AddQuad(b2, b3, t3, t2);
+    //     // 3rd quad (connecting v2-v3 edge)
+    //     AddQuad(b2, b3, t3, t2);
 
-        // 4th quad (connecting v3-v0 edge)
-        AddQuad(b3, b0, t0, t3);
-    }
+    //     // 4th quad (connecting v3-v0 edge)
+    //     AddQuad(b3, b0, t0, t3);
+    // }
 }

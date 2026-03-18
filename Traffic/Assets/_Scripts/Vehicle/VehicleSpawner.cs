@@ -33,7 +33,7 @@ public class VehicleSpawner : MonoBehaviour
     private void HandleMiddleClickPressed(Vector2 screenPosition)
     {
         // Only spawn vehicles when simulation is running
-        if (SimulationManager.Instance.CurrentState.SimulationState != SimulationState.Roads)
+        if (SimulationManager.Instance.CurrentState.SimulationState != SimulationState.Vehicles)
             return;
 
         SpawnVehicle();
