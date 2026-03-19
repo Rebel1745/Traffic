@@ -27,6 +27,7 @@ public enum RoadType
 
 public enum RoadDirection
 {
+    None,
     North, // used for t junction (direction corresponds to the turnoff road direction, e.g. the classic T layout would be South)
     South, // used for t junction
     East, // used for t junction

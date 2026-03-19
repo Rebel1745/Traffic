@@ -311,6 +311,56 @@ public class GridManager : MonoBehaviour, ISaveable
         return RoadType.Single;
     }
 
+    public void UpdateRoadDirections()
+    {
+        foreach (GridCell cell in _grid)
+        {
+            if (cell.CellType != CellType.Road)
+            {
+                cell.RoadDirection = RoadDirection.None;
+            }
+            else
+            {
+                cell.RoadDirection = GetRoadDirection(cell);
+            }
+        }
+    }
+
+    private RoadDirection GetRoadDirection(GridCell cell)
+    {
+        RoadDirection dir = RoadDirection.None;
+
+        // check for cell neighbours
+        bool hasNorth = HasRoadNeighbor(cell, RoadDirection.North);
+        bool hasSouth = HasRoadNeighbor(cell, RoadDirection.South);
+        bool hasEast = HasRoadNeighbor(cell, RoadDirection.East);
+        bool hasWest = HasRoadNeighbor(cell, RoadDirection.West);
+
+        switch (cell.RoadType)
+        {
+            case RoadType.Empty:
+            case RoadType.Single:
+            case RoadType.Crossroads:
+                return RoadDirection.None;
+            case RoadType.DeadEnd:
+            case RoadType.Straight:
+                if (hasNorth || hasSouth) return RoadDirection.NorthSouth;
+                return RoadDirection.WestEast;
+            case RoadType.TJunction:
+                if (hasNorth) return RoadDirection.North;
+                if (hasSouth) return RoadDirection.South;
+                if (hasWest) return RoadDirection.West;
+                return RoadDirection.East;
+            case RoadType.Corner:
+                if (hasNorth && hasWest) return RoadDirection.NorthWest;
+                if (hasNorth && hasEast) return RoadDirection.NorthEast;
+                if (hasSouth && hasWest) return RoadDirection.SouthWest;
+                return RoadDirection.SouthEast;
+        }
+
+        return dir;
+    }
+
     private bool IsStraightLine(List<Vector3Int> adjacentRoads)
     {
         // Check if all adjacent roads are in a straight line
@@ -404,7 +454,8 @@ public class GridManager : MonoBehaviour, ISaveable
                     z = cell.Position.z,
                     cellType = cell.CellType,
                     roadType = cell.RoadType,
-                    roadDirection = cell.RoadDirection
+                    roadDirection = cell.RoadDirection,
+                    direction = cell.RoadDirection.ToString()
                 };
                 gridData.cells.Add(cellData);
             }
@@ -436,7 +487,7 @@ public class GridManager : MonoBehaviour, ISaveable
                     Position = new Vector3Int(x, 0, z),
                     CellType = CellType.Empty,
                     RoadType = RoadType.Empty,
-                    RoadDirection = RoadDirection.North
+                    RoadDirection = RoadDirection.None
                 };
             }
         }

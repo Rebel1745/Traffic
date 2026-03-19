@@ -200,6 +200,8 @@ public class GridVisualiser : MonoBehaviour
                 }
             }
 
+            GridManager.Instance.UpdateRoadDirections();
+
             // Update visual representation
             GridManager.Instance.UpdateRoadGrid();
 
@@ -224,6 +226,7 @@ public class GridVisualiser : MonoBehaviour
                 {
                     GridManager.Instance.SetCellType(gridPos, CellType.Empty);
                     GridManager.Instance.UpdateRoadTypes(gridPos);
+                    GridManager.Instance.UpdateRoadDirections();
                     GridManager.Instance.UpdateRoadGrid();
                 }
             }

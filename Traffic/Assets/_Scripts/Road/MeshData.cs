@@ -35,7 +35,7 @@ public class MeshData
         AddTriangle(v0, v2, v3, uv0, uv2, uv3);
     }
 
-    public void AddCuboid(Vector3 v0, Vector3 v1, float thickness, RoadType roadType)
+    public void AddCuboid(Vector3 v0, Vector3 v1, float thickness, RoadType roadType, RoadDirection roadDirection)
     {
         Vector3 min = Vector3.Min(v0, v1);
         Vector3 max = Vector3.Max(v0, v1);
@@ -50,17 +50,8 @@ public class MeshData
 
         // Get the correct UVs for this road type
         if (roadType != RoadType.Empty)
-            roadUVs = RoadMarkingUVs.GetUVsForRoadType(roadType);
+            roadUVs = RoadMarkingUVs.GetUVsForRoadType(roadType, roadDirection);
         else roadUVs = defaultUVs;
-
-        if (roadType != RoadType.Empty)
-        {
-            foreach (Vector3 v in roadUVs)
-            {
-                Debug.Log(v);
-            }
-
-        }
 
         // Bottom quad corners (y = 0)
         Vector3 bbl = new Vector3(min.x, 0, min.z);           // bottom-bottom-left
