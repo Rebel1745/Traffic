@@ -26,13 +26,13 @@ public class MeshData
 
     public void AddQuad(Vector3 v0, Vector3 v1, Vector3 v2, Vector3 v3, Vector2[] quadUVs)
     {
-        Vector2 uv0 = quadUVs[0];
-        Vector2 uv1 = quadUVs[1];
-        Vector2 uv2 = quadUVs[2];
-        Vector2 uv3 = quadUVs[3];
+        Vector2 uvBottomLeft = quadUVs[0];
+        Vector2 uvBottomRight = quadUVs[1];
+        Vector2 uvTopRight = quadUVs[2];
+        Vector2 uvTopLeft = quadUVs[3];
 
-        AddTriangle(v0, v1, v2, uv0, uv1, uv2);
-        AddTriangle(v0, v2, v3, uv0, uv2, uv3);
+        AddTriangle(v0, v1, v2, uvBottomLeft, uvBottomRight, uvTopRight);
+        AddTriangle(v0, v2, v3, uvBottomLeft, uvTopRight, uvTopLeft);
     }
 
     public void AddCuboid(Vector3 v0, Vector3 v1, float thickness, RoadType roadType, RoadDirection roadDirection)

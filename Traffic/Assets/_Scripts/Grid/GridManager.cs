@@ -343,14 +343,18 @@ public class GridManager : MonoBehaviour, ISaveable
             case RoadType.Crossroads:
                 return RoadDirection.None;
             case RoadType.DeadEnd:
+                if (hasNorth) return RoadDirection.North;
+                if (hasSouth) return RoadDirection.South;
+                if (hasEast) return RoadDirection.East;
+                return RoadDirection.West;
             case RoadType.Straight:
                 if (hasNorth || hasSouth) return RoadDirection.NorthSouth;
                 return RoadDirection.WestEast;
             case RoadType.TJunction:
-                if (hasNorth) return RoadDirection.North;
-                if (hasSouth) return RoadDirection.South;
-                if (hasWest) return RoadDirection.West;
-                return RoadDirection.East;
+                if (!hasNorth) return RoadDirection.South;
+                if (!hasSouth) return RoadDirection.North;
+                if (!hasWest) return RoadDirection.East;
+                return RoadDirection.West;
             case RoadType.Corner:
                 if (hasNorth && hasWest) return RoadDirection.NorthWest;
                 if (hasNorth && hasEast) return RoadDirection.NorthEast;
