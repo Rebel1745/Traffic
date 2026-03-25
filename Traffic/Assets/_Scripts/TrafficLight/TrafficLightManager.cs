@@ -62,9 +62,10 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
         TrafficLightController light = lightObj.GetComponent<TrafficLightController>();
 
         light.AssignedWaypoint = waypoint;
-        waypoint.AssignedLight = light;
+        waypoint.LaneNodeForTrafficLight.AssignedLight = light;
 
         TrafficLightGroupController group = FindOrCreateGroupForWaypoint(waypoint);
+        lightObj.transform.parent = group.gameObject.transform;
 
         // Register with default timings (can be adjusted via UI later)
         group.RegisterLight(light, greenDuration: 10f, yellowDuration: 3f, redDuration: 10f, redOverlapDuration: 2f);
@@ -82,7 +83,7 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
             group.RemoveLight(waypoint.AssignedLight);
 
         Destroy(waypoint.AssignedLight.gameObject);
-        waypoint.AssignedLight = null;
+        waypoint.LaneNodeForTrafficLight.AssignedLight = null;
 
         Debug.Log($"Removed traffic light at {waypoint.Id}");
     }
@@ -230,7 +231,7 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
                 newLight.AssignedWaypoint = waypoint;
 
                 // Assign to waypoint
-                waypoint.AssignedLight = newLight;
+                waypoint.LaneNodeForTrafficLight.AssignedLight = newLight;
 
                 // Register in group
                 group.RegisterLight(newLight, light.greenDuration, light.yellowDuration, light.redDuration, light.redOverlapDuration);
@@ -240,6 +241,8 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
                 {
                     groupObj.transform.position = waypoint.Position;
                 }
+
+                lightObj.transform.parent = groupObj.transform;
             }
 
             _allGroups.Add(group);

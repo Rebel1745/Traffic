@@ -18,15 +18,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5732084284715850513, guid: 2ebe4b759dbad124995e809d1a276fb2, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.6
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 5732084284715850513, guid: 2ebe4b759dbad124995e809d1a276fb2, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.6
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 5732084284715850513, guid: 2ebe4b759dbad124995e809d1a276fb2, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.6
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 5732084284715850513, guid: 2ebe4b759dbad124995e809d1a276fb2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -117,7 +117,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca680c4c5d0c4554aae76e0355669a7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VehicleController
-  moveSpeed: 5
-  rotationSpeed: 5
-  waypointReachThreshold: 0.1
-  showDebugInfo: 0
+  _moveSpeed: 5
+  _rotationSpeed: 5
+  _waypointReachThreshold: 0.1
+  _showDebugInfo: 0

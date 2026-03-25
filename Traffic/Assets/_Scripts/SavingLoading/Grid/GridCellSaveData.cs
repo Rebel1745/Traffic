@@ -8,5 +8,4 @@ public class GridCellSaveData
     public CellType cellType;
     public RoadType roadType;
     public RoadDirection roadDirection;
-    public string direction;
 }

@@ -7,8 +7,9 @@ public class WaypointNodeSaveData
     public float x;
     public float z;
     public WaypointType type;
-    public int parentCellX;     // Reference parent cell by grid position
+    public int parentCellX;
     public int parentCellZ;
     public List<WaypointConnectionSaveData> connections = new();
     public string pairedCrossingWaypointId;
+    public string laneNodeForTrafficLightId;
 }

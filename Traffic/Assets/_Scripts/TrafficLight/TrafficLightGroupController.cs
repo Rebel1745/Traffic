@@ -92,7 +92,7 @@ public class TrafficLightGroupController : MonoBehaviour
 
             // Red light (with individual duration)
             current.Light.SetState(TrafficLightController.LightState.Red);
-            yield return new WaitForSeconds(current.RedDuration);
+            //yield return new WaitForSeconds(current.RedDuration);
 
             // All-red safety buffer (all lights red)
             yield return new WaitForSeconds(current.RedOverlapDuration);

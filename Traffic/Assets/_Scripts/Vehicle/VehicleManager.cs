@@ -56,7 +56,7 @@ public class VehicleManager : MonoBehaviour
                 if (newPath != null && newPath.Count > 0)
                 {
                     vehicle.SetNewPath(newPath, newTarget);
-                    Debug.Log($"New target assigned to vehicle: {newTarget.Position}");
+                    //Debug.Log($"New target assigned to vehicle: {newTarget.Position}");
                     return;
                 }
             }

@@ -458,8 +458,7 @@ public class GridManager : MonoBehaviour, ISaveable
                     z = cell.Position.z,
                     cellType = cell.CellType,
                     roadType = cell.RoadType,
-                    roadDirection = cell.RoadDirection,
-                    direction = cell.RoadDirection.ToString()
+                    roadDirection = cell.RoadDirection
                 };
                 gridData.cells.Add(cellData);
             }

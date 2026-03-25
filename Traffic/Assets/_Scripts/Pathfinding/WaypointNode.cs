@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class WaypointNode
 {
     public string Id { get; set; }
@@ -11,8 +12,11 @@ public class WaypointNode
     public TrafficLightController AssignedLight { get; set; }
     public WaypointNode PairedCrossingWaypoint { get; set; }
     public string PairedCrossingWaypointId { get; set; }
+    // below is the node that the vehicle will stop at if it has a traffic light
+    public WaypointNode LaneNodeForTrafficLight { get; set; }
+    public string LaneNodeForTrafficLightId { get; set; }
 
-    public WaypointNode(Vector3 position, GridCell parentCell, WaypointType type)
+    public WaypointNode(Vector3 position, GridCell parentCell, WaypointType type, WaypointNode laneNode = null)
     {
         Id = System.Guid.NewGuid().ToString();
         Position = position;
@@ -21,6 +25,7 @@ public class WaypointNode
         Connections = new List<WaypointConnection>();
         AssignedLight = null;
         PairedCrossingWaypoint = null;
+        LaneNodeForTrafficLight = laneNode;
     }
 }
 

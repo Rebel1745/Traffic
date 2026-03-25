@@ -96,7 +96,10 @@ public class VehicleSpawner : MonoBehaviour
         var entryWaypoints = allWaypoints.Where(w => w.Type == WaypointType.Entry).ToList();
 
         if (entryWaypoints.Count == 0)
+        {
+            Debug.LogWarning("No waypoints");
             return null;
+        }
 
         return entryWaypoints[Random.Range(0, entryWaypoints.Count)];
     }
@@ -104,10 +107,13 @@ public class VehicleSpawner : MonoBehaviour
     private WaypointNode FindValidTarget(WaypointNode startWaypoint, int maxAttempts = 10)
     {
         var allWaypoints = WaypointManager.Instance.GetAllWaypoints();
-        var entryWaypoints = allWaypoints.Where(w => w.Type == WaypointType.Entry && w != startWaypoint).ToList();
+        var entryWaypoints = allWaypoints.Where(w => w.Type != WaypointType.TrafficLightLocation && w != startWaypoint).ToList();
 
         if (entryWaypoints.Count == 0)
+        {
+            Debug.LogWarning("No waypoints");
             return null;
+        }
 
         // Try to find a valid target
         for (int i = 0; i < maxAttempts; i++)

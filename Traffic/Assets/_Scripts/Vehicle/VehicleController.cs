@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -61,6 +62,14 @@ public class VehicleController : MonoBehaviour
 
         WaypointNode targetWaypoint = Path[_currentWaypointIndex];
         Vector3 targetPosition = targetWaypoint.Position;
+
+        if (targetWaypoint.AssignedLight != null)
+        {
+            if (!targetWaypoint.AssignedLight.IsGreen())
+            {
+                return; // Wait one frame
+            }
+        }
 
         // Move towards target
         Vector3 direction = (targetPosition - transform.position).normalized;
