@@ -7,6 +7,10 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
 
     [SerializeField] private GameObject _trafficLightPrefab;
     public GameObject TrafficLightPrefab { get { return _trafficLightPrefab; } }
+    [SerializeField] private float _redDuration = 2f;
+    [SerializeField] private float _yellowDuration = 1f;
+    [SerializeField] private float _greenDuration = 3f;
+    [SerializeField] private float _redOverlapDuration = 0.5f;
 
     public string SaveKey => "TrafficLights";
 
@@ -68,7 +72,7 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
         lightObj.transform.parent = group.gameObject.transform;
 
         // Register with default timings (can be adjusted via UI later)
-        group.RegisterLight(light, greenDuration: 10f, yellowDuration: 3f, redDuration: 10f, redOverlapDuration: 2f);
+        group.RegisterLight(light, _greenDuration, _yellowDuration, _redDuration, _redOverlapDuration);
 
         Debug.Log($"Confirmed traffic light at {waypoint.Id}");
     }

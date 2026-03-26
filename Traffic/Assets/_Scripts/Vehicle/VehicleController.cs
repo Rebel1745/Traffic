@@ -8,6 +8,10 @@ public class VehicleController : MonoBehaviour
     [SerializeField] private float _moveSpeed = 5f;
     [SerializeField] private float _rotationSpeed = 5f;
     [SerializeField] private float _waypointReachThreshold = 0.1f;
+    [SerializeField] private float _lookAheadDistance = 1f;
+    [SerializeField] private LayerMask _whatIsVehicle;
+    private Collider _vehicleCollider;
+    private float _stopDistance;
 
     [Header("Debug")]
     [SerializeField] private bool _showDebugInfo = true;
@@ -19,6 +23,12 @@ public class VehicleController : MonoBehaviour
 
     private int _currentWaypointIndex = 0;
     private bool _isMoving = false;
+
+    private void Start()
+    {
+        _vehicleCollider = GetComponent<Collider>();
+        _stopDistance = _vehicleCollider.bounds.extents.z;
+    }
 
     public void Initialize(List<WaypointNode> path, WaypointNode target)
     {
@@ -58,6 +68,14 @@ public class VehicleController : MonoBehaviour
             // Reached the end of the path
             OnReachedTarget();
             return;
+        }
+
+        // check to make sure a vehicle is not too close in front of this one
+        // if it is, stop
+        // NOTE: this is not performant for a large number of vehicles, change to something better in the future
+        if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, _lookAheadDistance, _whatIsVehicle))
+        {
+            return; // Wait one frame
         }
 
         WaypointNode targetWaypoint = Path[_currentWaypointIndex];
@@ -117,6 +135,12 @@ public class VehicleController : MonoBehaviour
             return;
         }
 
+        for (int i = newPath.Count; i < 0; i--)
+        {
+            if (newPath[i] != newTarget && newPath[i].Type == WaypointType.Exit)
+                newPath.RemoveAt(i);
+        }
+
         Path = new List<WaypointNode>(newPath);
         TargetWaypoint = newTarget;
         _currentWaypointIndex = 0;
@@ -162,18 +186,5 @@ public class VehicleController : MonoBehaviour
         }
 
         return true;
-    }
-
-    public void StopVehicle()
-    {
-        _isMoving = false;
-    }
-
-    public void ResumeVehicle()
-    {
-        if (Path != null && Path.Count > 0)
-        {
-            _isMoving = true;
-        }
     }
 }

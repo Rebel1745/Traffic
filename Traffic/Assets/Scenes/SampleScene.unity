@@ -3524,6 +3524,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TrafficLightManager
   _trafficLightPrefab: {fileID: 8884444932007774847, guid: 67b4c3946709f804e990d8cd041b216d, type: 3}
+  _redDuration: 2
+  _yellowDuration: 1
+  _greenDuration: 3
+  _redOverlapDuration: 0.5
   _mainCamera: {fileID: 330585545}
 --- !u!1 &1260741614
 GameObject:
