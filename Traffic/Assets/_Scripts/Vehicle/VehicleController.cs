@@ -8,7 +8,7 @@ public class VehicleController : MonoBehaviour
     [SerializeField] private float _moveSpeed = 5f;
     [SerializeField] private float _rotationSpeed = 5f;
     [SerializeField] private float _waypointReachThreshold = 0.1f;
-    [SerializeField] private float _lookAheadDistance = 1f;
+    [SerializeField] private float _lookAheadDistance = 0.2f;
     [SerializeField] private LayerMask _whatIsVehicle;
     private Collider _vehicleCollider;
     private float _stopDistance;
@@ -22,6 +22,8 @@ public class VehicleController : MonoBehaviour
     public WaypointNode TargetWaypoint { get; private set; }
 
     private int _currentWaypointIndex = 0;
+    private int _nextWaypointWithTrafficLightIndex = -1;
+    private WaypointNode _nextWaypointWithTrafficLight = null;
     private bool _isMoving = false;
 
     private void Start()
@@ -73,7 +75,7 @@ public class VehicleController : MonoBehaviour
         // check to make sure a vehicle is not too close in front of this one
         // if it is, stop
         // NOTE: this is not performant for a large number of vehicles, change to something better in the future
-        if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, _lookAheadDistance, _whatIsVehicle))
+        if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, _stopDistance + _lookAheadDistance, _whatIsVehicle))
         {
             return; // Wait one frame
         }
@@ -81,11 +83,13 @@ public class VehicleController : MonoBehaviour
         WaypointNode targetWaypoint = Path[_currentWaypointIndex];
         Vector3 targetPosition = targetWaypoint.Position;
 
-        if (targetWaypoint.AssignedLight != null)
+        // check to see if we are within a couple of waypoints of a light
+        if (_nextWaypointWithTrafficLightIndex != -1 && _nextWaypointWithTrafficLightIndex - _currentWaypointIndex <= 3)
         {
-            if (!targetWaypoint.AssignedLight.IsGreen())
+            // we are close to a light, if it is red and we are within half a vehicles length of the waypoint, stop
+            if (_nextWaypointWithTrafficLight.AssignedLight.IsRed() && Vector3.Distance(transform.position, _nextWaypointWithTrafficLight.Position) <= _stopDistance)
             {
-                return; // Wait one frame
+                return;
             }
         }
 
@@ -106,6 +110,12 @@ public class VehicleController : MonoBehaviour
         {
             CurrentWaypoint = targetWaypoint;
             _currentWaypointIndex++;
+
+            if (Path[_currentWaypointIndex - 1].AssignedLight != null)
+            {
+                // our last waypoint had a light, we have gone past it so lets see if there is a next light
+                GetNextWaypointWithTrafficLight();
+            }
 
             if (_showDebugInfo)
             {
@@ -146,6 +156,7 @@ public class VehicleController : MonoBehaviour
         _currentWaypointIndex = 0;
         CurrentWaypoint = newPath[0];
         _isMoving = true;
+        GetNextWaypointWithTrafficLight();
 
         if (_showDebugInfo)
         {
@@ -186,5 +197,27 @@ public class VehicleController : MonoBehaviour
         }
 
         return true;
+    }
+
+    private void GetNextWaypointWithTrafficLight()
+    {
+        _nextWaypointWithTrafficLight = null;
+        _nextWaypointWithTrafficLightIndex = -1;
+
+        for (int i = _currentWaypointIndex; i < Path.Count; i++)
+        {
+            if (Path[i].AssignedLight != null)
+            {
+                _nextWaypointWithTrafficLight = Path[i];
+                _nextWaypointWithTrafficLightIndex = i;
+                break;
+            }
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.black;
+        Gizmos.DrawLine(transform.position + Vector3.forward * _stopDistance, transform.position + Vector3.forward * (_stopDistance + _lookAheadDistance));
     }
 }

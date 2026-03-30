@@ -22,6 +22,8 @@ public class TrafficLightController : MonoBehaviour
     }
 
     public bool IsGreen() => CurrentState == LightState.Green;
+    public bool IsYellow() => CurrentState == LightState.Yellow;
+    public bool IsRed() => CurrentState == LightState.Red;
 
     private void UpdateVisuals()
     {
