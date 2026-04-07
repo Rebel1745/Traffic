@@ -15,8 +15,9 @@ public class WaypointNode
     // below is the node that the vehicle will stop at if it has a traffic light
     public WaypointNode LaneNodeForTrafficLight { get; set; }
     public string LaneNodeForTrafficLightId { get; set; }
+    public RoadDirection LightPosition { get; set; } // the cardinal position of the light e.g. top left of a junction would be NorthWest
 
-    public WaypointNode(Vector3 position, GridCell parentCell, WaypointType type, WaypointNode laneNode = null)
+    public WaypointNode(Vector3 position, GridCell parentCell, WaypointType type, WaypointNode laneNode = null, RoadDirection lightPos = RoadDirection.None)
     {
         Id = System.Guid.NewGuid().ToString();
         Position = position;
@@ -26,6 +27,7 @@ public class WaypointNode
         AssignedLight = null;
         PairedCrossingWaypoint = null;
         LaneNodeForTrafficLight = laneNode;
+        LightPosition = lightPos;
     }
 }
 

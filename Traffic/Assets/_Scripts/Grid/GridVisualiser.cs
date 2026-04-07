@@ -461,14 +461,20 @@ public class GridVisualiser : MonoBehaviour
         if (validWaypoints.Count == 0)
             return;
 
+        WaypointNode lastWaypoint = null;
+
         // Confirm all previewed lights for this cell
         foreach (WaypointNode waypoint in validWaypoints)
         {
             if (waypoint.AssignedLight != null)
                 continue;
 
+            lastWaypoint = waypoint;
             TrafficLightManager.Instance.PlaceLightAtWaypoint(waypoint);
         }
+
+        // hand off to the traffic light settings UI to allow for light timings and order to be changed
+        UIManager.Instance.LoadTrafficLightGroupDetails(TrafficLightManager.Instance.FindGroupForWaypoint(lastWaypoint));
 
         // Refresh preview for the same cell (to hide confirmed previews)
         _lastPreviewCell = null;

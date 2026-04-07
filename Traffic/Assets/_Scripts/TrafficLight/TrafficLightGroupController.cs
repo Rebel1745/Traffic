@@ -143,11 +143,13 @@ public class TrafficLightGroupController : MonoBehaviour
     // Registration & Removal
     // -------------------------------------------------------------------------
 
-    public void RegisterLight(TrafficLightController light, float greenDuration = 10f, float yellowDuration = 3f, float redDuration = 10f, float redOverlapDuration = 2f)
+    public void RegisterLight(TrafficLightController light, RoadDirection lightPosition, float greenDuration = 10f, float yellowDuration = 3f, float redDuration = 10f, float redOverlapDuration = 2f)
     {
         _lights.Add(new TrafficLight
         {
             Light = light,
+            Label = lightPosition.ToString(),
+            LightPosition = lightPosition,
             GreenDuration = greenDuration,
             YellowDuration = yellowDuration,
             RedDuration = redDuration,

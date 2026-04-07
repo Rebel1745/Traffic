@@ -72,7 +72,7 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
         lightObj.transform.parent = group.gameObject.transform;
 
         // Register with default timings (can be adjusted via UI later)
-        group.RegisterLight(light, _greenDuration, _yellowDuration, _redDuration, _redOverlapDuration);
+        group.RegisterLight(light, waypoint.LightPosition, _greenDuration, _yellowDuration, _redDuration, _redOverlapDuration);
 
         Debug.Log($"Confirmed traffic light at {waypoint.Id}");
     }
@@ -90,6 +90,39 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
         waypoint.LaneNodeForTrafficLight.AssignedLight = null;
 
         Debug.Log($"Removed traffic light at {waypoint.Id}");
+    }
+
+    public TrafficLightGroupController FindGroupForWaypoint(WaypointNode waypoint)
+    {
+        // Paired crossing lights
+        if (waypoint.PairedCrossingWaypoint != null)
+        {
+            foreach (TrafficLightGroupController group in _allGroups)
+            {
+                if (group.IsForWaypoint(waypoint) || group.IsForWaypoint(waypoint.PairedCrossingWaypoint))
+                    return group;
+            }
+        }
+
+        // Junction lights
+        if (waypoint.ParentCell.RoadType == RoadType.TJunction ||
+            waypoint.ParentCell.RoadType == RoadType.Crossroads)
+        {
+            foreach (TrafficLightGroupController group in _allGroups)
+            {
+                if (group.IsForCell(waypoint.ParentCell))
+                    return group;
+            }
+        }
+
+        // Fallback — group by cell
+        foreach (TrafficLightGroupController group in _allGroups)
+        {
+            if (group.IsForCell(waypoint.ParentCell))
+                return group;
+        }
+
+        return null;
     }
 
     private TrafficLightGroupController FindOrCreateGroupForWaypoint(WaypointNode waypoint)
@@ -183,6 +216,8 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
                 groupData.lights.Add(new TrafficLightSaveData
                 {
                     lightWaypointNodeId = light.Light.AssignedWaypoint.Id,
+                    label = light.Label,
+                    lightPosition = light.LightPosition,
                     greenDuration = light.GreenDuration,
                     yellowDuration = light.YellowDuration,
                     redDuration = light.RedDuration,
@@ -238,7 +273,7 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
                 waypoint.LaneNodeForTrafficLight.AssignedLight = newLight;
 
                 // Register in group
-                group.RegisterLight(newLight, light.greenDuration, light.yellowDuration, light.redDuration, light.redOverlapDuration);
+                group.RegisterLight(newLight, light.lightPosition, light.greenDuration, light.yellowDuration, light.redDuration, light.redOverlapDuration);
 
                 // Set group position to first light's position (or junction center)
                 if (groupObj.transform.position == Vector3.zero)

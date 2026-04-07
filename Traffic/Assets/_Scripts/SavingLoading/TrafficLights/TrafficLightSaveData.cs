@@ -2,6 +2,8 @@
 public class TrafficLightSaveData
 {
     public string lightWaypointNodeId;  // Which waypoint this light is on
+    public string label;
+    public RoadDirection lightPosition;
     public float greenDuration;
     public float yellowDuration;
     public float redDuration;

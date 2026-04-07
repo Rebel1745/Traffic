@@ -12,4 +12,5 @@ public class WaypointNodeSaveData
     public List<WaypointConnectionSaveData> connections = new();
     public string pairedCrossingWaypointId;
     public string laneNodeForTrafficLightId;
+    public RoadDirection lightPosition;
 }
