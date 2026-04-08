@@ -48,6 +48,6 @@ public class UIManager : MonoBehaviour
         if (!_trafficLightGroupPanel) return;
 
         _trafficLightGroupPanel.gameObject.SetActive(true);
-        _trafficLightGroupPanel.GetComponent<TrafficLightGroupSettings>().LoadSettings(group);
+        _trafficLightGroupPanel.GetComponent<TrafficLightGroupSettingsUI>().LoadSettings(group);
     }
 }

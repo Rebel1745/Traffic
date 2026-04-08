@@ -23,6 +23,10 @@ public class TrafficLightGroupController : MonoBehaviour
     [SerializeField] private List<TrafficLight> _lights = new();
 
     public IReadOnlyList<TrafficLight> Lights => _lights;
+    public List<TrafficLight> GetLightsCopy()
+    {
+        return _lights.Select(l => l.Clone()).ToList();
+    }
     public int CurrentLightIndex => _currentLightIndex;
 
     private int _currentLightIndex = 0;
@@ -170,6 +174,8 @@ public class TrafficLightGroupController : MonoBehaviour
         // Clamp index in case we removed the current light
         _currentLightIndex = Mathf.Clamp(_currentLightIndex, 0, _lights.Count - 1);
     }
+
+
 
     // -------------------------------------------------------------------------
     // Helpers for TrafficLightManager
