@@ -5,7 +5,7 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
     [SerializeField] private List<ButtonGroup> _topLevelGroups;
-    [SerializeField] private Transform _trafficLightGroupPanel;
+    [SerializeField] private TrafficLightGroupSettingsUI _trafficLightGroupSettingsUI;
 
     private void Awake()
     {
@@ -45,9 +45,8 @@ public class UIManager : MonoBehaviour
 
     public void LoadTrafficLightGroupDetails(TrafficLightGroupController group)
     {
-        if (!_trafficLightGroupPanel) return;
+        if (!_trafficLightGroupSettingsUI) return;
 
-        _trafficLightGroupPanel.gameObject.SetActive(true);
-        _trafficLightGroupPanel.GetComponent<TrafficLightGroupSettingsUI>().LoadSettings(group);
+        _trafficLightGroupSettingsUI.LoadSettings(group);
     }
 }

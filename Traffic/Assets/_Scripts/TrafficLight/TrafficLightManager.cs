@@ -74,7 +74,7 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
         // Register with default timings (can be adjusted via UI later)
         group.RegisterLight(light, waypoint.LightPosition, _greenDuration, _yellowDuration, _redDuration, _redOverlapDuration);
 
-        Debug.Log($"Confirmed traffic light at {waypoint.Id}");
+        //Debug.Log($"Confirmed traffic light at {waypoint.Id}");
     }
 
     public void RemoveLightAtWaypoint(WaypointNode waypoint)

@@ -153,11 +153,16 @@ public class TrafficLightGroupController : MonoBehaviour
         {
             Light = light,
             Label = lightPosition.ToString(),
+            OriginalLabel = lightPosition.ToString(),
             LightPosition = lightPosition,
             GreenDuration = greenDuration,
+            OriginalGreenDuration = greenDuration,
             YellowDuration = yellowDuration,
+            OriginalYellowDuration = yellowDuration,
             RedDuration = redDuration,
-            RedOverlapDuration = redOverlapDuration
+            OriginalRedDuration = redDuration,
+            RedOverlapDuration = redOverlapDuration,
+            OriginalRedOverlapDuration = redOverlapDuration
         });
     }
 
@@ -175,7 +180,11 @@ public class TrafficLightGroupController : MonoBehaviour
         _currentLightIndex = Mathf.Clamp(_currentLightIndex, 0, _lights.Count - 1);
     }
 
-
+    public void ApplySettings(List<TrafficLight> newLightSettings)
+    {
+        _lights = new(newLightSettings);
+        RestartCycle();
+    }
 
     // -------------------------------------------------------------------------
     // Helpers for TrafficLightManager

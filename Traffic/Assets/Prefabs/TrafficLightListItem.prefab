@@ -354,6 +354,9 @@ MonoBehaviour:
   _greenDurationText: {fileID: 4521062238154337967}
   _yellowDurationText: {fileID: 610072846737180269}
   _allRedDurationText: {fileID: 6752874347509279761}
+  _editButton: {fileID: 1867282795645076794}
+  _moveUpButton: {fileID: 5679263345996348949}
+  _moveDownButton: {fileID: 8381499657274408605}
 --- !u!1 &4778532871772687292
 GameObject:
   m_ObjectHideFlags: 0
