@@ -60,7 +60,7 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
             TrafficLightListItem entry = item.GetComponent<TrafficLightListItem>();
 
             entry.SetDetails(this, _lightListCopy[capturedIndex],
-                onEdit: () => LoadLightSettings(_lightListCopy[capturedIndex]),
+                onEdit: () => LoadLightSettings(capturedIndex),
                 onMoveUp: () => MoveLight(capturedIndex, capturedIndex - 1),
                 onMoveDown: () => MoveLight(capturedIndex, capturedIndex + 1));
         }
@@ -68,18 +68,22 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
 
     private void ClearSettingsPanel()
     {
-        //_selectedLightLabel.text = "Select a light";
-        //_labelInput.text = _yellowInput.text = _greenInput.text = _redInput.text = _allRedInput.text = "";
+        _selectedIndex = -1;
+        _selectedLightLabel.text = "Select a light";
+        _labelInput.text = _yellowInput.text = _greenInput.text = _redInput.text = _allRedInput.text = "";
     }
 
-    public void LoadLightSettings(TrafficLight light)
+    public void LoadLightSettings(int index)
     {
+        TrafficLight light = _lightListCopy[index];
+        _selectedIndex = index;
+
         _selectedLightLabel.text = light.Label;
         _labelInput.text = light.Label;
-        _redInput.text = light.RedDuration.ToString();
-        _yellowInput.text = light.YellowDuration.ToString();
-        _greenInput.text = light.GreenDuration.ToString();
-        _allRedInput.text = light.RedOverlapDuration.ToString();
+        _redInput.text = light.RedDuration.ToString("F1");
+        _yellowInput.text = light.YellowDuration.ToString("F1");
+        _greenInput.text = light.GreenDuration.ToString("F1");
+        _allRedInput.text = light.RedOverlapDuration.ToString("F1");
     }
 
     private void MoveLight(int from, int to)
@@ -108,10 +112,25 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
         s.YellowDuration = ParseFloatClamped(_yellowInput.text, 0.5f, 30f);
         s.RedDuration = ParseFloatClamped(_redInput.text, 0.5f, 300f);
         s.RedOverlapDuration = ParseFloatClamped(_allRedInput.text, 0f, 30f);
+        _selectedLightLabel.text = _labelInput.text;
     }
 
     // --- Buttons ---
 
+    // Updates the individual light details of the copy
+    public void OnUpdateClicked()
+    {
+        SaveCurrentEditsToWorkingCopy();
+        RefreshLightList();
+    }
+
+    // Discards any changes made to the light list copy
+    public void OnDiscardClicked()
+    {
+        ClearSettingsPanel();
+    }
+
+    // Applies the changes to the light group
     public void OnApplyClicked()
     {
         SaveCurrentEditsToWorkingCopy();
@@ -119,8 +138,10 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
         Close();
     }
 
+    // Discards all the changes to the light group
     public void OnCancelClicked() => Close();
 
+    // Resets all of the changes to the light group to the defaults when each light was created
     public void OnResetClicked()
     {
         // Re-fetch defaults from the group's actual current state
@@ -131,7 +152,7 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
         _lightListCopy = _group.GetLightsCopy();
         RefreshLightList();
         if (_selectedIndex >= 0)
-            LoadLightSettings(_lightListCopy[_selectedIndex]);
+            LoadLightSettings(_selectedIndex);
     }
 
     private float ParseFloatClamped(string input, float min, float max)
