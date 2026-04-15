@@ -14,8 +14,10 @@ public class TrafficLightListItem : MonoBehaviour
     [SerializeField] private Button _editButton;
     [SerializeField] private Button _moveUpButton;
     [SerializeField] private Button _moveDownButton;
+    [SerializeField] private Button _copyButton;
+    [SerializeField] private Button _removeButton;
 
-    public void SetDetails(TrafficLightGroupSettingsUI settings, TrafficLight light, UnityAction onEdit, UnityAction onMoveUp, UnityAction onMoveDown)
+    public void SetDetails(TrafficLightGroupSettingsUI settings, TrafficLight light, UnityAction onEdit, UnityAction onMoveUp, UnityAction onMoveDown, UnityAction onCopy, UnityAction onRemove)
     {
         _settingsUI = settings;
         _lightNameText.text = light.Label;
@@ -32,5 +34,21 @@ public class TrafficLightListItem : MonoBehaviour
 
         _moveDownButton.onClick.RemoveAllListeners();
         _moveDownButton.onClick.AddListener(onMoveDown);
+
+        if (!light.IsCopyOfLight)
+        {
+            _copyButton.onClick.RemoveAllListeners();
+            _copyButton.onClick.AddListener(onCopy);
+            _copyButton.gameObject.SetActive(true);
+        }
+        else _copyButton.gameObject.SetActive(false);
+
+        if (light.IsCopyOfLight)
+        {
+            _removeButton.onClick.RemoveAllListeners();
+            _removeButton.onClick.AddListener(onRemove);
+            _removeButton.gameObject.SetActive(true);
+        }
+        else _removeButton.gameObject.SetActive(false);
     }
 }

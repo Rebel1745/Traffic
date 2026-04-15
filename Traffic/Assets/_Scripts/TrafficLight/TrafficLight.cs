@@ -3,6 +3,7 @@ public class TrafficLight
 {
     public TrafficLightController Light;
     public string Label;
+    public bool IsCopyOfLight; // this is false for a created junction light, true for a copy of the light used in the order functionality of the group settings
     public RoadDirection LightPosition;
     public float GreenDuration;
     public float YellowDuration;
@@ -21,6 +22,7 @@ public class TrafficLight
         {
             Light = this.Light,
             Label = this.Label,
+            IsCopyOfLight = this.IsCopyOfLight,
             LightPosition = this.LightPosition,
             GreenDuration = this.GreenDuration,
             YellowDuration = this.YellowDuration,

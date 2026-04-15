@@ -22,6 +22,8 @@ public class TrafficLightGroupController : MonoBehaviour
 
     [SerializeField] private List<TrafficLight> _lights = new();
 
+    private string _junctionName = "Junction";
+    public string JunctionName { get { return _junctionName; } }
     public IReadOnlyList<TrafficLight> Lights => _lights;
     public List<TrafficLight> GetLightsCopy()
     {
@@ -184,6 +186,11 @@ public class TrafficLightGroupController : MonoBehaviour
     {
         _lights = new(newLightSettings);
         RestartCycle();
+    }
+
+    public void UpdateJunctionName(string name)
+    {
+        _junctionName = name;
     }
 
     // -------------------------------------------------------------------------

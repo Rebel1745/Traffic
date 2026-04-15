@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System;
 
 public class TrafficLightGroupSettingsUI : MonoBehaviour
 {
@@ -9,11 +10,17 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
     [SerializeField] private GameObject uiPanel;
     [SerializeField] private GameObject _trafficLightListItemPrefab;
     [SerializeField] private Transform _lightListContainer;
-    //[SerializeField] private TMP_Text junctionNameText;
 
     private TrafficLightGroupController _group;
     private List<TrafficLight> _lightListCopy;
     private int _selectedIndex;
+
+    [Header(("Junction Name"))]
+    [SerializeField] private TMP_Text _junctionNameText;
+    [SerializeField] private Button _editJunctionNameButton;
+    [SerializeField] private TMP_InputField _junctionNameInput;
+    [SerializeField] private Button _updateJunctionNameButton;
+    [SerializeField] private Button _cancelUpdateJunctionNameButton;
 
     [Header("Selected Light Settings")]
     [SerializeField] private TMP_Text _selectedLightLabel;
@@ -34,17 +41,33 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
         _lightListCopy = group.GetLightsCopy();
         _selectedIndex = -1;
 
-        // When I get around to implementing a junction name, set it here
-        //junctionNameText.text = group.name;
+        // setup junction naming
+        _junctionNameText.text = group.JunctionName;
+        _junctionNameInput.text = group.JunctionName;
+
         uiPanel.SetActive(true);
+        CameraFollow.Instance.SetFollowTarget(GetGroupCentrePoint());
 
         RefreshLightList();
         ClearSettingsPanel();
     }
 
+    private Vector3 GetGroupCentrePoint()
+    {
+        Vector3 total = Vector3.zero;
+
+        foreach (TrafficLight light in _lightListCopy)
+        {
+            total += light.Light.transform.position;
+        }
+
+        return total / _lightListCopy.Count;
+    }
+
     public void Close()
     {
         uiPanel.SetActive(false);
+        CameraFollow.Instance.StopFollowing();
         _group = null;
     }
 
@@ -62,7 +85,9 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
             entry.SetDetails(this, _lightListCopy[capturedIndex],
                 onEdit: () => LoadLightSettings(capturedIndex),
                 onMoveUp: () => MoveLight(capturedIndex, capturedIndex - 1),
-                onMoveDown: () => MoveLight(capturedIndex, capturedIndex + 1));
+                onMoveDown: () => MoveLight(capturedIndex, capturedIndex + 1),
+                onCopy: () => CopyLight(capturedIndex),
+                onRemove: () => RemoveLight(capturedIndex));
         }
     }
 
@@ -86,6 +111,31 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
         _allRedInput.text = light.RedOverlapDuration.ToString("F1");
     }
 
+    public void OnEditJunctionNameClicked()
+    {
+        _junctionNameInput.text = _junctionNameText.text;
+        ShowHideJunctionNameButtons(true);
+    }
+
+    public void OnUpdateJunctionNameClicked()
+    {
+        _junctionNameText.text = _junctionNameInput.text;
+        ShowHideJunctionNameButtons(false);
+    }
+
+    public void OnCancelUpdateJunctionNameClicked()
+    {
+        _junctionNameInput.text = _junctionNameText.text;
+        ShowHideJunctionNameButtons(false);
+    }
+
+    private void ShowHideJunctionNameButtons(bool show)
+    {
+        _junctionNameInput.gameObject.SetActive(show);
+        _updateJunctionNameButton.gameObject.SetActive(show);
+        _cancelUpdateJunctionNameButton.gameObject.SetActive(show);
+    }
+
     private void MoveLight(int from, int to)
     {
         if (to < 0 || to >= _lightListCopy.Count) return;
@@ -98,6 +148,22 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
 
         // Keep selection following the moved item
         if (_selectedIndex == from) _selectedIndex = to;
+
+        RefreshLightList();
+    }
+
+    private void CopyLight(int index)
+    {
+        TrafficLight lightCopy = _lightListCopy[index].Clone();
+        lightCopy.IsCopyOfLight = true;
+        _lightListCopy.Add(lightCopy);
+
+        RefreshLightList();
+    }
+
+    private void RemoveLight(int index)
+    {
+        _lightListCopy.RemoveAt(index);
 
         RefreshLightList();
     }
@@ -135,6 +201,7 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
     {
         SaveCurrentEditsToWorkingCopy();
         _group.ApplySettings(_lightListCopy);
+        _group.UpdateJunctionName(_junctionNameInput.text);
         Close();
     }
 
@@ -153,6 +220,9 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
         RefreshLightList();
         if (_selectedIndex >= 0)
             LoadLightSettings(_selectedIndex);
+
+        _junctionNameText.text = _group.JunctionName;
+        _junctionNameInput.text = _group.JunctionName;
     }
 
     private float ParseFloatClamped(string input, float min, float max)
