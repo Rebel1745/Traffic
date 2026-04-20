@@ -440,7 +440,7 @@ public class GridManager : MonoBehaviour, ISaveable
 
     public void PopulateSaveData(GameSaveData saveData)
     {
-        var gridData = new GridSaveData { width = _gridWidth, height = _gridHeight };
+        var gridData = new GridSaveData { Width = _gridWidth, Height = _gridHeight };
 
         for (int x = 0; x < _gridWidth; x++)
         {
@@ -454,13 +454,14 @@ public class GridManager : MonoBehaviour, ISaveable
 
                 var cellData = new GridCellSaveData
                 {
-                    x = cell.Position.x,
-                    z = cell.Position.z,
-                    cellType = cell.CellType,
-                    roadType = cell.RoadType,
-                    roadDirection = cell.RoadDirection
+                    X = cell.Position.x,
+                    Z = cell.Position.z,
+                    CellType = cell.CellType,
+                    RoadType = cell.RoadType,
+                    RoadDirection = cell.RoadDirection,
+                    HasTrafficLights = cell.HasTrafficLights
                 };
-                gridData.cells.Add(cellData);
+                gridData.Cells.Add(cellData);
             }
         }
 
@@ -476,8 +477,8 @@ public class GridManager : MonoBehaviour, ISaveable
         }
 
         var gridData = saveData.grid;
-        _gridWidth = gridData.width;
-        _gridHeight = gridData.height;
+        _gridWidth = gridData.Width;
+        _gridHeight = gridData.Height;
 
         // Initialize grid with all Empty cells
         _grid = new GridCell[_gridWidth, _gridHeight];
@@ -496,19 +497,20 @@ public class GridManager : MonoBehaviour, ISaveable
         }
 
         // Only load the non-empty cells from save data
-        foreach (var cellData in gridData.cells)
+        foreach (var cellData in gridData.Cells)
         {
-            var position = new Vector3Int(cellData.x, 0, cellData.z);
+            var position = new Vector3Int(cellData.X, 0, cellData.Z);
             var cell = new GridCell
             {
                 Position = position,
-                CellType = cellData.cellType,
-                RoadType = cellData.roadType,
-                RoadDirection = cellData.roadDirection
+                CellType = cellData.CellType,
+                RoadType = cellData.RoadType,
+                RoadDirection = cellData.RoadDirection,
+                HasTrafficLights = cellData.HasTrafficLights
             };
 
-            int gridX = cellData.x;
-            int gridZ = cellData.z;
+            int gridX = cellData.X;
+            int gridZ = cellData.Z;
 
             if (IsValidGridPosition(new Vector3Int(gridX, 0, gridZ)))
                 _grid[gridX, gridZ] = cell;
@@ -516,7 +518,7 @@ public class GridManager : MonoBehaviour, ISaveable
                 Debug.LogWarning($"[GridManager] Cell at ({gridX}, {gridZ}) is out of bounds.");
         }
 
-        Debug.Log($"[GridManager] Loaded {_gridWidth}x{_gridHeight} grid with {gridData.cells.Count} non-empty cells.");
+        Debug.Log($"[GridManager] Loaded {_gridWidth}x{_gridHeight} grid with {gridData.Cells.Count} non-empty cells.");
 
         RoadMeshRenderer.Instance.UpdateRoadMesh(false);
     }

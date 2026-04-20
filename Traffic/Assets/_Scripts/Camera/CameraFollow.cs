@@ -30,6 +30,7 @@ public class CameraFollow : MonoBehaviour
     public void SetFollowTarget(Vector3 target)
     {
         _camera.transform.position = new Vector3(target.x, 0f, target.z) - _offset;
+        _camera.gameObject.SetActive(true);
     }
 
     public void SetFollowTarget(Transform target)

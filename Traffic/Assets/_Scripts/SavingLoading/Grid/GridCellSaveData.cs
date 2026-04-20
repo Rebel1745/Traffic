@@ -3,9 +3,10 @@ using UnityEngine;
 [System.Serializable]
 public class GridCellSaveData
 {
-    public int x;
-    public int z;
-    public CellType cellType;
-    public RoadType roadType;
-    public RoadDirection roadDirection;
+    public int X;
+    public int Z;
+    public CellType CellType;
+    public RoadType RoadType;
+    public RoadDirection RoadDirection;
+    public bool HasTrafficLights;
 }

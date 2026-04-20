@@ -6,6 +6,7 @@ public class GridCell
     public CellType CellType;
     public RoadType RoadType;
     public RoadDirection RoadDirection;
+    public bool HasTrafficLights;
 }
 
 public enum CellType

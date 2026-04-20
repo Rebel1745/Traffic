@@ -1999,7 +1999,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 130788645}
-  - component: {fileID: 130788646}
   - component: {fileID: 130788647}
   m_Layer: 0
   m_Name: RoadPlacementManager
@@ -2023,18 +2022,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1031994652}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &130788646
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 130788644}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 561f2fe9abeb7db47abc5c2f1389711d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RoadPlacementManager
 --- !u!114 &130788647
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2780,6 +2767,8 @@ GameObject:
   - component: {fileID: 321188080}
   - component: {fileID: 321188081}
   - component: {fileID: 321188082}
+  - component: {fileID: 321188084}
+  - component: {fileID: 321188083}
   m_Layer: 0
   m_Name: GridManager
   m_TagString: Untagged
@@ -2832,9 +2821,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ccea3109243b1d4c9f0163687daad27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridVisualiser
-  _highlightMaterial: {fileID: 2100000, guid: fe6b55402d41d2844a269e9096682f86, type: 2}
+--- !u!114 &321188083
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 321188079}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af6867b1d8e4b3249bd424f370a4cfbe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TrafficLightPlacementHandler
+--- !u!114 &321188084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 321188079}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 076c2225eb76b5840bf6bf81da8dfe89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoadPlacementHandler
   _previewLine: {fileID: 0}
   _previewLineWidthMultiplier: 0.75
+  _highlightMaterial: {fileID: 2100000, guid: fe6b55402d41d2844a269e9096682f86, type: 2}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0

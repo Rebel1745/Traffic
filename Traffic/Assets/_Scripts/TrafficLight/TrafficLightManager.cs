@@ -72,7 +72,7 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
         lightObj.transform.parent = group.gameObject.transform;
 
         // Register with default timings (can be adjusted via UI later)
-        group.RegisterLight(light, waypoint.LightPosition, _greenDuration, _yellowDuration, _redDuration, _redOverlapDuration);
+        group.RegisterLight(light, waypoint.LightPosition, waypoint.LightPosition.ToString(), _greenDuration, _yellowDuration, _redDuration, _redOverlapDuration, waypoint.LightPosition.ToString(), _greenDuration, _yellowDuration, _redDuration, _redOverlapDuration);
 
         //Debug.Log($"Confirmed traffic light at {waypoint.Id}");
     }
@@ -203,9 +203,10 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
         {
             var groupData = new TrafficLightGroupSaveData
             {
-                id = group.Id,
-                groupType = group.GroupType,
-                lights = new List<TrafficLightSaveData>()
+                Id = group.Id,
+                JunctionName = group.JunctionName,
+                GroupType = group.GroupType,
+                Lights = new List<TrafficLightSaveData>()
             };
 
             foreach (var light in group.Lights)
@@ -213,19 +214,25 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
                 if (light.Light?.AssignedWaypoint == null)
                     continue;
 
-                groupData.lights.Add(new TrafficLightSaveData
+                groupData.Lights.Add(new TrafficLightSaveData
                 {
-                    lightWaypointNodeId = light.Light.AssignedWaypoint.Id,
-                    label = light.Label,
-                    lightPosition = light.LightPosition,
-                    greenDuration = light.GreenDuration,
-                    yellowDuration = light.YellowDuration,
-                    redDuration = light.RedDuration,
-                    redOverlapDuration = light.RedOverlapDuration
+                    LightWaypointNodeId = light.Light.AssignedWaypoint.Id,
+                    Label = light.Label,
+                    IsCopyOfLight = light.IsCopyOfLight,
+                    LightPosition = light.LightPosition,
+                    GreenDuration = light.GreenDuration,
+                    YellowDuration = light.YellowDuration,
+                    RedDuration = light.RedDuration,
+                    RedOverlapDuration = light.RedOverlapDuration,
+                    OriginalLabel = light.OriginalLabel,
+                    OriginalGreenDuration = light.OriginalGreenDuration,
+                    OriginalYellowDuration = light.OriginalYellowDuration,
+                    OriginalRedDuration = light.OriginalRedDuration,
+                    OriginalRedOverlapDuration = light.OriginalRedOverlapDuration
                 });
             }
 
-            trafficLight.groups.Add(groupData);
+            trafficLight.Groups.Add(groupData);
         }
 
         saveData.trafficLights = trafficLight;
@@ -243,24 +250,25 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
 
         var nodeLookup = WaypointManager.Instance.GetAllWaypointLookup();  // You'll need to expose this method
 
-        foreach (var groupData in saveData.trafficLights.groups)
+        foreach (var groupData in saveData.trafficLights.Groups)
         {
             // Create group GameObject
-            GameObject groupObj = new GameObject($"LightGroup_{groupData.id}");
+            GameObject groupObj = new GameObject($"LightGroup_{groupData.Id}");
             groupObj.transform.position = Vector3.zero;  // Will be set later
             groupObj.transform.parent = this.transform;
             TrafficLightGroupController group = groupObj.AddComponent<TrafficLightGroupController>();
 
             // Set group properties
-            group.SetupGroup(groupData.groupType);
-            group.Id = groupData.id;
+            group.SetupGroup(groupData.GroupType);
+            group.Id = groupData.Id;
+            group.UpdateJunctionName(groupData.JunctionName);
 
             // Create lights for each phase
-            foreach (TrafficLightSaveData light in groupData.lights)
+            foreach (TrafficLightSaveData light in groupData.Lights)
             {
-                if (!nodeLookup.TryGetValue(light.lightWaypointNodeId, out var waypoint))
+                if (!nodeLookup.TryGetValue(light.LightWaypointNodeId, out var waypoint))
                 {
-                    Debug.LogWarning($"[TrafficLightManager] Waypoint {light.lightWaypointNodeId} not found for traffic light.");
+                    Debug.LogWarning($"[TrafficLightManager] Waypoint {light.LightWaypointNodeId} not found for traffic light.");
                     continue;
                 }
 
@@ -273,7 +281,7 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
                 waypoint.LaneNodeForTrafficLight.AssignedLight = newLight;
 
                 // Register in group
-                group.RegisterLight(newLight, light.lightPosition, light.greenDuration, light.yellowDuration, light.redDuration, light.redOverlapDuration);
+                group.RegisterLight(newLight, light.LightPosition, light.LightPosition.ToString(), light.GreenDuration, light.YellowDuration, light.RedDuration, light.RedOverlapDuration, light.OriginalLabel, light.OriginalGreenDuration, light.OriginalYellowDuration, light.OriginalRedDuration, light.OriginalRedOverlapDuration);
 
                 // Set group position to first light's position (or junction center)
                 if (groupObj.transform.position == Vector3.zero)
@@ -287,6 +295,6 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
             _allGroups.Add(group);
         }
 
-        Debug.Log($"[TrafficLightManager] Loaded {saveData.trafficLights.groups.Count} traffic light groups.");
+        Debug.Log($"[TrafficLightManager] Loaded {saveData.trafficLights.Groups.Count} traffic light groups.");
     }
 }

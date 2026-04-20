@@ -802,27 +802,27 @@ public class WaypointManager : MonoBehaviour, ISaveable
         {
             var nodeData = new WaypointNodeSaveData
             {
-                id = node.Id,
-                x = node.Position.x,
-                z = node.Position.z,
-                type = node.Type,
-                parentCellX = node.ParentCell.Position.x,
-                parentCellZ = node.ParentCell.Position.z,
-                pairedCrossingWaypointId = node.PairedCrossingWaypoint?.Id,
-                laneNodeForTrafficLightId = node.LaneNodeForTrafficLight?.Id,
-                lightPosition = node.LightPosition
+                Id = node.Id,
+                X = node.Position.x,
+                Z = node.Position.z,
+                Type = node.Type,
+                ParentCellX = node.ParentCell.Position.x,
+                ParentCellZ = node.ParentCell.Position.z,
+                PairedCrossingWaypointId = node.PairedCrossingWaypoint?.Id,
+                LaneNodeForTrafficLightId = node.LaneNodeForTrafficLight?.Id,
+                LightPosition = node.LightPosition
             };
 
             foreach (var connection in node.Connections)
             {
-                nodeData.connections.Add(new WaypointConnectionSaveData
+                nodeData.Connections.Add(new WaypointConnectionSaveData
                 {
-                    targetNodeId = connection.TargetWaypoint.Id,
-                    cost = connection.Cost
+                    TargetNodeId = connection.TargetWaypoint.Id,
+                    Cost = connection.Cost
                 });
             }
 
-            waypointData.nodes.Add(nodeData);
+            waypointData.Nodes.Add(nodeData);
         }
 
         saveData.waypoints = waypointData;
@@ -840,36 +840,36 @@ public class WaypointManager : MonoBehaviour, ISaveable
         var nodeLookup = new Dictionary<string, WaypointNode>();
 
         // First pass — create all nodes
-        foreach (var nodeData in saveData.waypoints.nodes)
+        foreach (var nodeData in saveData.waypoints.Nodes)
         {
             // Retrieve the parent cell from the grid
-            var parentCell = GridManager.Instance.GetCell(nodeData.parentCellX, nodeData.parentCellZ);
+            var parentCell = GridManager.Instance.GetCell(nodeData.ParentCellX, nodeData.ParentCellZ);
             if (parentCell == null)
             {
-                Debug.LogWarning($"[WaypointManager] Parent cell ({nodeData.parentCellX}, {nodeData.parentCellZ}) not found for node {nodeData.id}.");
+                Debug.LogWarning($"[WaypointManager] Parent cell ({nodeData.ParentCellX}, {nodeData.ParentCellZ}) not found for node {nodeData.Id}.");
                 continue;
             }
 
             var node = new WaypointNode(
-                new Vector3(nodeData.x, 0f, nodeData.z),
+                new Vector3(nodeData.X, 0f, nodeData.Z),
                 parentCell,
-                nodeData.type
+                nodeData.Type
             );
 
             // Restore the saved ID rather than using the new GUID generated in the constructor
-            node.Id = nodeData.id;
+            node.Id = nodeData.Id;
 
             // Restore paired crossing waypoint reference (if any)
-            if (!string.IsNullOrEmpty(nodeData.pairedCrossingWaypointId))
+            if (!string.IsNullOrEmpty(nodeData.PairedCrossingWaypointId))
             {
-                node.PairedCrossingWaypointId = nodeData.pairedCrossingWaypointId;  // Store ID for later resolution
+                node.PairedCrossingWaypointId = nodeData.PairedCrossingWaypointId;  // Store ID for later resolution
             }
 
             // Restore traffic light lane waypoint reference (if any)
-            if (!string.IsNullOrEmpty(nodeData.laneNodeForTrafficLightId))
+            if (!string.IsNullOrEmpty(nodeData.LaneNodeForTrafficLightId))
             {
-                node.LaneNodeForTrafficLightId = nodeData.laneNodeForTrafficLightId;  // Store ID for later resolution
-                node.LightPosition = nodeData.lightPosition;
+                node.LaneNodeForTrafficLightId = nodeData.LaneNodeForTrafficLightId;  // Store ID for later resolution
+                node.LightPosition = nodeData.LightPosition;
             }
 
             _allWaypoints.Add(node);
@@ -877,20 +877,20 @@ public class WaypointManager : MonoBehaviour, ISaveable
         }
 
         // Second pass — restore connections
-        foreach (var nodeData in saveData.waypoints.nodes)
+        foreach (var nodeData in saveData.waypoints.Nodes)
         {
-            if (!nodeLookup.TryGetValue(nodeData.id, out var node))
+            if (!nodeLookup.TryGetValue(nodeData.Id, out var node))
                 continue;
 
-            foreach (var connectionData in nodeData.connections)
+            foreach (var connectionData in nodeData.Connections)
             {
-                if (nodeLookup.TryGetValue(connectionData.targetNodeId, out var targetNode))
+                if (nodeLookup.TryGetValue(connectionData.TargetNodeId, out var targetNode))
                 {
-                    node.Connections.Add(new WaypointConnection(targetNode, connectionData.cost));
+                    node.Connections.Add(new WaypointConnection(targetNode, connectionData.Cost));
                 }
                 else
                 {
-                    Debug.LogWarning($"[WaypointManager] Target node {connectionData.targetNodeId} not found for connection.");
+                    Debug.LogWarning($"[WaypointManager] Target node {connectionData.TargetNodeId} not found for connection.");
                 }
             }
         }

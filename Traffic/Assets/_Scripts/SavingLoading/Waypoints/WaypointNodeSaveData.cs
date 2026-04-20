@@ -3,14 +3,14 @@ using System.Collections.Generic;
 [System.Serializable]
 public class WaypointNodeSaveData
 {
-    public string id;
-    public float x;
-    public float z;
-    public WaypointType type;
-    public int parentCellX;
-    public int parentCellZ;
-    public List<WaypointConnectionSaveData> connections = new();
-    public string pairedCrossingWaypointId;
-    public string laneNodeForTrafficLightId;
-    public RoadDirection lightPosition;
+    public string Id;
+    public float X;
+    public float Z;
+    public WaypointType Type;
+    public int ParentCellX;
+    public int ParentCellZ;
+    public List<WaypointConnectionSaveData> Connections = new();
+    public string PairedCrossingWaypointId;
+    public string LaneNodeForTrafficLightId;
+    public RoadDirection LightPosition;
 }
