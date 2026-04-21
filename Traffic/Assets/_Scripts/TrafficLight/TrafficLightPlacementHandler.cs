@@ -158,15 +158,7 @@ public class TrafficLightPlacementHandler : MonoBehaviour, IPlacementHandler
             return;
 
         // Remove all confirmed lights on this cell
-        foreach (WaypointNode waypoint in WaypointManager.Instance.GetCellWaypoints(cell))
-        {
-            if (waypoint.Type == WaypointType.TrafficLightLocation && waypoint.AssignedLight != null)
-            {
-                TrafficLightManager.Instance.RemoveLightAtWaypoint(waypoint);
-            }
-        }
-
-        cell.HasTrafficLights = false;
+        TrafficLightManager.Instance.RemoveTrafficLightGroupFromCell(cell);
 
         // Refresh preview
         _lastPreviewCell = null;

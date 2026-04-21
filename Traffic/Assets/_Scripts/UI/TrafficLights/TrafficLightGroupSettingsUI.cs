@@ -10,6 +10,9 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
     [SerializeField] private GameObject uiPanel;
     [SerializeField] private GameObject _trafficLightListItemPrefab;
     [SerializeField] private Transform _lightListContainer;
+    [SerializeField] private Transform _trafficLightList;
+    [SerializeField] private Transform _trafficLightDetails;
+    [SerializeField] private TMP_Text _lightEditText;
 
     private TrafficLightGroupController _group;
     private List<TrafficLight> _lightListCopy;
@@ -23,12 +26,18 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
     [SerializeField] private Button _cancelUpdateJunctionNameButton;
 
     [Header("Selected Light Settings")]
-    [SerializeField] private TMP_Text _selectedLightLabel;
+    [SerializeField] private Transform _lightLabelLayout;
     [SerializeField] private TMP_InputField _labelInput;
     [SerializeField] private TMP_InputField _greenInput;
     [SerializeField] private TMP_InputField _yellowInput;
     [SerializeField] private TMP_InputField _redInput;
     [SerializeField] private TMP_InputField _allRedInput;
+
+    [Header("Pedestrian Crossing Light Details")]
+    [SerializeField] private TMP_Text _redTimeText;
+    [SerializeField] private TMP_Text _yellowTimeText;
+    [SerializeField] private TMP_Text _greenTimeText;
+    [SerializeField] private TMP_Text _allRedTimeText;
 
     [Header("Buttons")]
     [SerializeField] private Button _applyButton;
@@ -48,8 +57,24 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
         uiPanel.SetActive(true);
         CameraFollow.Instance.SetFollowTarget(GetGroupCentrePoint());
 
-        RefreshLightList();
-        ClearSettingsPanel();
+        if (group.GroupType == TrafficLightGroupType.Junction)
+        {
+            _trafficLightList.gameObject.SetActive(true);
+            _lightLabelLayout.gameObject.SetActive(true);
+            _trafficLightDetails.gameObject.SetActive(false);
+
+            RefreshLightList();
+            ClearSettingsPanel();
+        }
+        else
+        {
+            _trafficLightList.gameObject.SetActive(false);
+            _lightLabelLayout.gameObject.SetActive(false);
+            _trafficLightDetails.gameObject.SetActive(true);
+
+            LoadLightSettings(0);
+            LoadTrafficLightDetails();
+        }
     }
 
     private Vector3 GetGroupCentrePoint()
@@ -94,7 +119,12 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
     private void ClearSettingsPanel()
     {
         _selectedIndex = -1;
-        _selectedLightLabel.text = "Select a light";
+
+        if (_group.GroupType == TrafficLightGroupType.Junction)
+            _lightEditText.text = "Select Light to Edit";
+        else
+            _lightEditText.text = "Edit Light Timings";
+
         _labelInput.text = _yellowInput.text = _greenInput.text = _redInput.text = _allRedInput.text = "";
     }
 
@@ -103,12 +133,21 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
         TrafficLight light = _lightListCopy[index];
         _selectedIndex = index;
 
-        _selectedLightLabel.text = light.Label;
+        _lightEditText.text = "Editing Light: " + light.Label;
+
         _labelInput.text = light.Label;
         _redInput.text = light.RedDuration.ToString("F1");
         _yellowInput.text = light.YellowDuration.ToString("F1");
         _greenInput.text = light.GreenDuration.ToString("F1");
         _allRedInput.text = light.RedOverlapDuration.ToString("F1");
+    }
+
+    private void LoadTrafficLightDetails()
+    {
+        _redTimeText.text = _lightListCopy[0].RedDuration.ToString("F1");
+        _yellowTimeText.text = _lightListCopy[0].YellowDuration.ToString("F1");
+        _greenTimeText.text = _lightListCopy[0].GreenDuration.ToString("F1");
+        _allRedTimeText.text = _lightListCopy[0].RedOverlapDuration.ToString("F1");
     }
 
     public void OnEditJunctionNameClicked()
@@ -178,7 +217,7 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
         s.YellowDuration = ParseFloatClamped(_yellowInput.text, 0.5f, 30f);
         s.RedDuration = ParseFloatClamped(_redInput.text, 0.5f, 300f);
         s.RedOverlapDuration = ParseFloatClamped(_allRedInput.text, 0f, 30f);
-        _selectedLightLabel.text = _labelInput.text;
+        _lightEditText.text = "Editing Light: " + s.Label;
     }
 
     // --- Buttons ---
@@ -186,8 +225,25 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
     // Updates the individual light details of the copy
     public void OnUpdateClicked()
     {
-        SaveCurrentEditsToWorkingCopy();
-        RefreshLightList();
+        if (_group.GroupType == TrafficLightGroupType.Junction)
+        {
+            SaveCurrentEditsToWorkingCopy();
+            RefreshLightList();
+        }
+        else
+        {
+            // for a pedestrian crossing, save both lights with the same timings
+            for (int i = 0; i <= 1; i++)
+            {
+                var s = _lightListCopy[i];
+                s.GreenDuration = ParseFloatClamped(_greenInput.text, 0.5f, 300f);
+                s.YellowDuration = ParseFloatClamped(_yellowInput.text, 0.5f, 30f);
+                s.RedDuration = ParseFloatClamped(_redInput.text, 0.5f, 300f);
+                s.RedOverlapDuration = ParseFloatClamped(_allRedInput.text, 0f, 30f);
+            }
+
+            LoadTrafficLightDetails();
+        }
     }
 
     // Discards any changes made to the light list copy

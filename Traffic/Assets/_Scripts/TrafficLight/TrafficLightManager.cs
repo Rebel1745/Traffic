@@ -14,8 +14,6 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
 
     public string SaveKey => "TrafficLights";
 
-    [SerializeField] private Camera _mainCamera;
-
     private List<TrafficLightGroupController> _allGroups = new();
     private bool _subscribedToSaveManager;
 
@@ -77,19 +75,27 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
         //Debug.Log($"Confirmed traffic light at {waypoint.Id}");
     }
 
-    public void RemoveLightAtWaypoint(WaypointNode waypoint)
+    public void RemoveTrafficLightGroupFromCell(GridCell cell)
     {
-        if (waypoint?.AssignedLight == null)
-            return;
+        TrafficLightGroupController group = null;
 
-        TrafficLightGroupController group = FindGroupForLight(waypoint.AssignedLight);
-        if (group != null)
-            group.RemoveLight(waypoint.AssignedLight);
+        // find the group from the cell
+        foreach (WaypointNode node in WaypointManager.Instance.GetCellWaypoints(cell))
+        {
+            group = FindGroupForWaypoint(node);
+            if (group != null) break;
+        }
 
-        Destroy(waypoint.AssignedLight.gameObject);
-        waypoint.LaneNodeForTrafficLight.AssignedLight = null;
+        // we have the group, remove it from the groups list
+        if (group == null) { Debug.LogError("Can't find group"); return; }
 
-        Debug.Log($"Removed traffic light at {waypoint.Id}");
+        _allGroups.Remove(group);
+
+        Destroy(group.gameObject);
+
+        cell.HasTrafficLights = false;
+
+        UIManager.Instance.CloseTrafficLightGroupDetails();
     }
 
     public TrafficLightGroupController FindGroupForWaypoint(WaypointNode waypoint)
@@ -137,7 +143,7 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
             }
 
             return CreateGroup(
-                $"LightGroup_{waypoint.ParentCell.Position.x}_{waypoint.ParentCell.Position.y}_Crossing",
+                $"LightGroup_Crossing",
                 waypoint.ParentCell.Position,
                 TrafficLightGroupType.PedestrianCrossing
             );
@@ -154,7 +160,7 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
             }
 
             return CreateGroup(
-                $"LightGroup_{waypoint.ParentCell.Position.x}_{waypoint.ParentCell.Position.y}_Junction",
+                $"LightGroup_Junction",
                 waypoint.ParentCell.Position,
                 TrafficLightGroupType.Junction
             );
@@ -168,7 +174,7 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
         }
 
         return CreateGroup(
-            $"LightGroup_{waypoint.ParentCell.Position.x}_{waypoint.ParentCell.Position.y}",
+            $"LightGroup_{waypoint.ParentCell.Position.x}_{waypoint.ParentCell.Position.z}",
             waypoint.ParentCell.Position,
             TrafficLightGroupType.Junction
         );
@@ -180,6 +186,7 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
         groupObj.transform.position = position;
         groupObj.transform.parent = this.transform;
         TrafficLightGroupController newGroup = groupObj.AddComponent<TrafficLightGroupController>();
+        newGroup.Id = System.Guid.NewGuid().ToString();
         newGroup.GroupType = groupType;
         _allGroups.Add(newGroup);
         return newGroup;
@@ -253,7 +260,7 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
         foreach (var groupData in saveData.trafficLights.Groups)
         {
             // Create group GameObject
-            GameObject groupObj = new GameObject($"LightGroup_{groupData.Id}");
+            GameObject groupObj = new GameObject($"LightGroup_{groupData.JunctionName}");
             groupObj.transform.position = Vector3.zero;  // Will be set later
             groupObj.transform.parent = this.transform;
             TrafficLightGroupController group = groupObj.AddComponent<TrafficLightGroupController>();

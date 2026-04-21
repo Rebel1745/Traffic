@@ -49,4 +49,9 @@ public class UIManager : MonoBehaviour
 
         _trafficLightGroupSettingsUI.LoadSettings(group);
     }
+
+    public void CloseTrafficLightGroupDetails()
+    {
+        _trafficLightGroupSettingsUI.gameObject.SetActive(false);
+    }
 }
