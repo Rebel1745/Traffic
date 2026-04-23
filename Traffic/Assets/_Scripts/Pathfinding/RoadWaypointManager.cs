@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class WaypointManager : MonoBehaviour, ISaveable
+public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
 {
-    public static WaypointManager Instance { get; private set; }
+    public static RoadWaypointManager Instance { get; private set; }
 
     public string SaveKey => "Waypoints";
 
@@ -81,7 +81,7 @@ public class WaypointManager : MonoBehaviour, ISaveable
     {
         if (RoadMeshRenderer.Instance == null) return;
 
-        RoadMeshRenderer.Instance.OnRoadMeshUpdated += RoadMeshUpdated;
+        RoadMeshRenderer.Instance.OnRoadMeshUpdated -= RoadMeshUpdated;
         _subscribedToRoadMeshRenderer = true;
     }
 
@@ -145,6 +145,8 @@ public class WaypointManager : MonoBehaviour, ISaveable
 
         List<WaypointNode> waypoints = new List<WaypointNode>();
 
+        CalculateEntryExitAndMidpointsForCell(cell);
+
         switch (cell.RoadType)
         {
             case RoadType.Straight:
@@ -181,8 +183,6 @@ public class WaypointManager : MonoBehaviour, ISaveable
         bool hasSouth = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.South);
         bool hasEast = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.East);
         bool hasWest = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.West);
-
-        CalculateEntryExitAndMidpointsForCell(cell);
 
         if (hasNorth && hasSouth) // Vertical road
         {
@@ -269,8 +269,6 @@ public class WaypointManager : MonoBehaviour, ISaveable
         bool hasSouth = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.South);
         bool hasEast = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.East);
         bool hasWest = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.West);
-
-        CalculateEntryExitAndMidpointsForCell(cell);
 
         // Corner cases
         if (hasNorth && hasEast) // Corner from North to East
@@ -406,8 +404,6 @@ public class WaypointManager : MonoBehaviour, ISaveable
         bool hasSouth = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.South);
         bool hasEast = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.East);
         bool hasWest = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.West);
-
-        CalculateEntryExitAndMidpointsForCell(cell);
 
         // first create all of the waypoints
         // we will only need three quarters, but it really doesn't matter, we won,t add the unwanted nodes to the list
@@ -568,8 +564,6 @@ public class WaypointManager : MonoBehaviour, ISaveable
         bool hasEast = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.East);
         bool hasWest = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.West);
 
-        CalculateEntryExitAndMidpointsForCell(cell);
-
         // Crossroads with all four directions
         if (hasNorth && hasSouth && hasEast && hasWest)
         {
@@ -659,8 +653,6 @@ public class WaypointManager : MonoBehaviour, ISaveable
 
         Vector3 wpEntry = Vector3.zero, wpMidpoint1 = Vector3.zero, wpUTurn = Vector3.zero, wpMidpoint2 = Vector3.zero, wpExit = Vector3.zero;
         WaypointNode entry = null, midpoint1 = null, uTurn = null, midpoint2 = null, exit = null;
-
-        CalculateEntryExitAndMidpointsForCell(cell);
 
         if (hasNorth)
         {

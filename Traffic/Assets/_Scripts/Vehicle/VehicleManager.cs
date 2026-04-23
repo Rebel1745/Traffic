@@ -71,7 +71,7 @@ public class VehicleManager : MonoBehaviour
 
     private WaypointNode FindValidTarget(WaypointNode startWaypoint, int maxAttempts = 10)
     {
-        var allWaypoints = WaypointManager.Instance.GetAllWaypoints();
+        var allWaypoints = RoadWaypointManager.Instance.GetAllWaypoints();
         var entryWaypoints = allWaypoints.Where(w => w.Type == WaypointType.Entry && w != startWaypoint).ToList();
 
         if (entryWaypoints.Count == 0)

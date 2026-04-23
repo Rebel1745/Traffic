@@ -92,7 +92,7 @@ public class VehicleSpawner : MonoBehaviour
 
     private WaypointNode GetRandomEntryWaypoint()
     {
-        var allWaypoints = WaypointManager.Instance.GetAllWaypoints();
+        var allWaypoints = RoadWaypointManager.Instance.GetAllWaypoints();
         var entryWaypoints = allWaypoints.Where(w => w.Type == WaypointType.Entry).ToList();
 
         if (entryWaypoints.Count == 0)
@@ -106,7 +106,7 @@ public class VehicleSpawner : MonoBehaviour
 
     private WaypointNode FindValidTarget(WaypointNode startWaypoint, int maxAttempts = 10)
     {
-        var allWaypoints = WaypointManager.Instance.GetAllWaypoints();
+        var allWaypoints = RoadWaypointManager.Instance.GetAllWaypoints();
         var entryWaypoints = allWaypoints.Where(w => w.Type != WaypointType.TrafficLightLocation && w != startWaypoint).ToList();
 
         if (entryWaypoints.Count == 0)

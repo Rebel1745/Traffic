@@ -37,5 +37,6 @@ public enum WaypointType
     Exit,
     Midpoint,
     UTurn,
-    TrafficLightLocation
+    TrafficLightLocation,
+    PedestrianWalkway
 }

@@ -80,7 +80,7 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
         TrafficLightGroupController group = null;
 
         // find the group from the cell
-        foreach (WaypointNode node in WaypointManager.Instance.GetCellWaypoints(cell))
+        foreach (WaypointNode node in RoadWaypointManager.Instance.GetCellWaypoints(cell))
         {
             group = FindGroupForWaypoint(node);
             if (group != null) break;
@@ -255,7 +255,7 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
 
         _allGroups.Clear();
 
-        var nodeLookup = WaypointManager.Instance.GetAllWaypointLookup();  // You'll need to expose this method
+        var nodeLookup = RoadWaypointManager.Instance.GetAllWaypointLookup();  // You'll need to expose this method
 
         foreach (var groupData in saveData.trafficLights.Groups)
         {
