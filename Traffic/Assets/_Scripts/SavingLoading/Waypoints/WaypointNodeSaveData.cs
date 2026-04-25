@@ -7,6 +7,7 @@ public class WaypointNodeSaveData
     public float X;
     public float Z;
     public WaypointType Type;
+    public WaypointNetworkType NetworkType;
     public int ParentCellX;
     public int ParentCellZ;
     public List<WaypointConnectionSaveData> Connections = new();

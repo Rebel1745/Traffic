@@ -9,6 +9,7 @@ public class WaypointNode
     public List<WaypointConnection> Connections { get; set; }
     public GridCell ParentCell { get; set; }
     public WaypointType Type { get; set; }
+    public WaypointNetworkType NetworkType { get; set; }
     public TrafficLightController AssignedLight { get; set; }
     public WaypointNode PairedCrossingWaypoint { get; set; }
     public string PairedCrossingWaypointId { get; set; }
@@ -17,12 +18,13 @@ public class WaypointNode
     public string LaneNodeForTrafficLightId { get; set; }
     public RoadDirection LightPosition { get; set; } // the cardinal position of the light e.g. top left of a junction would be NorthWest
 
-    public WaypointNode(Vector3 position, GridCell parentCell, WaypointType type, WaypointNode laneNode = null, RoadDirection lightPos = RoadDirection.None)
+    public WaypointNode(Vector3 position, GridCell parentCell, WaypointType type, WaypointNetworkType networkType = WaypointNetworkType.Vehicle, WaypointNode laneNode = null, RoadDirection lightPos = RoadDirection.None)
     {
         Id = System.Guid.NewGuid().ToString();
         Position = position;
         ParentCell = parentCell;
         Type = type;
+        NetworkType = networkType;
         Connections = new List<WaypointConnection>();
         AssignedLight = null;
         PairedCrossingWaypoint = null;
@@ -39,4 +41,10 @@ public enum WaypointType
     UTurn,
     TrafficLightLocation,
     PedestrianWalkway
+}
+
+public enum WaypointNetworkType
+{
+    Vehicle,
+    Pedestrian
 }

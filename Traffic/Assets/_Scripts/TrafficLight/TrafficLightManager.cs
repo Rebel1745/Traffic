@@ -242,12 +242,12 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
             trafficLight.Groups.Add(groupData);
         }
 
-        saveData.trafficLights = trafficLight;
+        saveData.TrafficLights = trafficLight;
     }
 
     public void LoadFromSaveData(GameSaveData saveData)
     {
-        if (saveData.trafficLights == null)
+        if (saveData.TrafficLights == null)
         {
             Debug.LogWarning("[TrafficLightManager] No traffic light data in save file.");
             return;
@@ -257,7 +257,7 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
 
         var nodeLookup = RoadWaypointManager.Instance.GetAllWaypointLookup();  // You'll need to expose this method
 
-        foreach (var groupData in saveData.trafficLights.Groups)
+        foreach (var groupData in saveData.TrafficLights.Groups)
         {
             // Create group GameObject
             GameObject groupObj = new GameObject($"LightGroup_{groupData.JunctionName}");
@@ -302,6 +302,6 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
             _allGroups.Add(group);
         }
 
-        Debug.Log($"[TrafficLightManager] Loaded {saveData.trafficLights.Groups.Count} traffic light groups.");
+        Debug.Log($"[TrafficLightManager] Loaded {saveData.TrafficLights.Groups.Count} traffic light groups.");
     }
 }

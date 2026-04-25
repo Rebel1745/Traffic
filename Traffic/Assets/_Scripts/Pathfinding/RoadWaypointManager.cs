@@ -7,7 +7,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
 {
     public static RoadWaypointManager Instance { get; private set; }
 
-    public string SaveKey => "Waypoints";
+    public string SaveKey => "VehicleWaypoints";
 
     private Dictionary<GridCell, List<WaypointNode>> _cellWaypoints = new Dictionary<GridCell, List<WaypointNode>>();
     private List<WaypointNode> _allWaypoints = new List<WaypointNode>();
@@ -114,10 +114,10 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         _midpointSW = _cellCentre + new Vector3(-_laneCentre, 0, -_laneCentre);
         _midpointSE = _cellCentre + new Vector3(_laneCentre, 0, -_laneCentre);
 
-        _hasNorth = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.North);
-        _hasSouth = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.South);
-        _hasEast = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.East);
-        _hasWest = GridManager.Instance.HasRoadNeighbor(cell, RoadDirection.West);
+        _hasNorth = GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.North);
+        _hasSouth = GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.South);
+        _hasEast = GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.East);
+        _hasWest = GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.West);
     }
 
     public void GenerateWaypoints()
@@ -215,8 +215,8 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
             Vector3 wpLeftLight = _cellCentre + new Vector3(-_halfCellSize + _halfPavementSize, 0, 0);
             Vector3 wpRightLight = _cellCentre + new Vector3(_halfCellSize - _halfPavementSize, 0, 0);
 
-            WaypointNode trafficLight1 = new WaypointNode(wpLeftLight, cell, WaypointType.TrafficLightLocation, southEntry, RoadDirection.West);
-            WaypointNode trafficLight2 = new WaypointNode(wpRightLight, cell, WaypointType.TrafficLightLocation, northEntry, RoadDirection.East);
+            WaypointNode trafficLight1 = new WaypointNode(wpLeftLight, cell, WaypointType.TrafficLightLocation, WaypointNetworkType.Vehicle, southEntry, RoadDirection.West);
+            WaypointNode trafficLight2 = new WaypointNode(wpRightLight, cell, WaypointType.TrafficLightLocation, WaypointNetworkType.Vehicle, northEntry, RoadDirection.East);
 
             trafficLight1.PairedCrossingWaypoint = trafficLight2;
             trafficLight2.PairedCrossingWaypoint = trafficLight1;
@@ -251,8 +251,8 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
             Vector3 wpTopLight = _cellCentre + new Vector3(0, 0, -_halfCellSize + _halfPavementSize);
             Vector3 wpBottomLight = _cellCentre + new Vector3(0, 0, _halfCellSize - _halfPavementSize);
 
-            WaypointNode trafficLight1 = new WaypointNode(wpTopLight, cell, WaypointType.TrafficLightLocation, westEntry, RoadDirection.North);
-            WaypointNode trafficLight2 = new WaypointNode(wpBottomLight, cell, WaypointType.TrafficLightLocation, eastEntry, RoadDirection.South);
+            WaypointNode trafficLight1 = new WaypointNode(wpTopLight, cell, WaypointType.TrafficLightLocation, WaypointNetworkType.Vehicle, westEntry, RoadDirection.North);
+            WaypointNode trafficLight2 = new WaypointNode(wpBottomLight, cell, WaypointType.TrafficLightLocation, WaypointNetworkType.Vehicle, eastEntry, RoadDirection.South);
 
             trafficLight1.PairedCrossingWaypoint = trafficLight2;
             trafficLight2.PairedCrossingWaypoint = trafficLight1;
@@ -534,10 +534,10 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         Vector3 wpBottomLeftLight = _cellCentre + new Vector3(-_halfCellSize + _halfPavementSize, 0, -_halfCellSize + _halfPavementSize);
         Vector3 wpBottomRightLight = _cellCentre + new Vector3(_halfCellSize - _halfPavementSize, 0, -_halfCellSize + _halfPavementSize);
 
-        WaypointNode trafficLight1 = new WaypointNode(wpTopLeftLight, cell, WaypointType.TrafficLightLocation, westEntry, RoadDirection.NorthWest);
-        WaypointNode trafficLight2 = new WaypointNode(wpTopRightLight, cell, WaypointType.TrafficLightLocation, northEntry, RoadDirection.NorthEast);
-        WaypointNode trafficLight3 = new WaypointNode(wpBottomLeftLight, cell, WaypointType.TrafficLightLocation, southEntry, RoadDirection.SouthWest);
-        WaypointNode trafficLight4 = new WaypointNode(wpBottomRightLight, cell, WaypointType.TrafficLightLocation, eastEntry, RoadDirection.SouthEast);
+        WaypointNode trafficLight1 = new WaypointNode(wpTopLeftLight, cell, WaypointType.TrafficLightLocation, WaypointNetworkType.Vehicle, westEntry, RoadDirection.NorthWest);
+        WaypointNode trafficLight2 = new WaypointNode(wpTopRightLight, cell, WaypointType.TrafficLightLocation, WaypointNetworkType.Vehicle, northEntry, RoadDirection.NorthEast);
+        WaypointNode trafficLight3 = new WaypointNode(wpBottomLeftLight, cell, WaypointType.TrafficLightLocation, WaypointNetworkType.Vehicle, southEntry, RoadDirection.SouthWest);
+        WaypointNode trafficLight4 = new WaypointNode(wpBottomRightLight, cell, WaypointType.TrafficLightLocation, WaypointNetworkType.Vehicle, eastEntry, RoadDirection.SouthEast);
 
         if (_hasWest) waypoints.Add(trafficLight1);
         if (_hasNorth) waypoints.Add(trafficLight2);
@@ -614,10 +614,10 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
             Vector3 wpBottomLeftLight = _cellCentre + new Vector3(-_halfCellSize + _halfPavementSize, 0, -_halfCellSize + _halfPavementSize);
             Vector3 wpBottomRightLight = _cellCentre + new Vector3(_halfCellSize - _halfPavementSize, 0, -_halfCellSize + _halfPavementSize);
 
-            WaypointNode trafficLight1 = new WaypointNode(wpTopLeftLight, cell, WaypointType.TrafficLightLocation, westEntry, RoadDirection.NorthWest);
-            WaypointNode trafficLight2 = new WaypointNode(wpTopRightLight, cell, WaypointType.TrafficLightLocation, northEntry, RoadDirection.NorthEast);
-            WaypointNode trafficLight3 = new WaypointNode(wpBottomLeftLight, cell, WaypointType.TrafficLightLocation, southEntry, RoadDirection.SouthWest);
-            WaypointNode trafficLight4 = new WaypointNode(wpBottomRightLight, cell, WaypointType.TrafficLightLocation, eastEntry, RoadDirection.SouthEast);
+            WaypointNode trafficLight1 = new WaypointNode(wpTopLeftLight, cell, WaypointType.TrafficLightLocation, WaypointNetworkType.Vehicle, westEntry, RoadDirection.NorthWest);
+            WaypointNode trafficLight2 = new WaypointNode(wpTopRightLight, cell, WaypointType.TrafficLightLocation, WaypointNetworkType.Vehicle, northEntry, RoadDirection.NorthEast);
+            WaypointNode trafficLight3 = new WaypointNode(wpBottomLeftLight, cell, WaypointType.TrafficLightLocation, WaypointNetworkType.Vehicle, southEntry, RoadDirection.SouthWest);
+            WaypointNode trafficLight4 = new WaypointNode(wpBottomRightLight, cell, WaypointType.TrafficLightLocation, WaypointNetworkType.Vehicle, eastEntry, RoadDirection.SouthEast);
 
             waypoints.Add(trafficLight1);
             waypoints.Add(trafficLight2);
@@ -715,13 +715,13 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
                 if (neighbor != null && neighbor.CellType == CellType.Road)
                 {
                     // Connect waypoints to neighbor cell
-                    ConnectWaypointsToNeighbor(cell, waypoints, neighbor, i);
+                    ConnectWaypointsToNeighbor(waypoints, neighbor);
                 }
             }
         }
     }
 
-    private void ConnectWaypointsToNeighbor(GridCell cell, List<WaypointNode> waypoints, GridCell neighbor, int direction)
+    private void ConnectWaypointsToNeighbor(List<WaypointNode> waypoints, GridCell neighbor)
     {
         if (!_cellWaypoints.ContainsKey(neighbor))
             return;
@@ -780,6 +780,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
                 X = node.Position.x,
                 Z = node.Position.z,
                 Type = node.Type,
+                NetworkType = node.NetworkType,
                 ParentCellX = node.ParentCell.Position.x,
                 ParentCellZ = node.ParentCell.Position.z,
                 PairedCrossingWaypointId = node.PairedCrossingWaypoint?.Id,
@@ -799,14 +800,14 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
             waypointData.Nodes.Add(nodeData);
         }
 
-        saveData.waypoints = waypointData;
+        saveData.VehicleWaypoints = waypointData;
     }
 
     public void LoadFromSaveData(GameSaveData saveData)
     {
-        if (saveData.waypoints == null)
+        if (saveData.VehicleWaypoints == null)
         {
-            Debug.LogWarning("[WaypointManager] No waypoint data in save file.");
+            Debug.LogWarning("[VehicleWaypointManager] No waypoint data in save file.");
             return;
         }
 
@@ -814,20 +815,21 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         var nodeLookup = new Dictionary<string, WaypointNode>();
 
         // First pass — create all nodes
-        foreach (var nodeData in saveData.waypoints.Nodes)
+        foreach (var nodeData in saveData.VehicleWaypoints.Nodes)
         {
             // Retrieve the parent cell from the grid
             var parentCell = GridManager.Instance.GetCell(nodeData.ParentCellX, nodeData.ParentCellZ);
             if (parentCell == null)
             {
-                Debug.LogWarning($"[WaypointManager] Parent cell ({nodeData.ParentCellX}, {nodeData.ParentCellZ}) not found for node {nodeData.Id}.");
+                Debug.LogWarning($"[VehicleWaypointManager] Parent cell ({nodeData.ParentCellX}, {nodeData.ParentCellZ}) not found for node {nodeData.Id}.");
                 continue;
             }
 
             var node = new WaypointNode(
                 new Vector3(nodeData.X, 0f, nodeData.Z),
                 parentCell,
-                nodeData.Type
+                nodeData.Type,
+                nodeData.NetworkType
             );
 
             // Restore the saved ID rather than using the new GUID generated in the constructor
@@ -851,7 +853,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         }
 
         // Second pass — restore connections
-        foreach (var nodeData in saveData.waypoints.Nodes)
+        foreach (var nodeData in saveData.VehicleWaypoints.Nodes)
         {
             if (!nodeLookup.TryGetValue(nodeData.Id, out var node))
                 continue;
@@ -864,7 +866,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
                 }
                 else
                 {
-                    Debug.LogWarning($"[WaypointManager] Target node {connectionData.TargetNodeId} not found for connection.");
+                    Debug.LogWarning($"[VehicleWaypointManager] Target node {connectionData.TargetNodeId} not found for connection.");
                 }
             }
         }
@@ -884,7 +886,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
             }
         }
 
-        Debug.Log($"[WaypointManager] Loaded {_allWaypoints.Count} waypoint nodes.");
+        Debug.Log($"[VehicleWaypointManager] Loaded {_allWaypoints.Count} vehicle waypoint nodes.");
     }
 
     public Dictionary<string, WaypointNode> GetAllWaypointLookup()
@@ -903,7 +905,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
 
     //     foreach (WaypointNode node in _allWaypoints)
     //     {
-    //         if (node.Type == WaypointType.TrafficLightLocation)
+    //         if (node.Type == WaypointType.TrafficLightLocation) WaypointNetworkType.Vehicle,
     //         {
     //             Gizmos.color = Color.yellow;
     //             Gizmos.DrawSphere(node.Position, 0.5f);

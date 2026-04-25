@@ -331,10 +331,10 @@ public class GridManager : MonoBehaviour, ISaveable
         RoadDirection dir = RoadDirection.None;
 
         // check for cell neighbours
-        bool hasNorth = HasRoadNeighbor(cell, RoadDirection.North);
-        bool hasSouth = HasRoadNeighbor(cell, RoadDirection.South);
-        bool hasEast = HasRoadNeighbor(cell, RoadDirection.East);
-        bool hasWest = HasRoadNeighbor(cell, RoadDirection.West);
+        bool hasNorth = HasRoadNeighbour(cell, RoadDirection.North);
+        bool hasSouth = HasRoadNeighbour(cell, RoadDirection.South);
+        bool hasEast = HasRoadNeighbour(cell, RoadDirection.East);
+        bool hasWest = HasRoadNeighbour(cell, RoadDirection.West);
 
         switch (cell.RoadType)
         {
@@ -393,7 +393,7 @@ public class GridManager : MonoBehaviour, ISaveable
     }
 
     // Utility methods for other systems
-    public bool HasRoadNeighbor(GridCell cell, RoadDirection direction)
+    public bool HasRoadNeighbour(GridCell cell, RoadDirection direction)
     {
         int newX = cell.Position.x;
         int newZ = cell.Position.z;
@@ -465,18 +465,18 @@ public class GridManager : MonoBehaviour, ISaveable
             }
         }
 
-        saveData.grid = gridData;
+        saveData.Grid = gridData;
     }
 
     public void LoadFromSaveData(GameSaveData saveData)
     {
-        if (saveData.grid == null)
+        if (saveData.Grid == null)
         {
             Debug.LogWarning("[GridManager] No grid data in save file.");
             return;
         }
 
-        var gridData = saveData.grid;
+        var gridData = saveData.Grid;
         _gridWidth = gridData.Width;
         _gridHeight = gridData.Height;
 

@@ -14,8 +14,9 @@ public class SaveManager : MonoBehaviour
     private enum LoadPriority
     {
         Grid = 0,
-        Waypoints = 1,
-        TrafficLights = 2
+        VehicleWaypoints = 1,
+        PedestrianWaypoints = 2,
+        TrafficLights = 3
     }
 
     private string SaveFilePath => Path.Combine(Application.persistentDataPath, SaveFileName);
@@ -41,8 +42,8 @@ public class SaveManager : MonoBehaviour
     {
         var saveData = new GameSaveData
         {
-            saveVersion = "1.0",
-            saveDate = DateTime.UtcNow.ToString("o")
+            SaveVersion = "1.0",
+            SaveDate = DateTime.UtcNow.ToString("o")
         };
 
         foreach (var saveable in _saveables)
@@ -66,7 +67,8 @@ public class SaveManager : MonoBehaviour
 
         // Load in specific order
         LoadByKey(saveData, "Grid");
-        LoadByKey(saveData, "Waypoints");
+        LoadByKey(saveData, "VehicleWaypoints");
+        LoadByKey(saveData, "PedestrianWaypoints");
         LoadByKey(saveData, "TrafficLights");
 
         Debug.Log("[SaveManager] Loaded successfully.");

@@ -98,10 +98,16 @@ public class AStarPathfinder
 
     private static bool AreWaypointsInSameLane(WaypointNode start, WaypointNode end)
     {
-        // Both waypoints must be Entry points (start of a lane)
-        // This ensures vehicles start and end in the same lane direction
-        if (start.Type != WaypointType.Entry || end.Type != WaypointType.Entry)
+        // Both must be from the same network
+        if (start.NetworkType != end.NetworkType)
             return false;
+
+        // Only enforce Entry-point check for vehicles
+        if (start.NetworkType == WaypointNetworkType.Vehicle)
+        {
+            if (start.Type != WaypointType.Entry || end.Type != WaypointType.Entry)
+                return false;
+        }
 
         return true;
     }

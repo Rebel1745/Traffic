@@ -3,9 +3,10 @@ using System.Collections.Generic;
 [System.Serializable]
 public class GameSaveData
 {
-    public string saveVersion = "1.0";
-    public string saveDate;
-    public GridSaveData grid;
-    public WaypointSaveData waypoints;
-    public TrafficLightsSaveData trafficLights;
+    public string SaveVersion = "1.0";
+    public string SaveDate;
+    public GridSaveData Grid;
+    public WaypointSaveData VehicleWaypoints;
+    public WaypointSaveData PedestrianWaypoints;
+    public TrafficLightsSaveData TrafficLights;
 }
