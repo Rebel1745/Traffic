@@ -58,7 +58,8 @@ public class SimulationManager : MonoBehaviour
             SimulationState = SimulationState.Vehicles,
             RoadSubState = RoadSubState.None,
             VehicleSubState = subState,
-            TrafficLightSubState = TrafficLightSubState.None
+            TrafficLightSubState = TrafficLightSubState.None,
+            PedestrianSubState = PedestrianSubState.None
         };
 
         OnStateChanged?.Invoke(CurrentState);
@@ -71,7 +72,22 @@ public class SimulationManager : MonoBehaviour
             SimulationState = SimulationState.TrafficLights,
             RoadSubState = RoadSubState.None,
             VehicleSubState = VehicleSubState.None,
-            TrafficLightSubState = subState
+            TrafficLightSubState = subState,
+            PedestrianSubState = PedestrianSubState.None
+        };
+
+        OnStateChanged?.Invoke(CurrentState);
+    }
+
+    public void SetPedestrianSubState(PedestrianSubState subState)
+    {
+        CurrentState = new GameStateContext
+        {
+            SimulationState = SimulationState.Pedestrians,
+            RoadSubState = RoadSubState.None,
+            VehicleSubState = VehicleSubState.None,
+            TrafficLightSubState = TrafficLightSubState.None,
+            PedestrianSubState = subState
         };
 
         OnStateChanged?.Invoke(CurrentState);

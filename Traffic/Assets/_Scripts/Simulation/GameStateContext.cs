@@ -5,16 +5,7 @@ public struct GameStateContext
     public RoadSubState RoadSubState;
     public VehicleSubState VehicleSubState;
     public TrafficLightSubState TrafficLightSubState;
-
-    // Convenience method to check the full state
-    public bool Is(SimulationState main, RoadSubState road) =>
-        SimulationState == main && RoadSubState == road;
-
-    public bool Is(SimulationState main, VehicleSubState vehicle) =>
-        SimulationState == main && VehicleSubState == vehicle;
-
-    public bool Is(SimulationState main, TrafficLightSubState trafficLight) =>
-        SimulationState == main && TrafficLightSubState == trafficLight;
+    public PedestrianSubState PedestrianSubState;
 }
 
 public enum SimulationState
@@ -24,7 +15,8 @@ public enum SimulationState
     Paused,
     Roads,
     Vehicles,
-    TrafficLights
+    TrafficLights,
+    Pedestrians
 }
 
 public enum RoadSubState
@@ -47,4 +39,11 @@ public enum TrafficLightSubState
     None,
     AddJunctionLights,      // T-junctions and crossroads
     AddPedestrianCrossings  // Straight roads only
+}
+
+public enum PedestrianSubState
+{
+    None,
+    SpawnPedestrian,
+    DeletePedestrian
 }

@@ -8,9 +8,10 @@ public class GameStateButton : MonoBehaviour
     [SerializeField] private bool _setSimulationState = false;
 
     [Header("Sub States")]
-    [SerializeField] private RoadSubState roadSubState;
-    [SerializeField] private VehicleSubState vehicleSubState;
-    [SerializeField] private TrafficLightSubState trafficLightSubState;
+    [SerializeField] private RoadSubState _roadSubState;
+    [SerializeField] private VehicleSubState _vehicleSubState;
+    [SerializeField] private TrafficLightSubState _trafficLightSubState;
+    [SerializeField] private PedestrianSubState _pedestrianSubState;
 
     private void Awake()
     {
@@ -36,13 +37,16 @@ public class GameStateButton : MonoBehaviour
         switch (SimulationManager.Instance.CurrentState.SimulationState)
         {
             case SimulationState.Roads:
-                SimulationManager.Instance.SetRoadSubState(roadSubState);
+                SimulationManager.Instance.SetRoadSubState(_roadSubState);
                 break;
             case SimulationState.Vehicles:
-                SimulationManager.Instance.SetVehicleSubState(vehicleSubState);
+                SimulationManager.Instance.SetVehicleSubState(_vehicleSubState);
                 break;
             case SimulationState.TrafficLights:
-                SimulationManager.Instance.SetTrafficLightSubState(trafficLightSubState);
+                SimulationManager.Instance.SetTrafficLightSubState(_trafficLightSubState);
+                break;
+            case SimulationState.Pedestrians:
+                SimulationManager.Instance.SetPedestrianSubState(_pedestrianSubState);
                 break;
         }
     }

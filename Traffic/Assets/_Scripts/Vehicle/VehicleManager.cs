@@ -18,6 +18,43 @@ public class VehicleManager : MonoBehaviour
         Instance = this;
     }
 
+    private void OnEnable()
+    {
+        // Subscribe to input events
+        InputManager.OnMiddleClickPressed += HandleMiddleClickPressed;
+    }
+
+    private void OnDisable()
+    {
+        // Unsubscribe from input events
+        InputManager.OnMiddleClickPressed -= HandleMiddleClickPressed;
+    }
+
+    private void HandleMiddleClickPressed(Vector2 screenPosition)
+    {
+        // Only spawn vehicles when simulation is running
+        if (SimulationManager.Instance.CurrentState.SimulationState != SimulationState.Vehicles)
+            return;
+
+        // Get a random valid spawn location
+        WaypointNode startWaypoint = GetRandomEntryWaypoint();
+        if (startWaypoint == null)
+        {
+            Debug.LogWarning("No valid spawn location found!");
+            return;
+        }
+
+        // Get a random valid target
+        WaypointNode targetWaypoint = FindValidTarget(startWaypoint);
+        if (targetWaypoint == null)
+        {
+            Debug.LogWarning("No valid target found for spawn location!");
+            return;
+        }
+
+        VehicleSpawner.Instance.SpawnVehicle(startWaypoint, targetWaypoint);
+    }
+
     public void RegisterVehicle(VehicleController vehicle)
     {
         if (vehicle != null && !_activeVehicles.Contains(vehicle))
@@ -69,7 +106,7 @@ public class VehicleManager : MonoBehaviour
         RemoveVehicle(vehicle);
     }
 
-    private WaypointNode FindValidTarget(WaypointNode startWaypoint, int maxAttempts = 10)
+    public WaypointNode FindValidTarget(WaypointNode startWaypoint, int maxAttempts = 10)
     {
         var allWaypoints = RoadWaypointManager.Instance.GetAllWaypoints();
         var entryWaypoints = allWaypoints.Where(w => w.Type == WaypointType.Entry && w != startWaypoint).ToList();
@@ -93,6 +130,20 @@ public class VehicleManager : MonoBehaviour
         return null;
     }
 
+    public WaypointNode GetRandomEntryWaypoint()
+    {
+        var allWaypoints = RoadWaypointManager.Instance.GetAllWaypoints();
+        var entryWaypoints = allWaypoints.Where(w => w.Type == WaypointType.Entry).ToList();
+
+        if (entryWaypoints.Count == 0)
+        {
+            Debug.LogWarning("No waypoints");
+            return null;
+        }
+
+        return entryWaypoints[Random.Range(0, entryWaypoints.Count)];
+    }
+
     public void RemoveVehicle(VehicleController vehicle)
     {
         if (_activeVehicles.Contains(vehicle))
@@ -100,102 +151,5 @@ public class VehicleManager : MonoBehaviour
             _activeVehicles.Remove(vehicle);
         }
         Destroy(vehicle.gameObject);
-    }
-
-    public void RecalculateAllVehiclePaths()
-    {
-        Debug.Log($"Recalculating paths for {_activeVehicles.Count} vehicles...");
-
-        List<VehicleController> vehiclesToRemove = new List<VehicleController>();
-
-        foreach (var vehicle in _activeVehicles)
-        {
-            if (vehicle == null || vehicle.CurrentWaypoint == null || vehicle.TargetWaypoint == null)
-            {
-                vehiclesToRemove.Add(vehicle);
-                continue;
-            }
-
-            // Try to find a new path to the same target
-            List<WaypointNode> newPath = AStarPathfinder.FindPath(vehicle.CurrentWaypoint, vehicle.TargetWaypoint);
-
-            if (newPath != null && newPath.Count > 0)
-            {
-                vehicle.SetNewPath(newPath, vehicle.TargetWaypoint);
-                Debug.Log($"Path recalculated for vehicle at {vehicle.transform.position}");
-            }
-            else
-            {
-                // Can't reach current target, try to find a new one
-                Debug.LogWarning($"Vehicle at {vehicle.transform.position} can no longer reach target. Finding new target...");
-                RequestNewTarget(vehicle);
-            }
-        }
-
-        // Clean up invalid vehicles
-        foreach (var vehicle in vehiclesToRemove)
-        {
-            RemoveVehicle(vehicle);
-        }
-
-        Debug.Log("Path recalculation complete.");
-    }
-
-    public void RecheckAllVehiclePaths()
-    {
-        Debug.Log($"Rechecking paths for {_activeVehicles.Count} vehicles...");
-
-        List<VehicleController> vehiclesToRemove = new List<VehicleController>();
-
-        foreach (var vehicle in _activeVehicles)
-        {
-            if (vehicle == null)
-            {
-                vehiclesToRemove.Add(vehicle);
-                continue;
-            }
-
-            // Check if current path is still valid
-            if (!vehicle.IsPathValid())
-            {
-                Debug.LogWarning($"Vehicle at {vehicle.transform.position} has invalid path. Recalculating...");
-
-                if (vehicle.CurrentWaypoint != null && vehicle.TargetWaypoint != null)
-                {
-                    List<WaypointNode> newPath = AStarPathfinder.FindPath(vehicle.CurrentWaypoint, vehicle.TargetWaypoint);
-
-                    if (newPath != null && newPath.Count > 0)
-                    {
-                        vehicle.SetNewPath(newPath, vehicle.TargetWaypoint);
-                    }
-                    else
-                    {
-                        RequestNewTarget(vehicle);
-                    }
-                }
-                else
-                {
-                    vehiclesToRemove.Add(vehicle);
-                }
-            }
-        }
-
-        // Clean up invalid vehicles
-        foreach (var vehicle in vehiclesToRemove)
-        {
-            RemoveVehicle(vehicle);
-        }
-
-        Debug.Log("Path recheck complete.");
-    }
-
-    public int GetActiveVehicleCount()
-    {
-        return _activeVehicles.Count;
-    }
-
-    public List<VehicleController> Get_ActiveVehicles()
-    {
-        return new List<VehicleController>(_activeVehicles);
     }
 }
