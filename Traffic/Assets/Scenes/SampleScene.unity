@@ -6836,7 +6836,7 @@ MonoBehaviour:
   _setSimulationState: 0
   _roadSubState: 0
   _vehicleSubState: 0
-  _trafficLightSubState: 0
+  _trafficLightSubState: 2
   _pedestrianSubState: 0
 --- !u!1 &888172801
 GameObject:
@@ -12926,7 +12926,7 @@ MonoBehaviour:
   _setSimulationState: 0
   _roadSubState: 0
   _vehicleSubState: 0
-  _trafficLightSubState: 0
+  _trafficLightSubState: 1
   _pedestrianSubState: 0
 --- !u!1 &1792920504
 GameObject:

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using UnityEngine;
 
 public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
@@ -96,22 +97,22 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
     {
         _cellCentre = GridManager.Instance.GetCellCentre(cell);
 
-        _northWestFromNorth = _cellCentre + new Vector3(-_halfCellSize + _halfPavementSize, 0.5f, _halfCellSize);
-        _northWestFromWest = _cellCentre + new Vector3(-_halfCellSize, 0.5f, _halfCellSize - _halfPavementSize);
+        _northWestFromNorth = _cellCentre + new Vector3(-_halfCellSize + _halfPavementSize, 0, _halfCellSize);
+        _northWestFromWest = _cellCentre + new Vector3(-_halfCellSize, 0, _halfCellSize - _halfPavementSize);
 
-        _northEastFromNorth = _cellCentre + new Vector3(_halfCellSize - _halfPavementSize, 0.5f, _halfCellSize);
-        _northEastFromEast = _cellCentre + new Vector3(_halfCellSize, 0.5f, _halfCellSize - _halfPavementSize);
+        _northEastFromNorth = _cellCentre + new Vector3(_halfCellSize - _halfPavementSize, 0, _halfCellSize);
+        _northEastFromEast = _cellCentre + new Vector3(_halfCellSize, 0, _halfCellSize - _halfPavementSize);
 
-        _southWestFromSouth = _cellCentre + new Vector3(-_halfCellSize + _halfPavementSize, 0.5f, -_halfCellSize);
-        _southWestFromWest = _cellCentre + new Vector3(-_halfCellSize, 0.5f, -_halfCellSize + _halfPavementSize);
+        _southWestFromSouth = _cellCentre + new Vector3(-_halfCellSize + _halfPavementSize, 0, -_halfCellSize);
+        _southWestFromWest = _cellCentre + new Vector3(-_halfCellSize, 0, -_halfCellSize + _halfPavementSize);
 
-        _southEastFromSouth = _cellCentre + new Vector3(_halfCellSize - _halfPavementSize, 0.5f, -_halfCellSize);
-        _southEastFromEast = _cellCentre + new Vector3(_halfCellSize, 0.5f, -_halfCellSize + _halfPavementSize);
+        _southEastFromSouth = _cellCentre + new Vector3(_halfCellSize - _halfPavementSize, 0, -_halfCellSize);
+        _southEastFromEast = _cellCentre + new Vector3(_halfCellSize, 0, -_halfCellSize + _halfPavementSize);
 
-        _midpointNW = _cellCentre + new Vector3(-_halfCellSize + _halfPavementSize, 0.5f, _halfCellSize - _halfPavementSize);
-        _midpointNE = _cellCentre + new Vector3(_halfCellSize - _halfPavementSize, 0.5f, _halfCellSize - _halfPavementSize);
-        _midpointSW = _cellCentre + new Vector3(-_halfCellSize + _halfPavementSize, 0.5f, -_halfCellSize + _halfPavementSize);
-        _midpointSE = _cellCentre + new Vector3(_halfCellSize - _halfPavementSize, 0.5f, -_halfCellSize + _halfPavementSize);
+        _midpointNW = _cellCentre + new Vector3(-_halfCellSize + _halfPavementSize, 0, _halfCellSize - _halfPavementSize);
+        _midpointNE = _cellCentre + new Vector3(_halfCellSize - _halfPavementSize, 0, _halfCellSize - _halfPavementSize);
+        _midpointSW = _cellCentre + new Vector3(-_halfCellSize + _halfPavementSize, 0, -_halfCellSize + _halfPavementSize);
+        _midpointSE = _cellCentre + new Vector3(_halfCellSize - _halfPavementSize, 0, -_halfCellSize + _halfPavementSize);
 
         _hasNorth = GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.North);
         _hasSouth = GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.South);
@@ -180,6 +181,8 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
         }
         _cellWaypoints[cell].AddRange(waypoints);
         _allWaypoints.AddRange(waypoints);
+
+        ConfigureTrafficLights(cell, waypoints);
     }
 
     private List<WaypointNode> CreateStraightWaypoints(GridCell cell)
@@ -191,7 +194,7 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
             // Left pavement
             Vector3 crossing = _cellCentre + new Vector3(-_halfCellSize + _halfPavementSize, 0.5f, 0);
             WaypointNode north = new WaypointNode(_northWestFromNorth, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
-            WaypointNode crossingPoint1 = new WaypointNode(crossing, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
+            WaypointNode crossingPoint1 = new WaypointNode(crossing, cell, WaypointType.PedestrianRoadCrossing, WaypointNetworkType.Pedestrian);
             WaypointNode south = new WaypointNode(_southWestFromSouth, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
 
             // Connect north to south
@@ -205,7 +208,7 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
             // Right pavement
             crossing = _cellCentre + new Vector3(_halfCellSize - _halfPavementSize, 0.5f, 0);
             north = new WaypointNode(_northEastFromNorth, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
-            WaypointNode crossingPoint2 = new WaypointNode(crossing, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
+            WaypointNode crossingPoint2 = new WaypointNode(crossing, cell, WaypointType.PedestrianRoadCrossing, WaypointNetworkType.Pedestrian);
             south = new WaypointNode(_southEastFromSouth, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
 
             // Connect north to south
@@ -225,7 +228,7 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
             // Top pavement
             Vector3 crossing = _cellCentre + new Vector3(0, 0.5f, _halfCellSize - _halfPavementSize);
             WaypointNode west = new WaypointNode(_northWestFromWest, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
-            WaypointNode crossingPoint1 = new WaypointNode(crossing, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
+            WaypointNode crossingPoint1 = new WaypointNode(crossing, cell, WaypointType.PedestrianRoadCrossing, WaypointNetworkType.Pedestrian);
             WaypointNode east = new WaypointNode(_northEastFromEast, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
 
             // Connect west to east
@@ -239,7 +242,7 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
             // Bottom pavement
             crossing = _cellCentre + new Vector3(0, 0.5f, -_halfCellSize + _halfPavementSize);
             west = new WaypointNode(_southWestFromWest, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
-            WaypointNode crossingPoint2 = new WaypointNode(crossing, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
+            WaypointNode crossingPoint2 = new WaypointNode(crossing, cell, WaypointType.PedestrianRoadCrossing, WaypointNetworkType.Pedestrian);
             east = new WaypointNode(_southEastFromEast, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
 
             // Connect west to east
@@ -677,6 +680,24 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
         }
     }
 
+    private void ConfigureTrafficLights(GridCell cell, List<WaypointNode> cellWaypoints)
+    {
+        List<WaypointNode> pedestrianCrossingWaypoints = cellWaypoints.Where(w => w.Type == WaypointType.PedestrianRoadCrossing).ToList();
+        List<WaypointNode> cellRoadWaypoints = RoadWaypointManager.Instance.GetCellWaypoints(cell).Where(w => w.Type == WaypointType.TrafficLightLocation).ToList();
+
+        foreach (WaypointNode waypoint in pedestrianCrossingWaypoints)
+        {
+            foreach (WaypointNode node in cellRoadWaypoints)
+            {
+                if (Vector3.Distance(new Vector3(node.Position.x, 0f, node.Position.z), new Vector3(waypoint.Position.x, 0f, waypoint.Position.z)) < 0.05f)
+                {
+                    waypoint.LaneNodeForTrafficLight = node.LaneNodeForTrafficLight;
+                    break;
+                }
+            }
+        }
+    }
+
     public void PopulateSaveData(GameSaveData saveData)
     {
         var waypointData = new WaypointSaveData();
@@ -777,21 +798,22 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
     //     // Draw waypoints
     //     foreach (WaypointNode node in _allWaypoints)
     //     {
+    //         if (node.Type != WaypointType.PedestrianRoadCrossing) continue;
     //         Gizmos.color = Color.red;
     //         Gizmos.DrawSphere(node.Position, 0.2f);
     //     }
 
     //     // Draw connections (optional)
     //     Gizmos.color = Color.green;
-    //     foreach (var kvp in _cellWaypoints)
-    //     {
-    //         foreach (var node in kvp.Value)
-    //         {
-    //             foreach (var connection in node.Connections)
-    //             {
-    //                 Gizmos.DrawLine(node.Position, connection.TargetWaypoint.Position);
-    //             }
-    //         }
-    //     }
+    //     // foreach (var kvp in _cellWaypoints)
+    //     // {
+    //     //     foreach (var node in kvp.Value)
+    //     //     {
+    //     //         foreach (var connection in node.Connections)
+    //     //         {
+    //     //             Gizmos.DrawLine(node.Position, connection.TargetWaypoint.Position);
+    //     //         }
+    //     //     }
+    //     // }
     // }
 }

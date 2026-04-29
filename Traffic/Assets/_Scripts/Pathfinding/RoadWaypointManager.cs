@@ -899,17 +899,17 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         return lookup;
     }
 
-    // private void OnDrawGizmos()
-    // {
-    //     if (_allWaypoints.Count == 0) return;
+    private void OnDrawGizmos()
+    {
+        if (_allWaypoints.Count == 0) return;
 
-    //     foreach (WaypointNode node in _allWaypoints)
-    //     {
-    //         if (node.Type == WaypointType.TrafficLightLocation) WaypointNetworkType.Vehicle,
-    //         {
-    //             Gizmos.color = Color.yellow;
-    //             Gizmos.DrawSphere(node.Position, 0.5f);
-    //         }
-    //     }
-    // }
+        foreach (WaypointNode node in _allWaypoints)
+        {
+            if (node.Type == WaypointType.TrafficLightLocation)
+            {
+                Gizmos.color = Color.yellow;
+                Gizmos.DrawSphere(node.Position, 0.5f);
+            }
+        }
+    }
 }

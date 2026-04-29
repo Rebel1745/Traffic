@@ -40,7 +40,8 @@ public enum WaypointType
     Midpoint,
     UTurn,
     TrafficLightLocation,
-    PedestrianWalkway
+    PedestrianWalkway,
+    PedestrianRoadCrossing
 }
 
 public enum WaypointNetworkType
