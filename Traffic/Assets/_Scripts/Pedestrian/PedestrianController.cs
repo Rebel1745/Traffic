@@ -8,7 +8,6 @@ public class PedestrianController : MonoBehaviour
     [SerializeField] private float _moveSpeed = 5f;
     [SerializeField] private float _rotationSpeed = 5f;
     [SerializeField] private float _waypointReachThreshold = 0.1f;
-    private float _stopDistance = 0.5f;
 
     [Header("Debug")]
     [SerializeField] private bool _showDebugInfo = true;
@@ -19,8 +18,6 @@ public class PedestrianController : MonoBehaviour
     public WaypointNode TargetWaypoint { get; private set; }
 
     private int _currentWaypointIndex = 0;
-    private int _nextWaypointWithTrafficLightIndex = -1;
-    private WaypointNode _nextWaypointWithTrafficLight = null;
     private bool _isMoving = false;
 
     public void Initialize(List<WaypointNode> path, WaypointNode target)
@@ -66,14 +63,15 @@ public class PedestrianController : MonoBehaviour
         WaypointNode targetWaypoint = Path[_currentWaypointIndex];
         Vector3 targetPosition = targetWaypoint.Position;
 
-        // check to see if we are within a couple of waypoints of a light
-        if (_nextWaypointWithTrafficLightIndex != -1 && _nextWaypointWithTrafficLightIndex - _currentWaypointIndex <= 3)
+        if (targetWaypoint.LaneNodeForTrafficLight != null &&
+            targetWaypoint.LaneNodeForTrafficLight.AssignedLight != null &&
+            _currentWaypointIndex < Path.Count - 1 &&
+            Path[_currentWaypointIndex + 1].LaneNodeForTrafficLight != null &&
+            Path[_currentWaypointIndex + 1].LaneNodeForTrafficLight.AssignedLight != null &&
+            !targetWaypoint.LaneNodeForTrafficLight.AssignedLight.IsRed() &&
+            Vector3.Distance(transform.position, targetPosition) <= 0.2f)
         {
-            // we are close to a light, if it is red and we are within half a vehicles length of the waypoint, stop
-            if (!_nextWaypointWithTrafficLight.LaneNodeForTrafficLight.AssignedLight.IsRed())
-            {
-                return;
-            }
+            return;
         }
 
         // Move towards target
@@ -93,12 +91,6 @@ public class PedestrianController : MonoBehaviour
         {
             CurrentWaypoint = targetWaypoint;
             _currentWaypointIndex++;
-
-            if (Path[_currentWaypointIndex - 1].LaneNodeForTrafficLight != null && Path[_currentWaypointIndex - 1].LaneNodeForTrafficLight.AssignedLight != null)
-            {
-                // our last waypoint had a light, we have gone past it so lets see if there is a next light
-                GetNextWaypointWithTrafficLight();
-            }
 
             if (_showDebugInfo)
             {
@@ -139,7 +131,6 @@ public class PedestrianController : MonoBehaviour
         _currentWaypointIndex = 0;
         CurrentWaypoint = newPath[0];
         _isMoving = true;
-        GetNextWaypointWithTrafficLight();
 
         if (_showDebugInfo)
         {
@@ -180,21 +171,5 @@ public class PedestrianController : MonoBehaviour
         }
 
         return true;
-    }
-
-    private void GetNextWaypointWithTrafficLight()
-    {
-        _nextWaypointWithTrafficLight = null;
-        _nextWaypointWithTrafficLightIndex = -1;
-
-        for (int i = _currentWaypointIndex; i < Path.Count; i++)
-        {
-            if (_currentWaypointIndex > 0 && Path[i].LaneNodeForTrafficLight != null && Path[i].LaneNodeForTrafficLight.AssignedLight != null)
-            {
-                _nextWaypointWithTrafficLight = Path[i];
-                _nextWaypointWithTrafficLightIndex = i;
-                break;
-            }
-        }
     }
 }
