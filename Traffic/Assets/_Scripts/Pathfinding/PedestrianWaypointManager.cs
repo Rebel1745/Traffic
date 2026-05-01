@@ -192,7 +192,7 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
         if (_hasNorth && _hasSouth) // Vertical road
         {
             // Left pavement
-            Vector3 crossing = _cellCentre + new Vector3(-_halfCellSize + _halfPavementSize, 0.5f, 0);
+            Vector3 crossing = _cellCentre + new Vector3(-_halfCellSize + _halfPavementSize, 0, 0);
             WaypointNode north = new WaypointNode(_northWestFromNorth, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
             WaypointNode crossingPoint1 = new WaypointNode(crossing, cell, WaypointType.PedestrianRoadCrossing, WaypointNetworkType.Pedestrian);
             WaypointNode south = new WaypointNode(_southWestFromSouth, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
@@ -206,7 +206,7 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
             waypoints.Add(south);
 
             // Right pavement
-            crossing = _cellCentre + new Vector3(_halfCellSize - _halfPavementSize, 0.5f, 0);
+            crossing = _cellCentre + new Vector3(_halfCellSize - _halfPavementSize, 0, 0);
             north = new WaypointNode(_northEastFromNorth, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
             WaypointNode crossingPoint2 = new WaypointNode(crossing, cell, WaypointType.PedestrianRoadCrossing, WaypointNetworkType.Pedestrian);
             south = new WaypointNode(_southEastFromSouth, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
@@ -226,7 +226,7 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
         else if (_hasEast && _hasWest) // Horizontal road
         {
             // Top pavement
-            Vector3 crossing = _cellCentre + new Vector3(0, 0.5f, _halfCellSize - _halfPavementSize);
+            Vector3 crossing = _cellCentre + new Vector3(0, 0, _halfCellSize - _halfPavementSize);
             WaypointNode west = new WaypointNode(_northWestFromWest, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
             WaypointNode crossingPoint1 = new WaypointNode(crossing, cell, WaypointType.PedestrianRoadCrossing, WaypointNetworkType.Pedestrian);
             WaypointNode east = new WaypointNode(_northEastFromEast, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
@@ -240,7 +240,7 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
             waypoints.Add(east);
 
             // Bottom pavement
-            crossing = _cellCentre + new Vector3(0, 0.5f, -_halfCellSize + _halfPavementSize);
+            crossing = _cellCentre + new Vector3(0, 0, -_halfCellSize + _halfPavementSize);
             west = new WaypointNode(_southWestFromWest, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
             WaypointNode crossingPoint2 = new WaypointNode(crossing, cell, WaypointType.PedestrianRoadCrossing, WaypointNetworkType.Pedestrian);
             east = new WaypointNode(_southEastFromEast, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);

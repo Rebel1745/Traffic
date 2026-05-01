@@ -9,6 +9,9 @@ public class PedestrianController : MonoBehaviour
     [SerializeField] private float _rotationSpeed = 5f;
     [SerializeField] private float _waypointReachThreshold = 0.1f;
 
+    [Header("Animation")]
+    [SerializeField] private Animator _animator;
+
     [Header("Debug")]
     [SerializeField] private bool _showDebugInfo = true;
 

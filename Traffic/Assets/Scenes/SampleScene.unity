@@ -6269,6 +6269,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PedestrianSpawner
   _pedestrianPrefabs:
+  - {fileID: 8142218493825654346, guid: f8c703e7f02edad4da44e51597283a8b, type: 3}
+  - {fileID: 8142218493825654346, guid: 42144b2c3805cd346a987c4f27993a3f, type: 3}
+  - {fileID: 8142218493825654346, guid: 544d04c14cff6de4b82b864f5c25536e, type: 3}
+  - {fileID: 8142218493825654346, guid: c3fd41d282510c749a4e687d5ec34058, type: 3}
   - {fileID: 8142218493825654346, guid: 14888a55608e0cf479cb97921af120b2, type: 3}
 --- !u!114 &849437087
 MonoBehaviour:

@@ -1,0 +1,448 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8142218493825654346
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4265006370935468705}
+  - component: {fileID: 5947578294568665735}
+  m_Layer: 0
+  m_Name: Pedestrian_Louise
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4265006370935468705
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8142218493825654346}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8200969378249658978}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5947578294568665735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8142218493825654346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d19dd64c613cacf4aab9d3cb2ef34c42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PedestrianController
+  _moveSpeed: 2
+  _rotationSpeed: 10
+  _waypointReachThreshold: 0.1
+  _animator: {fileID: 6518484121610381314}
+  _showDebugInfo: 0
+--- !u!1 &8350055120215795552
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8200969378249658978}
+  m_Layer: 0
+  m_Name: GFX
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8200969378249658978
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8350055120215795552}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 141483625538950721}
+  m_Father: {fileID: 4265006370935468705}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &467283537925894570
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8200969378249658978}
+    m_Modifications:
+    - target: {fileID: -8963838772662979419, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:Neck
+      objectReference: {fileID: 0}
+    - target: {fileID: -8872901015089156540, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftHandRing2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8783367958070073711, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightHandPinky4
+      objectReference: {fileID: 0}
+    - target: {fileID: -8780213641772795459, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftHandThumb2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8736460841961231590, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightHandThumb2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8483848724794987956, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:Spine1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8384036029753768912, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightHandRing1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8382462645567086350, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0.46794188
+      objectReference: {fileID: 0}
+    - target: {fileID: -8382462645567086350, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -10.042941
+      objectReference: {fileID: 0}
+    - target: {fileID: -8382462645567086350, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 4.703176
+      objectReference: {fileID: 0}
+    - target: {fileID: -8233139922611589016, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftHandThumb3
+      objectReference: {fileID: 0}
+    - target: {fileID: -7797374828588892722, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftHandIndex1
+      objectReference: {fileID: 0}
+    - target: {fileID: -7575618620551751497, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightHandIndex2
+      objectReference: {fileID: 0}
+    - target: {fileID: -7048734780007370785, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftHandPinky2
+      objectReference: {fileID: 0}
+    - target: {fileID: -6695152440451956162, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightHandPinky2
+      objectReference: {fileID: 0}
+    - target: {fileID: -6596814765625448730, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightHand
+      objectReference: {fileID: 0}
+    - target: {fileID: -6565322176914316192, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftHandIndex3
+      objectReference: {fileID: 0}
+    - target: {fileID: -5676452786596628870, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftToeBase
+      objectReference: {fileID: 0}
+    - target: {fileID: -5495872648014194988, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightHandRing3
+      objectReference: {fileID: 0}
+    - target: {fileID: -5330396503150727318, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftArm
+      objectReference: {fileID: 0}
+    - target: {fileID: -4606771787588935181, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftHandThumb4
+      objectReference: {fileID: 0}
+    - target: {fileID: -4128758960675898974, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightHandThumb4
+      objectReference: {fileID: 0}
+    - target: {fileID: -4081288207617742497, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:Spine2
+      objectReference: {fileID: 0}
+    - target: {fileID: -3910646966724643146, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftFoot
+      objectReference: {fileID: 0}
+    - target: {fileID: -3698079849845502399, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftShoulder
+      objectReference: {fileID: 0}
+    - target: {fileID: -3403833032413042186, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightArm
+      objectReference: {fileID: 0}
+    - target: {fileID: -2931849986402684217, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftHandThumb1
+      objectReference: {fileID: 0}
+    - target: {fileID: -2391929886388230589, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftHand
+      objectReference: {fileID: 0}
+    - target: {fileID: -2351772649148110180, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:HeadTop_End
+      objectReference: {fileID: 0}
+    - target: {fileID: -2221122144127732805, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightUpLeg
+      objectReference: {fileID: 0}
+    - target: {fileID: -2006996206229482360, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightHandThumb1
+      objectReference: {fileID: 0}
+    - target: {fileID: -1941713416402416376, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftHandMiddle4
+      objectReference: {fileID: 0}
+    - target: {fileID: -1874577639621256114, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:Head
+      objectReference: {fileID: 0}
+    - target: {fileID: -1714575494947810239, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightHandPinky1
+      objectReference: {fileID: 0}
+    - target: {fileID: -1093405066771845557, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:Spine
+      objectReference: {fileID: 0}
+    - target: {fileID: -1013663672092288027, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightToe_End
+      objectReference: {fileID: 0}
+    - target: {fileID: -629329997435182354, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:Hips
+      objectReference: {fileID: 0}
+    - target: {fileID: 287920651979985708, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightHandIndex1
+      objectReference: {fileID: 0}
+    - target: {fileID: 690135268028923995, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftToe_End
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: Louise
+      objectReference: {fileID: 0}
+    - target: {fileID: 1394855428349472772, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftForeArm
+      objectReference: {fileID: 0}
+    - target: {fileID: 1489366218997785709, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightHandMiddle2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2147838682180349513, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftHandPinky1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2347590648523274797, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftHandIndex4
+      objectReference: {fileID: 0}
+    - target: {fileID: 2933806742072276168, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightFoot
+      objectReference: {fileID: 0}
+    - target: {fileID: 3147449358897310659, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftHandRing1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3393603914447760379, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftHandIndex2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536647468581835364, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightHandPinky3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3810737116329451712, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightShoulder
+      objectReference: {fileID: 0}
+    - target: {fileID: 4104728091122532628, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightHandMiddle3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4161684067726595482, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftHandPinky4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4296659071866407058, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightForeArm
+      objectReference: {fileID: 0}
+    - target: {fileID: 4367552079072665920, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightHandThumb3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4586904102137857012, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightHandIndex4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4727918168281034690, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftHandPinky3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4816233648767135615, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftUpLeg
+      objectReference: {fileID: 0}
+    - target: {fileID: 5455818923742610052, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftHandMiddle3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6130386592158015027, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightHandRing2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6261142157564711518, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightHandIndex3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6350752951157539647, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightLeg
+      objectReference: {fileID: 0}
+    - target: {fileID: 6914101378320460271, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftLeg
+      objectReference: {fileID: 0}
+    - target: {fileID: 7280921291777002176, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightHandRing4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7552353350238270818, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftHandMiddle2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7880622770632711353, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftHandMiddle1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8098845709543856374, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightToeBase
+      objectReference: {fileID: 0}
+    - target: {fileID: 8603177742186240415, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftHandRing3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8690854524031113373, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightHandMiddle4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8907810762739395697, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:RightHandMiddle1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081628324164313385, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      propertyPath: m_Name
+      value: mixamorig:LeftHandRing4
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6518484121610381314}
+  m_SourcePrefab: {fileID: 100100000, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+--- !u!4 &141483625538950721 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+  m_PrefabInstance: {fileID: 467283537925894570}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &773904689631120635 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 7e0cb92c46320ee41b2e50344e15a3bf, type: 3}
+  m_PrefabInstance: {fileID: 467283537925894570}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &6518484121610381314
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 773904689631120635}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: cc92d958958782d45b5fdba780cae8e3, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
