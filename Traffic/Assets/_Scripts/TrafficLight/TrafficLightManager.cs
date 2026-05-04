@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -68,11 +69,50 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
 
         TrafficLightGroupController group = FindOrCreateGroupForWaypoint(waypoint);
         lightObj.transform.parent = group.gameObject.transform;
+        lightObj.transform.rotation = Quaternion.Euler(0, GetYRotationFromLightPosition(waypoint.LightPosition), 0);
 
         // Register with default timings (can be adjusted via UI later)
         group.RegisterLight(light, waypoint.LightPosition, waypoint.LightPosition.ToString(), _greenDuration, _yellowDuration, _redDuration, _redOverlapDuration, waypoint.LightPosition.ToString(), _greenDuration, _yellowDuration, _redDuration, _redOverlapDuration);
 
         //Debug.Log($"Confirmed traffic light at {waypoint.Id}");
+    }
+
+    private float GetYRotationFromLightPosition(RoadDirection lightPosition)
+    {
+        float rotation = 0;
+
+        switch (lightPosition)
+        {
+            case RoadDirection.None:
+                rotation = 0;
+                break;
+            case RoadDirection.North:
+                rotation = 270;
+                break;
+            case RoadDirection.South:
+                rotation = 90;
+                break;
+            case RoadDirection.East:
+                rotation = 180;
+                break;
+            case RoadDirection.West:
+                rotation = 0;
+                break;
+            case RoadDirection.NorthWest:
+                rotation = 90;
+                break;
+            case RoadDirection.NorthEast:
+                rotation = 180;
+                break;
+            case RoadDirection.SouthWest:
+                rotation = 0;
+                break;
+            case RoadDirection.SouthEast:
+                rotation = 270;
+                break;
+        }
+
+        return rotation;
     }
 
     public void RemoveTrafficLightGroupFromCell(GridCell cell)
@@ -281,6 +321,7 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
 
                 // Create light prefab at waypoint position
                 GameObject lightObj = Instantiate(_trafficLightPrefab, waypoint.Position, Quaternion.identity);
+                lightObj.transform.rotation = Quaternion.Euler(0, GetYRotationFromLightPosition(waypoint.LightPosition), 0);
                 TrafficLightController newLight = lightObj.GetComponent<TrafficLightController>();
                 newLight.AssignedWaypoint = waypoint;
 
