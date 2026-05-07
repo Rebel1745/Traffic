@@ -7,7 +7,7 @@ public class TrafficLightListItem : MonoBehaviour
 {
     private TrafficLightGroupSettingsUI _settingsUI;
     [SerializeField] private TMP_Text _lightNameText;
-    [SerializeField] private TMP_Text _redDurationText;
+    [SerializeField] private TMP_Text _pedestrianCrossingDurationText;
     [SerializeField] private TMP_Text _greenDurationText;
     [SerializeField] private TMP_Text _yellowDurationText;
     [SerializeField] private TMP_Text _allRedDurationText;
@@ -21,10 +21,10 @@ public class TrafficLightListItem : MonoBehaviour
     {
         _settingsUI = settings;
         _lightNameText.text = light.Label;
-        _redDurationText.text = light.RedDuration.ToString();
+        _pedestrianCrossingDurationText.text = light.PedestrianCrossingDuration.ToString();
         _yellowDurationText.text = light.YellowDuration.ToString();
         _greenDurationText.text = light.GreenDuration.ToString();
-        _allRedDurationText.text = light.RedOverlapDuration.ToString();
+        _allRedDurationText.text = light.AllRedDuration.ToString();
 
         _editButton.onClick.RemoveAllListeners();
         _editButton.onClick.AddListener(onEdit);

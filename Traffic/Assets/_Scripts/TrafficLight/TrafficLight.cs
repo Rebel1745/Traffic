@@ -8,13 +8,14 @@ public class TrafficLight
     public float GreenDuration;
     public float YellowDuration;
     public float RedDuration;
-    public float RedOverlapDuration;
-    public string Details { get { return "Light: " + Label + " Green: " + GreenDuration + " Yellow: " + YellowDuration + " Red: " + RedDuration + " Overlap: " + RedOverlapDuration; } }
+    public float AllRedDuration;
+    public float PedestrianCrossingDuration;
     public string OriginalLabel;
     public float OriginalRedDuration;
     public float OriginalYellowDuration;
     public float OriginalGreenDuration;
-    public float OriginalRedOverlapDuration;
+    public float OriginalAllRedDuration;
+    public float OriginalPedestrianCrossingDuration;
 
     public TrafficLight Clone()
     {
@@ -27,11 +28,12 @@ public class TrafficLight
             GreenDuration = this.GreenDuration,
             YellowDuration = this.YellowDuration,
             RedDuration = this.RedDuration,
-            RedOverlapDuration = this.RedOverlapDuration,
+            AllRedDuration = this.AllRedDuration,
+            PedestrianCrossingDuration = this.PedestrianCrossingDuration,
             OriginalGreenDuration = this.GreenDuration,
             OriginalYellowDuration = this.YellowDuration,
             OriginalRedDuration = this.RedDuration,
-            OriginalRedOverlapDuration = this.RedOverlapDuration
+            OriginalAllRedDuration = this.AllRedDuration
         };
     }
 
@@ -41,6 +43,7 @@ public class TrafficLight
         GreenDuration = OriginalGreenDuration;
         YellowDuration = OriginalYellowDuration;
         RedDuration = OriginalRedDuration;
-        RedOverlapDuration = OriginalRedOverlapDuration;
+        AllRedDuration = OriginalAllRedDuration;
+        PedestrianCrossingDuration = OriginalPedestrianCrossingDuration;
     }
 }

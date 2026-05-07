@@ -8,10 +8,12 @@ public class TrafficLightSaveData
     public float GreenDuration;
     public float YellowDuration;
     public float RedDuration;
-    public float RedOverlapDuration;
+    public float AllRedDuration;
+    public float PedestrianCrossingDuration;
     public string OriginalLabel;
     public float OriginalRedDuration;
     public float OriginalYellowDuration;
     public float OriginalGreenDuration;
-    public float OriginalRedOverlapDuration;
+    public float OriginalAllRedDuration;
+    public float OriginalPedestrianCrossingDuration;
 }

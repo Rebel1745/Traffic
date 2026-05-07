@@ -27,17 +27,19 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
 
     [Header("Selected Light Settings")]
     [SerializeField] private Transform _lightLabelLayout;
+    [SerializeField] private Transform _redLayout;
+    [SerializeField] private Transform _allRedLayout;
     [SerializeField] private TMP_InputField _labelInput;
     [SerializeField] private TMP_InputField _greenInput;
     [SerializeField] private TMP_InputField _yellowInput;
     [SerializeField] private TMP_InputField _redInput;
     [SerializeField] private TMP_InputField _allRedInput;
+    [SerializeField] private TMP_InputField _pedestrianCrossingInput;
 
     [Header("Pedestrian Crossing Light Details")]
     [SerializeField] private TMP_Text _redTimeText;
     [SerializeField] private TMP_Text _yellowTimeText;
     [SerializeField] private TMP_Text _greenTimeText;
-    [SerializeField] private TMP_Text _allRedTimeText;
 
     [Header("Buttons")]
     [SerializeField] private Button _applyButton;
@@ -61,6 +63,8 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
         {
             _trafficLightList.gameObject.SetActive(true);
             _lightLabelLayout.gameObject.SetActive(true);
+            _redLayout.gameObject.SetActive(false);
+            _allRedLayout.gameObject.SetActive(true);
             _trafficLightDetails.gameObject.SetActive(false);
 
             RefreshLightList();
@@ -70,6 +74,8 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
         {
             _trafficLightList.gameObject.SetActive(false);
             _lightLabelLayout.gameObject.SetActive(false);
+            _redLayout.gameObject.SetActive(true);
+            _allRedLayout.gameObject.SetActive(false);
             _trafficLightDetails.gameObject.SetActive(true);
 
             LoadLightSettings(0);
@@ -125,7 +131,7 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
         else
             _lightEditText.text = "Edit Light Timings";
 
-        _labelInput.text = _yellowInput.text = _greenInput.text = _redInput.text = _allRedInput.text = "";
+        _labelInput.text = _yellowInput.text = _greenInput.text = _redInput.text = _allRedInput.text = _pedestrianCrossingInput.text = "";
     }
 
     public void LoadLightSettings(int index)
@@ -139,7 +145,8 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
         _redInput.text = light.RedDuration.ToString("F1");
         _yellowInput.text = light.YellowDuration.ToString("F1");
         _greenInput.text = light.GreenDuration.ToString("F1");
-        _allRedInput.text = light.RedOverlapDuration.ToString("F1");
+        _allRedInput.text = light.AllRedDuration.ToString("F1");
+        _pedestrianCrossingInput.text = light.PedestrianCrossingDuration.ToString("F1");
     }
 
     private void LoadTrafficLightDetails()
@@ -147,7 +154,6 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
         _redTimeText.text = _lightListCopy[0].RedDuration.ToString("F1");
         _yellowTimeText.text = _lightListCopy[0].YellowDuration.ToString("F1");
         _greenTimeText.text = _lightListCopy[0].GreenDuration.ToString("F1");
-        _allRedTimeText.text = _lightListCopy[0].RedOverlapDuration.ToString("F1");
     }
 
     public void OnEditJunctionNameClicked()
@@ -216,7 +222,8 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
         s.GreenDuration = ParseFloatClamped(_greenInput.text, 0.5f, 300f);
         s.YellowDuration = ParseFloatClamped(_yellowInput.text, 0.5f, 30f);
         s.RedDuration = ParseFloatClamped(_redInput.text, 0.5f, 300f);
-        s.RedOverlapDuration = ParseFloatClamped(_allRedInput.text, 0f, 30f);
+        s.AllRedDuration = ParseFloatClamped(_allRedInput.text, 0f, 30f);
+        s.PedestrianCrossingDuration = ParseFloatClamped(_pedestrianCrossingInput.text, 0f, 30f);
         _lightEditText.text = "Editing Light: " + s.Label;
     }
 
@@ -239,7 +246,6 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
                 s.GreenDuration = ParseFloatClamped(_greenInput.text, 0.5f, 300f);
                 s.YellowDuration = ParseFloatClamped(_yellowInput.text, 0.5f, 30f);
                 s.RedDuration = ParseFloatClamped(_redInput.text, 0.5f, 300f);
-                s.RedOverlapDuration = ParseFloatClamped(_allRedInput.text, 0f, 30f);
             }
 
             LoadTrafficLightDetails();

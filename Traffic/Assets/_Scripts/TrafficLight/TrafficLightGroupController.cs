@@ -49,7 +49,10 @@ public class TrafficLightGroupController : MonoBehaviour
     private void InitialiseLights()
     {
         foreach (TrafficLight light in _lights)
-            light.Light.SetState(TrafficLightController.LightState.Red);
+        {
+            light.Light.InitialiseLight(_groupType);
+            light.Light.SetState(LightState.Red);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -81,6 +84,10 @@ public class TrafficLightGroupController : MonoBehaviour
 
     private IEnumerator CycleJunction()
     {
+        float delayBeforeCrossingLightGoesGreen = _lights[0].PedestrianCrossingDuration * 0.2f;
+        float crossingGreenDuration = _lights[0].PedestrianCrossingDuration * 0.6f;
+        float delayBeforeMainLightCanChange = _lights[0].PedestrianCrossingDuration * 0.2f;
+
         while (true)
         {
             if (_lights.Count == 0)
@@ -89,19 +96,30 @@ public class TrafficLightGroupController : MonoBehaviour
             TrafficLight current = _lights[_currentLightIndex];
 
             // Green light
-            current.Light.SetState(TrafficLightController.LightState.Green);
+            current.Light.SetState(LightState.Green);
             yield return new WaitForSeconds(current.GreenDuration);
 
             // Yellow light
-            current.Light.SetState(TrafficLightController.LightState.Yellow);
+            current.Light.SetState(LightState.Yellow);
             yield return new WaitForSeconds(current.YellowDuration);
 
             // Red light (with individual duration)
-            current.Light.SetState(TrafficLightController.LightState.Red);
+            current.Light.SetState(LightState.Red);
             //yield return new WaitForSeconds(current.RedDuration);
 
+            // if we have cycled through all of the lights, pause to let pedestrians cross
+            if (_currentLightIndex == _lights.Count - 1)
+            {
+                // while the lights are red, cycle through the pedestrian crossing times
+                yield return new WaitForSeconds(delayBeforeCrossingLightGoesGreen);
+                SetAllCrossingLights(LightState.Green);
+                yield return new WaitForSeconds(crossingGreenDuration);
+                SetAllCrossingLights(LightState.Red);
+                yield return new WaitForSeconds(delayBeforeMainLightCanChange);
+            }
+
             // All-red safety buffer (all lights red)
-            yield return new WaitForSeconds(current.RedOverlapDuration);
+            yield return new WaitForSeconds(current.AllRedDuration);
 
             // Move to next light
             _currentLightIndex = (_currentLightIndex + 1) % _lights.Count;
@@ -114,6 +132,10 @@ public class TrafficLightGroupController : MonoBehaviour
 
     private IEnumerator CyclePedestrianCrossing()
     {
+        float delayBeforeCrossingLightGoesGreen = _lights[0].RedDuration * 0.2f;
+        float crossingGreenDuration = _lights[0].RedDuration * 0.6f;
+        float delayBeforeMainLightCanChange = _lights[0].RedDuration * 0.2f;
+
         // Use the first light's timings to drive the whole group
         while (true)
         {
@@ -123,34 +145,43 @@ public class TrafficLightGroupController : MonoBehaviour
             TrafficLight primary = _lights[0];
 
             // All lights green
-            SetAllLights(TrafficLightController.LightState.Green);
+            SetAllLights(LightState.Green);
             yield return new WaitForSeconds(primary.GreenDuration);
 
             // All lights yellow
-            SetAllLights(TrafficLightController.LightState.Yellow);
+            SetAllLights(LightState.Yellow);
             yield return new WaitForSeconds(primary.YellowDuration);
 
             // All lights red (using primary's red duration)
-            SetAllLights(TrafficLightController.LightState.Red);
-            yield return new WaitForSeconds(primary.RedDuration);
+            SetAllLights(LightState.Red);
 
-            // All-red overlap (safety buffer)
-            yield return new WaitForSeconds(primary.RedOverlapDuration);
+            // set the crossing lights and let them cycle before going back to the main lights
+            yield return new WaitForSeconds(delayBeforeCrossingLightGoesGreen);
+            SetAllCrossingLights(LightState.Green);
+            yield return new WaitForSeconds(crossingGreenDuration);
+            SetAllCrossingLights(LightState.Red);
+            yield return new WaitForSeconds(delayBeforeMainLightCanChange);
         }
     }
 
-    private void SetAllLights(TrafficLightController.LightState state)
+    private void SetAllLights(LightState state)
     {
         foreach (TrafficLight light in _lights)
             light.Light.SetState(state);
+    }
+
+    private void SetAllCrossingLights(LightState state)
+    {
+        foreach (TrafficLight light in _lights)
+            light.Light.SetCrossingLightsState(state);
     }
 
     // -------------------------------------------------------------------------
     // Registration & Removal
     // -------------------------------------------------------------------------
 
-    public void RegisterLight(TrafficLightController light, RoadDirection lightPosition, string label, float greenDuration, float yellowDuration, float redDuration, float redOverlapDuration,
-    string originalLabel, float originalGreenDuration, float originalYellowDuration, float originalRedDuration, float originalRedOverlapDuration)
+    public void RegisterLight(TrafficLightController light, RoadDirection lightPosition, string label, float greenDuration, float yellowDuration, float redDuration, float allRedDuration, float pedestrianCrossingDuration,
+    string originalLabel, float originalGreenDuration, float originalYellowDuration, float originalRedDuration, float originalAllRedDuration, float originalPedestrianCrossingDuration)
     {
         _lights.Add(new TrafficLight
         {
@@ -164,8 +195,10 @@ public class TrafficLightGroupController : MonoBehaviour
             OriginalYellowDuration = originalYellowDuration,
             RedDuration = redDuration,
             OriginalRedDuration = originalRedDuration,
-            RedOverlapDuration = redOverlapDuration,
-            OriginalRedOverlapDuration = originalRedOverlapDuration
+            AllRedDuration = allRedDuration,
+            OriginalAllRedDuration = originalAllRedDuration,
+            PedestrianCrossingDuration = pedestrianCrossingDuration,
+            OriginalPedestrianCrossingDuration = originalPedestrianCrossingDuration
         });
     }
 

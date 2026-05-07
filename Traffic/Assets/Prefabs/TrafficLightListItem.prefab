@@ -609,7 +609,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TrafficLightListItem
   _lightNameText: {fileID: 3602619146485691107}
-  _redDurationText: {fileID: 7687058657413582963}
+  _pedestrianCrossingDurationText: {fileID: 7687058657413582963}
   _greenDurationText: {fileID: 4521062238154337967}
   _yellowDurationText: {fileID: 610072846737180269}
   _allRedDurationText: {fileID: 6752874347509279761}
@@ -1159,7 +1159,7 @@ GameObject:
   - component: {fileID: 5893763728899970911}
   - component: {fileID: 7687058657413582963}
   m_Layer: 5
-  m_Name: RedLightDuration
+  m_Name: PedestrianCrossingDuration
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

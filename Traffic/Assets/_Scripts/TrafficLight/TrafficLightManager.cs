@@ -11,7 +11,8 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
     [SerializeField] private float _redDuration = 2f;
     [SerializeField] private float _yellowDuration = 1f;
     [SerializeField] private float _greenDuration = 3f;
-    [SerializeField] private float _redOverlapDuration = 0.5f;
+    [SerializeField] private float _allRedDuration = 0.5f;
+    [SerializeField] private float _pedestrianCrossingDuration = 3f;
 
     public string SaveKey => "TrafficLights";
 
@@ -72,7 +73,7 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
         lightObj.transform.rotation = Quaternion.Euler(0, GetYRotationFromLightPosition(waypoint.LightPosition), 0);
 
         // Register with default timings (can be adjusted via UI later)
-        group.RegisterLight(light, waypoint.LightPosition, waypoint.LightPosition.ToString(), _greenDuration, _yellowDuration, _redDuration, _redOverlapDuration, waypoint.LightPosition.ToString(), _greenDuration, _yellowDuration, _redDuration, _redOverlapDuration);
+        group.RegisterLight(light, waypoint.LightPosition, waypoint.LightPosition.ToString(), _greenDuration, _yellowDuration, _redDuration, _allRedDuration, _pedestrianCrossingDuration, waypoint.LightPosition.ToString(), _greenDuration, _yellowDuration, _redDuration, _allRedDuration, _pedestrianCrossingDuration);
 
         //Debug.Log($"Confirmed traffic light at {waypoint.Id}");
     }
@@ -270,12 +271,14 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
                     GreenDuration = light.GreenDuration,
                     YellowDuration = light.YellowDuration,
                     RedDuration = light.RedDuration,
-                    RedOverlapDuration = light.RedOverlapDuration,
+                    AllRedDuration = light.AllRedDuration,
+                    PedestrianCrossingDuration = light.PedestrianCrossingDuration,
                     OriginalLabel = light.OriginalLabel,
                     OriginalGreenDuration = light.OriginalGreenDuration,
                     OriginalYellowDuration = light.OriginalYellowDuration,
                     OriginalRedDuration = light.OriginalRedDuration,
-                    OriginalRedOverlapDuration = light.OriginalRedOverlapDuration
+                    OriginalAllRedDuration = light.OriginalAllRedDuration,
+                    OriginalPedestrianCrossingDuration = light.OriginalPedestrianCrossingDuration
                 });
             }
 
@@ -329,7 +332,7 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
                 waypoint.LaneNodeForTrafficLight.AssignedLight = newLight;
 
                 // Register in group
-                group.RegisterLight(newLight, light.LightPosition, light.LightPosition.ToString(), light.GreenDuration, light.YellowDuration, light.RedDuration, light.RedOverlapDuration, light.OriginalLabel, light.OriginalGreenDuration, light.OriginalYellowDuration, light.OriginalRedDuration, light.OriginalRedOverlapDuration);
+                group.RegisterLight(newLight, light.LightPosition, light.LightPosition.ToString(), light.GreenDuration, light.YellowDuration, light.RedDuration, light.AllRedDuration, light.PedestrianCrossingDuration, light.OriginalLabel, light.OriginalGreenDuration, light.OriginalYellowDuration, light.OriginalRedDuration, light.OriginalAllRedDuration, light.OriginalPedestrianCrossingDuration);
 
                 // Set group position to first light's position (or junction center)
                 if (groupObj.transform.position == Vector3.zero)
@@ -346,3 +349,5 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
         Debug.Log($"[TrafficLightManager] Loaded {saveData.TrafficLights.Groups.Count} traffic light groups.");
     }
 }
+
+public enum LightState { Red, Yellow, Green }
