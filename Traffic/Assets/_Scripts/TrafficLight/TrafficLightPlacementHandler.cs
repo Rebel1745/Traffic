@@ -140,6 +140,13 @@ public class TrafficLightPlacementHandler : MonoBehaviour, IPlacementHandler
 
         cell.HasTrafficLights = true;
 
+        // update the road markings if we have created a ped x-ing
+        if (TrafficLightManager.Instance.FindGroupForWaypoint(lastWaypoint).GroupType == TrafficLightGroupType.PedestrianCrossing)
+        {
+            cell.SetCustomUVs(RoadMarkingUVs.GetUVsForPedestrianCrossing(cell.RoadDirection));
+            RoadMeshRenderer.Instance.UpdateRoadMesh(false);
+        }
+
         // hand off to the traffic light settings UI to allow for light timings and order to be changed
         UIManager.Instance.LoadTrafficLightGroupDetails(TrafficLightManager.Instance.FindGroupForWaypoint(lastWaypoint));
 

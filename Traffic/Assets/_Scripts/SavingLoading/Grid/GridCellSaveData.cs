@@ -8,5 +8,7 @@ public class GridCellSaveData
     public CellType CellType;
     public RoadType RoadType;
     public RoadDirection RoadDirection;
+    public bool HasCustomUVs;
+    public Vector2[] CustomUVs;
     public bool HasTrafficLights;
 }

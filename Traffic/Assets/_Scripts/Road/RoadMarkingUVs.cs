@@ -56,6 +56,14 @@ public static class RoadMarkingUVs
         new Vector2(0.75f, 0.5f)
     };
 
+    private static readonly Vector2[] _pedestrianCrossingDefault = new[]
+    {
+        new Vector2(0.25f, 0.5f),
+        new Vector2(0.5f, 0.5f),
+        new Vector2(0.5f, 0f),
+        new Vector2(0.25f, 0f)
+    };
+
     private static readonly Dictionary<(RoadType, RoadDirection), Vector2[]> UVMappings = new()
     {
         { (RoadType.Straight, RoadDirection.WestEast), _straightRoadDefault },
@@ -146,5 +154,20 @@ public static class RoadMarkingUVs
     public static Vector2[] GetUVsForRoadType(RoadType roadType, RoadDirection roadDirection)
     {
         return UVMappings.TryGetValue((roadType, roadDirection), out var uvs) ? uvs : _blankRoad;
+    }
+
+    public static Vector2[] GetUVsForPedestrianCrossing(RoadDirection roadDirection)
+    {
+        Debug.Log(roadDirection);
+        if (roadDirection == RoadDirection.WestEast)
+            return _pedestrianCrossingDefault;
+
+        return new[]
+        {
+            _pedestrianCrossingDefault[3],
+            _pedestrianCrossingDefault[0],
+            _pedestrianCrossingDefault[1],
+            _pedestrianCrossingDefault[2],
+        };
     }
 }

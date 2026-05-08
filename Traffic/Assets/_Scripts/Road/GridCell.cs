@@ -6,7 +6,21 @@ public class GridCell
     public CellType CellType;
     public RoadType RoadType;
     public RoadDirection RoadDirection;
+    public bool HasCustomUVs;
+    public Vector2[] CustomUVs;
     public bool HasTrafficLights;
+
+    public void SetCustomUVs(Vector2[] customUVs)
+    {
+        HasCustomUVs = true;
+        CustomUVs = customUVs;
+    }
+
+    public void RemoveCustomUVs()
+    {
+        HasCustomUVs = false;
+        CustomUVs = null;
+    }
 }
 
 public enum CellType

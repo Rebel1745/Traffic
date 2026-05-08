@@ -32,7 +32,7 @@ public class RoadMeshGenerator
                     Vector3 roadMin = _cellCentre + new Vector3(-_halfCell, 0, -_halfCell);
                     Vector3 roadMax = _cellCentre + new Vector3(_halfCell, 0, _halfCell);
 
-                    meshData.AddCuboid(roadMin, roadMax, _config.roadThickness, cell.RoadType, cell.RoadDirection);
+                    meshData.AddCuboid(roadMin, roadMax, _config.roadThickness, cell.RoadType, cell.RoadDirection, cell.HasCustomUVs, cell.CustomUVs);
                 }
             }
         }

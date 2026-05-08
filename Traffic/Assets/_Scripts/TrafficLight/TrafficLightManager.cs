@@ -130,6 +130,12 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
         // we have the group, remove it from the groups list
         if (group == null) { Debug.LogError("Can't find group"); return; }
 
+        if (group.GroupType == TrafficLightGroupType.PedestrianCrossing)
+        {
+            cell.RemoveCustomUVs();
+            RoadMeshRenderer.Instance.UpdateRoadMesh(false);
+        }
+
         _allGroups.Remove(group);
 
         Destroy(group.gameObject);

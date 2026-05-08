@@ -459,6 +459,8 @@ public class GridManager : MonoBehaviour, ISaveable
                     CellType = cell.CellType,
                     RoadType = cell.RoadType,
                     RoadDirection = cell.RoadDirection,
+                    HasCustomUVs = cell.HasCustomUVs,
+                    CustomUVs = cell.HasCustomUVs ? cell.CustomUVs : null,
                     HasTrafficLights = cell.HasTrafficLights
                 };
                 gridData.Cells.Add(cellData);
@@ -506,6 +508,8 @@ public class GridManager : MonoBehaviour, ISaveable
                 CellType = cellData.CellType,
                 RoadType = cellData.RoadType,
                 RoadDirection = cellData.RoadDirection,
+                HasCustomUVs = cellData.HasCustomUVs,
+                CustomUVs = cellData.HasCustomUVs ? cellData.CustomUVs : null,
                 HasTrafficLights = cellData.HasTrafficLights
             };
 
