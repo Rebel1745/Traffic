@@ -21,16 +21,16 @@ public class VehicleManager : MonoBehaviour
     private void OnEnable()
     {
         // Subscribe to input events
-        InputManager.OnMiddleClickPressed += HandleMiddleClickPressed;
+        InputManager.OnLeftClickPressed += HandleLeftClickPressed;
     }
 
     private void OnDisable()
     {
         // Unsubscribe from input events
-        InputManager.OnMiddleClickPressed -= HandleMiddleClickPressed;
+        InputManager.OnLeftClickPressed -= HandleLeftClickPressed;
     }
 
-    private void HandleMiddleClickPressed(Vector2 screenPosition)
+    private void HandleLeftClickPressed(Vector2 screenPosition)
     {
         // Only spawn vehicles when simulation is running
         if (SimulationManager.Instance.CurrentState.SimulationState != SimulationState.Vehicles)

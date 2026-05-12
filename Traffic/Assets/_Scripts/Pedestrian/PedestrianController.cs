@@ -10,7 +10,7 @@ public class PedestrianController : MonoBehaviour
     [SerializeField] private float _waypointReachThreshold = 0.1f;
 
     [Header("Animation")]
-    [SerializeField] private Animator _animator;
+    private PedestrianAnimationController _animController;
 
     [Header("Debug")]
     [SerializeField] private bool _showDebugInfo = true;
@@ -22,6 +22,11 @@ public class PedestrianController : MonoBehaviour
 
     private int _currentWaypointIndex = 0;
     private bool _isMoving = false;
+
+    private void Awake()
+    {
+        _animController = GetComponentInChildren<PedestrianAnimationController>();
+    }
 
     public void Initialize(List<WaypointNode> path, WaypointNode target)
     {
@@ -36,6 +41,7 @@ public class PedestrianController : MonoBehaviour
         CurrentWaypoint = path[0];
         _currentWaypointIndex = 0;
         _isMoving = true;
+        _animController.SetAnimation(PedestrianAnimationType.Walk);
 
         // Position pedestrian at first waypoint
         transform.position = Path[0].Position;
@@ -74,8 +80,11 @@ public class PedestrianController : MonoBehaviour
             !targetWaypoint.LaneNodeForTrafficLight.AssignedLight.IsRed() &&
             Vector3.Distance(transform.position, targetPosition) <= 0.2f)
         {
+            _animController.SetAnimation(PedestrianAnimationType.Idle);
             return;
         }
+
+        _animController.SetAnimation(PedestrianAnimationType.Walk);
 
         // Move towards target
         Vector3 direction = (targetPosition - transform.position).normalized;
