@@ -113,10 +113,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d19dd64c613cacf4aab9d3cb2ef34c42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PedestrianController
-  _moveSpeed: 5
-  _rotationSpeed: 5
+  _moveSpeed: 1
+  _rotationSpeed: 10
   _waypointReachThreshold: 0.1
-  _showDebugInfo: 1
+  _showDebugInfo: 0
 --- !u!1001 &5562802722551438000
 PrefabInstance:
   m_ObjectHideFlags: 0

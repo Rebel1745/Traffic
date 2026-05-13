@@ -14515,6 +14515,7 @@ MonoBehaviour:
   _lightLabelLayout: {fileID: 36414860}
   _redLayout: {fileID: 1483410149}
   _allRedLayout: {fileID: 1444757015}
+  _pedestrianCrossingLayout: {fileID: 2056184017}
   _labelInput: {fileID: 1265980908}
   _greenInput: {fileID: 1300210099}
   _yellowInput: {fileID: 155362193}

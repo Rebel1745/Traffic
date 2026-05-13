@@ -29,6 +29,7 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
     [SerializeField] private Transform _lightLabelLayout;
     [SerializeField] private Transform _redLayout;
     [SerializeField] private Transform _allRedLayout;
+    [SerializeField] private Transform _pedestrianCrossingLayout;
     [SerializeField] private TMP_InputField _labelInput;
     [SerializeField] private TMP_InputField _greenInput;
     [SerializeField] private TMP_InputField _yellowInput;
@@ -65,6 +66,7 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
             _lightLabelLayout.gameObject.SetActive(true);
             _redLayout.gameObject.SetActive(false);
             _allRedLayout.gameObject.SetActive(true);
+            _pedestrianCrossingLayout.gameObject.SetActive(true);
             _trafficLightDetails.gameObject.SetActive(false);
 
             RefreshLightList();
@@ -76,6 +78,7 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
             _lightLabelLayout.gameObject.SetActive(false);
             _redLayout.gameObject.SetActive(true);
             _allRedLayout.gameObject.SetActive(false);
+            _pedestrianCrossingLayout.gameObject.SetActive(false);
             _trafficLightDetails.gameObject.SetActive(true);
 
             LoadLightSettings(0);
@@ -222,9 +225,14 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
         s.GreenDuration = ParseFloatClamped(_greenInput.text, 0.5f, 300f);
         s.YellowDuration = ParseFloatClamped(_yellowInput.text, 0.5f, 30f);
         s.RedDuration = ParseFloatClamped(_redInput.text, 0.5f, 300f);
-        s.AllRedDuration = ParseFloatClamped(_allRedInput.text, 0f, 30f);
-        s.PedestrianCrossingDuration = ParseFloatClamped(_pedestrianCrossingInput.text, 0f, 30f);
         _lightEditText.text = "Editing Light: " + s.Label;
+
+        // all red and pedestrian crossing duration are the same for all lights in the group
+        foreach (TrafficLight light in _lightListCopy)
+        {
+            light.AllRedDuration = ParseFloatClamped(_allRedInput.text, 0f, 30f);
+            light.PedestrianCrossingDuration = ParseFloatClamped(_pedestrianCrossingInput.text, 0f, 30f);
+        }
     }
 
     // --- Buttons ---

@@ -510,10 +510,10 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
             WaypointNode southWestFromWest = new WaypointNode(_southWestFromWest, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
             WaypointNode southEastFromSouth = new WaypointNode(_southEastFromSouth, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
             WaypointNode southEastFromEast = new WaypointNode(_southEastFromEast, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
-            WaypointNode midpointNW = new WaypointNode(_midpointNW, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
-            WaypointNode midpointNE = new WaypointNode(_midpointNE, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
-            WaypointNode midpointSW = new WaypointNode(_midpointSW, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
-            WaypointNode midpointSE = new WaypointNode(_midpointSE, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
+            WaypointNode midpointNW = new WaypointNode(_midpointNW, cell, WaypointType.PedestrianRoadCrossing, WaypointNetworkType.Pedestrian);
+            WaypointNode midpointNE = new WaypointNode(_midpointNE, cell, WaypointType.PedestrianRoadCrossing, WaypointNetworkType.Pedestrian);
+            WaypointNode midpointSW = new WaypointNode(_midpointSW, cell, WaypointType.PedestrianRoadCrossing, WaypointNetworkType.Pedestrian);
+            WaypointNode midpointSE = new WaypointNode(_midpointSE, cell, WaypointType.PedestrianRoadCrossing, WaypointNetworkType.Pedestrian);
 
             // north west connections
             ConnectPavementNodes(northWestFromNorth, midpointNW);
@@ -527,6 +527,12 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
             // south east
             ConnectPavementNodes(southEastFromSouth, midpointSE);
             ConnectPavementNodes(midpointSE, southEastFromEast);
+
+            // pedestrian crossing connections
+            ConnectPavementNodes(midpointNW, midpointNE);
+            ConnectPavementNodes(midpointNW, midpointSW);
+            ConnectPavementNodes(midpointSE, midpointSW);
+            ConnectPavementNodes(midpointSE, midpointNE);
 
             // add the waypoints
             waypoints.Add(northWestFromNorth);

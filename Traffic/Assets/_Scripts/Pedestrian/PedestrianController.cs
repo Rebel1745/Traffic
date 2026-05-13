@@ -22,6 +22,8 @@ public class PedestrianController : MonoBehaviour
 
     private int _currentWaypointIndex = 0;
     private bool _isMoving = false;
+    private bool _isCrossing = false;
+    private float _currentSpeed = 0f;
 
     private void Awake()
     {
@@ -72,23 +74,53 @@ public class PedestrianController : MonoBehaviour
         WaypointNode targetWaypoint = Path[_currentWaypointIndex];
         Vector3 targetPosition = targetWaypoint.Position;
 
+        // does our target have a light on it?
         if (targetWaypoint.LaneNodeForTrafficLight != null &&
-            targetWaypoint.LaneNodeForTrafficLight.AssignedLight != null &&
-            _currentWaypointIndex < Path.Count - 1 &&
-            Path[_currentWaypointIndex + 1].LaneNodeForTrafficLight != null &&
-            Path[_currentWaypointIndex + 1].LaneNodeForTrafficLight.AssignedLight != null &&
-            !targetWaypoint.LaneNodeForTrafficLight.AssignedLight.IsRed() &&
-            Vector3.Distance(transform.position, targetPosition) <= 0.2f)
+             targetWaypoint.LaneNodeForTrafficLight.AssignedLight != null)
         {
-            _animController.SetAnimation(PedestrianAnimationType.Idle);
-            return;
+            // is this the first light of the crossing? (i.e. is there another light after this one?)
+            if (_currentWaypointIndex < Path.Count - 1 &&
+                Path[_currentWaypointIndex + 1].LaneNodeForTrafficLight != null &&
+                Path[_currentWaypointIndex + 1].LaneNodeForTrafficLight.AssignedLight != null)
+            {
+                // is it red and are we close enough to stop at it and wait?
+                if (targetWaypoint.LaneNodeForTrafficLight.AssignedLight.IsCrossingRed &&
+                    Vector3.Distance(transform.position, targetPosition) <= 0.2f)
+                {
+                    _animController.SetAnimation(PedestrianAnimationType.Idle);
+                    _currentSpeed = 0f;
+                }
+                // we just walkin'
+                else
+                {
+                    _animController.SetAnimation(PedestrianAnimationType.Walk);
+                    _currentSpeed = _moveSpeed;
+                }
+            }
+            // we are currently crossing the road, is the pedestrian light red?
+            else if (_isCrossing && targetWaypoint.LaneNodeForTrafficLight.AssignedLight.IsCrossingRed)
+            {
+                // if so, run!
+                _animController.SetAnimation(PedestrianAnimationType.Run);
+                _currentSpeed = _moveSpeed * 2f;
+            }
+            // we just walkin'
+            else
+            {
+                _animController.SetAnimation(PedestrianAnimationType.Walk);
+                _currentSpeed = _moveSpeed;
+            }
         }
-
-        _animController.SetAnimation(PedestrianAnimationType.Walk);
+        // we just walkin'
+        else
+        {
+            _animController.SetAnimation(PedestrianAnimationType.Walk);
+            _currentSpeed = _moveSpeed;
+        }
 
         // Move towards target
         Vector3 direction = (targetPosition - transform.position).normalized;
-        transform.position = Vector3.MoveTowards(transform.position, targetPosition, _moveSpeed * Time.deltaTime);
+        transform.position = Vector3.MoveTowards(transform.position, targetPosition, _currentSpeed * Time.deltaTime);
 
         // Rotate towards target
         if (direction != Vector3.zero)
@@ -101,6 +133,16 @@ public class PedestrianController : MonoBehaviour
         float distance = Vector3.Distance(transform.position, targetPosition);
         if (distance < _waypointReachThreshold)
         {
+            // if we have reached a crossing point, and the next waypoint is a crossing point, we are crossing
+            if (targetWaypoint.Type == WaypointType.PedestrianRoadCrossing &&
+                _currentWaypointIndex < Path.Count - 1 &&
+                Path[_currentWaypointIndex + 1].Type == WaypointType.PedestrianRoadCrossing
+            )
+            {
+                _isCrossing = true;
+            }
+            else _isCrossing = false;
+
             CurrentWaypoint = targetWaypoint;
             _currentWaypointIndex++;
 
