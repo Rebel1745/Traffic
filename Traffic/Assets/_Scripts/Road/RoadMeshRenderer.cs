@@ -93,13 +93,11 @@ public class RoadMeshRenderer : MonoBehaviour
             OnRoadMeshUpdated?.Invoke();
     }
 
-    public float GetLaneWidth()
-    {
-        return _config.laneWidth;
-    }
+    public float GetLaneWidth() => _config.laneWidth;
 
-    public float GetPavementWidth()
-    {
-        return _config.pavementWidth;
-    }
+    public float GetPavementWidth() => _config.pavementWidth;
+
+    public float GetPavementHeight() => _config.pavementThickness;
+
+    public float GetRoadHeight() => _config.roadThickness;
 }
