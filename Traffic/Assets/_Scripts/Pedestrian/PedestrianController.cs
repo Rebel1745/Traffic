@@ -83,7 +83,7 @@ public class PedestrianController : MonoBehaviour
         _currentHeight = _isCrossing ? _roadHeight : _pavementHeight;
 
         WaypointNode targetWaypoint = Path[_currentWaypointIndex];
-        Vector3 targetPosition = GetVectorWithSetHeight(targetWaypoint.Position, _currentHeight);
+        Vector3 targetPosition = Utils.GetVectorWithSetHeight(targetWaypoint.Position, _currentHeight);
 
         // does our target have a light on it?
         if (targetWaypoint.LaneNodeForTrafficLight != null &&
@@ -96,7 +96,7 @@ public class PedestrianController : MonoBehaviour
             {
                 // is it red and are we close enough to stop at it and wait?
                 if (targetWaypoint.LaneNodeForTrafficLight.AssignedLight.IsCrossingRed &&
-                    Vector3.Distance(GetVectorWithSetHeight(transform.position, 0), GetVectorWithSetHeight(targetPosition, 0)) <= 0.2f)
+                    Utils.GetDistanceWithSetHeight(transform.position, targetPosition, 0) <= 0.2f)
                 {
                     _animController.SetAnimation(PedestrianAnimationType.Idle);
                     _currentSpeed = 0f;
@@ -132,7 +132,8 @@ public class PedestrianController : MonoBehaviour
         // Move towards target
         Vector3 direction = (targetPosition - transform.position).normalized;
         // imediately get to the correct height
-        transform.position = GetVectorWithSetHeight(transform.position, _currentHeight);
+        transform.position = Utils.GetVectorWithSetHeight(transform.position, _currentHeight);
+        // then move to the new x,z
         transform.position = Vector3.MoveTowards(transform.position, targetPosition, _currentSpeed * Time.deltaTime);
 
         // Rotate towards target
@@ -143,7 +144,7 @@ public class PedestrianController : MonoBehaviour
         }
 
         // Check if reached waypoint
-        float distance = Vector3.Distance(GetVectorWithSetHeight(transform.position, 0), GetVectorWithSetHeight(targetPosition, 0));
+        float distance = Utils.GetDistanceWithSetHeight(transform.position, targetPosition, 0);
         if (distance < _waypointReachThreshold)
         {
             // if we have reached a crossing point, and the next waypoint is a crossing point, we are crossing
@@ -238,10 +239,5 @@ public class PedestrianController : MonoBehaviour
         }
 
         return true;
-    }
-
-    private Vector3 GetVectorWithSetHeight(Vector3 vector, float height)
-    {
-        return new Vector3(vector.x, height, vector.z);
     }
 }

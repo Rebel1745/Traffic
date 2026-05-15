@@ -25,11 +25,13 @@ public class VehicleController : MonoBehaviour
     private int _nextWaypointWithTrafficLightIndex = -1;
     private WaypointNode _nextWaypointWithTrafficLight = null;
     private bool _isMoving = false;
+    private float _roadHeight = 0f;
 
     private void Start()
     {
         _vehicleCollider = GetComponent<Collider>();
         _stopDistance = _vehicleCollider.bounds.extents.z;
+        _roadHeight = RoadMeshRenderer.Instance.GetRoadHeight();
     }
 
     public void Initialize(List<WaypointNode> path, WaypointNode target)
@@ -81,13 +83,13 @@ public class VehicleController : MonoBehaviour
         }
 
         WaypointNode targetWaypoint = Path[_currentWaypointIndex];
-        Vector3 targetPosition = targetWaypoint.Position;
+        Vector3 targetPosition = Utils.GetVectorWithSetHeight(targetWaypoint.Position, _roadHeight);
 
         // check to see if we are within a couple of waypoints of a light
         if (_nextWaypointWithTrafficLightIndex != -1 && _nextWaypointWithTrafficLightIndex - _currentWaypointIndex <= 3)
         {
             // we are close to a light, if it is red and we are within half a vehicles length of the waypoint, stop
-            if (_nextWaypointWithTrafficLight.AssignedLight.IsRed() && Vector3.Distance(transform.position, _nextWaypointWithTrafficLight.Position) <= _stopDistance)
+            if (_nextWaypointWithTrafficLight.AssignedLight.IsRed() && Utils.GetDistanceWithSetHeight(transform.position, _nextWaypointWithTrafficLight.Position, 0f) <= _stopDistance)
             {
                 return;
             }
@@ -105,7 +107,7 @@ public class VehicleController : MonoBehaviour
         }
 
         // Check if reached waypoint
-        float distance = Vector3.Distance(transform.position, targetPosition);
+        float distance = Utils.GetDistanceWithSetHeight(transform.position, targetPosition, 0f);
         if (distance < _waypointReachThreshold)
         {
             CurrentWaypoint = targetWaypoint;
