@@ -95,17 +95,21 @@ public class TrafficLightGroupController : MonoBehaviour
 
             TrafficLight current = _lights[_currentLightIndex];
 
-            // Green light
-            current.Light.SetState(LightState.Green);
-            yield return new WaitForSeconds(current.GreenDuration);
+            // only do the light changing stuff if it is a light relating to a road
+            if (!current.Light.IsPedestrianOnlyLight)
+            {
+                // Green light
+                current.Light.SetState(LightState.Green);
+                yield return new WaitForSeconds(current.GreenDuration);
 
-            // Yellow light
-            current.Light.SetState(LightState.Yellow);
-            yield return new WaitForSeconds(current.YellowDuration);
+                // Yellow light
+                current.Light.SetState(LightState.Yellow);
+                yield return new WaitForSeconds(current.YellowDuration);
 
-            // Red light (with individual duration)
-            current.Light.SetState(LightState.Red);
-            //yield return new WaitForSeconds(current.RedDuration);
+                // Red light (with individual duration)
+                current.Light.SetState(LightState.Red);
+                //yield return new WaitForSeconds(current.RedDuration);
+            }
 
             // if we have cycled through all of the lights, pause to let pedestrians cross
             if (_currentLightIndex == _lights.Count - 1)

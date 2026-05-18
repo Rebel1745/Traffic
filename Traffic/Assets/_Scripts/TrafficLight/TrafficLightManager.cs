@@ -65,6 +65,9 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
         GameObject lightObj = Instantiate(_trafficLightPrefab, waypoint.Position, Quaternion.identity);
         TrafficLightController light = lightObj.GetComponent<TrafficLightController>();
 
+        if (waypoint.PedestiranOnlyTrafficLight)
+            light.SetPedestrianOnlyLight();
+
         light.AssignedWaypoint = waypoint;
         waypoint.LaneNodeForTrafficLight.AssignedLight = light;
 

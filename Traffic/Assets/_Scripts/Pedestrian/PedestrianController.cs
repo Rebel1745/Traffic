@@ -85,6 +85,14 @@ public class PedestrianController : MonoBehaviour
         WaypointNode targetWaypoint = Path[_currentWaypointIndex];
         Vector3 targetPosition = Utils.GetVectorWithSetHeight(targetWaypoint.Position, _currentHeight);
 
+        // Rotate towards target
+        Vector3 direction = (targetPosition - transform.position).normalized;
+        if (direction != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, _rotationSpeed * Time.deltaTime);
+        }
+
         // does our target have a light on it?
         if (targetWaypoint.LaneNodeForTrafficLight != null &&
              targetWaypoint.LaneNodeForTrafficLight.AssignedLight != null)
@@ -130,18 +138,10 @@ public class PedestrianController : MonoBehaviour
         }
 
         // Move towards target
-        Vector3 direction = (targetPosition - transform.position).normalized;
         // imediately get to the correct height
         transform.position = Utils.GetVectorWithSetHeight(transform.position, _currentHeight);
         // then move to the new x,z
         transform.position = Vector3.MoveTowards(transform.position, targetPosition, _currentSpeed * Time.deltaTime);
-
-        // Rotate towards target
-        if (direction != Vector3.zero)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, _rotationSpeed * Time.deltaTime);
-        }
 
         // Check if reached waypoint
         float distance = Utils.GetDistanceWithSetHeight(transform.position, targetPosition, 0);

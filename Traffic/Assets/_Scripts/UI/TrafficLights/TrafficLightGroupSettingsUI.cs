@@ -113,6 +113,9 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
         for (int i = 0; i < _lightListCopy.Count; i++)
         {
             int capturedIndex = i;
+
+            if (_lightListCopy[capturedIndex].Light.IsPedestrianOnlyLight) continue;
+
             GameObject item = Instantiate(_trafficLightListItemPrefab, _lightListContainer);
             TrafficLightListItem entry = item.GetComponent<TrafficLightListItem>();
 

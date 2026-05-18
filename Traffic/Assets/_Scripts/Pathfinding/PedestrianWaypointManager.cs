@@ -404,10 +404,20 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
         WaypointNode southWestFromWest = new WaypointNode(_southWestFromWest, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
         WaypointNode southEastFromSouth = new WaypointNode(_southEastFromSouth, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
         WaypointNode southEastFromEast = new WaypointNode(_southEastFromEast, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
-        WaypointNode midpointNW = new WaypointNode(_midpointNW, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
-        WaypointNode midpointNE = new WaypointNode(_midpointNE, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
-        WaypointNode midpointSW = new WaypointNode(_midpointSW, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
-        WaypointNode midpointSE = new WaypointNode(_midpointSE, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
+        WaypointNode midpointNW = new WaypointNode(_midpointNW, cell, WaypointType.PedestrianRoadCrossing, WaypointNetworkType.Pedestrian);
+        WaypointNode midpointNE = new WaypointNode(_midpointNE, cell, WaypointType.PedestrianRoadCrossing, WaypointNetworkType.Pedestrian);
+        WaypointNode midpointSW = new WaypointNode(_midpointSW, cell, WaypointType.PedestrianRoadCrossing, WaypointNetworkType.Pedestrian);
+        WaypointNode midpointSE = new WaypointNode(_midpointSE, cell, WaypointType.PedestrianRoadCrossing, WaypointNetworkType.Pedestrian);
+
+        // pedestrian crossing connections
+        ConnectPavementNodes(midpointNW, midpointNE);
+        ConnectPavementNodes(midpointNW, midpointSW);
+        ConnectPavementNodes(midpointSE, midpointSW);
+        ConnectPavementNodes(midpointSE, midpointNE);
+        waypoints.Add(midpointNW);
+        waypoints.Add(midpointNE);
+        waypoints.Add(midpointSW);
+        waypoints.Add(midpointSE);
 
         // T-Junction with North, East, and West (missing South)
         if (_hasNorth && _hasEast && _hasWest && !_hasSouth)
@@ -420,9 +430,6 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
             ConnectPavementNodes(midpointNE, northEastFromEast);
             // south west to south east
             ConnectPavementNodes(southWestFromWest, southEastFromEast);
-
-            waypoints.Add(midpointNW);
-            waypoints.Add(midpointNE);
         }
         // T-Junction with North, East, and South (missing West)
         else if (_hasNorth && _hasEast && _hasSouth && !_hasWest)
@@ -435,9 +442,6 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
             ConnectPavementNodes(midpointSE, southEastFromEast);
             // north west to south west
             ConnectPavementNodes(northWestFromNorth, southWestFromSouth);
-
-            waypoints.Add(midpointNE);
-            waypoints.Add(midpointSE);
         }
         // T-Junction with North, South, and West (missing East)
         else if (_hasNorth && _hasSouth && _hasWest && !_hasEast)
@@ -450,9 +454,6 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
             ConnectPavementNodes(midpointSW, southWestFromWest);
             // north east to south east
             ConnectPavementNodes(northEastFromNorth, southEastFromSouth);
-
-            waypoints.Add(midpointNW);
-            waypoints.Add(midpointSW);
         }
         // T-Junction with East, South, and West (missing North)
         else if (_hasEast && _hasSouth && _hasWest && !_hasNorth)
@@ -465,9 +466,6 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
             ConnectPavementNodes(midpointSE, southEastFromEast);
             // north west to north east
             ConnectPavementNodes(northWestFromWest, northEastFromEast);
-
-            waypoints.Add(midpointSW);
-            waypoints.Add(midpointSE);
         }
 
         if (_hasNorth)

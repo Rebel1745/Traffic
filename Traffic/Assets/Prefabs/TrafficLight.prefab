@@ -2025,5 +2025,6 @@ MonoBehaviour:
   _redLightRen: {fileID: 8012919082601575747}
   _yellowLightRen: {fileID: 4034340107926394450}
   _greenLightRen: {fileID: 1599703545651583884}
+  _mainLight: {fileID: 8289773292053369831}
   _parallelCrossingLight: {fileID: 4223255594010141533}
   _perpendicularCrossingLight: {fileID: 4508778498402511362}

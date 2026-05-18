@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8186917b2f1cbf438b56bc27d6a01fe, type: 3}
   m_Name: TwoWaySingleLaneWithPavement
   m_EditorClassIdentifier: Assembly-CSharp::RoadConfig
-  laneWidth: 1.75
-  pavementWidth: 0.75
+  laneWidth: 2
+  pavementWidth: 0.5
   cornerSegments: 8
   roadThickness: 0.1
   pavementThickness: 0.2

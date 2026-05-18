@@ -413,6 +413,22 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         WaypointNode midpointSW = new WaypointNode(_midpointSW, cell, WaypointType.Midpoint);
         WaypointNode midpointSE = new WaypointNode(_midpointSE, cell, WaypointType.Midpoint);
 
+        // Trafflic light loaction waypoints. Do this first so we can configure pedestrian only lights as we go
+        Vector3 wpTopLeftLight = _cellCentre + new Vector3(-_halfCellSize + _halfPavementSize, 0, _halfCellSize - _halfPavementSize);
+        Vector3 wpTopRightLight = _cellCentre + new Vector3(_halfCellSize - _halfPavementSize, 0, _halfCellSize - _halfPavementSize);
+        Vector3 wpBottomLeftLight = _cellCentre + new Vector3(-_halfCellSize + _halfPavementSize, 0, -_halfCellSize + _halfPavementSize);
+        Vector3 wpBottomRightLight = _cellCentre + new Vector3(_halfCellSize - _halfPavementSize, 0, -_halfCellSize + _halfPavementSize);
+
+        WaypointNode trafficLight1 = new WaypointNode(wpTopLeftLight, cell, WaypointType.TrafficLightLocation, WaypointNetworkType.Vehicle, westEntry, RoadDirection.NorthWest);
+        WaypointNode trafficLight2 = new WaypointNode(wpTopRightLight, cell, WaypointType.TrafficLightLocation, WaypointNetworkType.Vehicle, northEntry, RoadDirection.NorthEast);
+        WaypointNode trafficLight3 = new WaypointNode(wpBottomLeftLight, cell, WaypointType.TrafficLightLocation, WaypointNetworkType.Vehicle, southEntry, RoadDirection.SouthWest);
+        WaypointNode trafficLight4 = new WaypointNode(wpBottomRightLight, cell, WaypointType.TrafficLightLocation, WaypointNetworkType.Vehicle, eastEntry, RoadDirection.SouthEast);
+
+        waypoints.Add(trafficLight1);
+        waypoints.Add(trafficLight2);
+        waypoints.Add(trafficLight3);
+        waypoints.Add(trafficLight4);
+
         // T-Junction with North, East, and West (missing South)
         if (_hasNorth && _hasEast && _hasWest && !_hasSouth)
         {
@@ -437,6 +453,8 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
 
             // Lane 6: West to East (straight through)
             westEntry.Connections.Add(new WaypointConnection(eastExit, Vector3.Distance(_westEntry, _eastExit)));
+
+            trafficLight3.PedestiranOnlyTrafficLight = true;
         }
         // T-Junction with North, East, and South (missing West)
         else if (_hasNorth && _hasEast && _hasSouth && !_hasWest)
@@ -462,6 +480,8 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
             // Lane 6: South to East (right turn)
             southEntry.Connections.Add(new WaypointConnection(midpointNW, Vector3.Distance(_southEntry, _midpointNW)));
             midpointNW.Connections.Add(new WaypointConnection(eastExit, Vector3.Distance(_midpointNW, _eastExit)));
+
+            trafficLight1.PedestiranOnlyTrafficLight = true;
         }
         // T-Junction with North, South, and West (missing East)
         else if (_hasNorth && _hasSouth && _hasWest && !_hasEast)
@@ -488,6 +508,8 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
             // Lane 6: West to South (right turn)
             westEntry.Connections.Add(new WaypointConnection(midpointNE, Vector3.Distance(_westEntry, _midpointNE)));
             midpointNE.Connections.Add(new WaypointConnection(southExit, Vector3.Distance(_midpointNE, _southExit)));
+
+            trafficLight4.PedestiranOnlyTrafficLight = true;
         }
         // T-Junction with East, South, and West (missing North)
         else if (_hasEast && _hasSouth && _hasWest && !_hasNorth)
@@ -513,6 +535,8 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
             // Lane 6: West to South (right turn)
             westEntry.Connections.Add(new WaypointConnection(midpointNE, Vector3.Distance(_westEntry, _midpointNE)));
             midpointNE.Connections.Add(new WaypointConnection(southExit, Vector3.Distance(_midpointNE, _southExit)));
+
+            trafficLight2.PedestiranOnlyTrafficLight = true;
         }
 
         if (_hasNorth) waypoints.Add(northEntry);
@@ -527,22 +551,6 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         waypoints.Add(midpointNE);
         waypoints.Add(midpointSW);
         waypoints.Add(midpointSE);
-
-        // Trafflic light loaction waypoints
-        Vector3 wpTopLeftLight = _cellCentre + new Vector3(-_halfCellSize + _halfPavementSize, 0, _halfCellSize - _halfPavementSize);
-        Vector3 wpTopRightLight = _cellCentre + new Vector3(_halfCellSize - _halfPavementSize, 0, _halfCellSize - _halfPavementSize);
-        Vector3 wpBottomLeftLight = _cellCentre + new Vector3(-_halfCellSize + _halfPavementSize, 0, -_halfCellSize + _halfPavementSize);
-        Vector3 wpBottomRightLight = _cellCentre + new Vector3(_halfCellSize - _halfPavementSize, 0, -_halfCellSize + _halfPavementSize);
-
-        WaypointNode trafficLight1 = new WaypointNode(wpTopLeftLight, cell, WaypointType.TrafficLightLocation, WaypointNetworkType.Vehicle, westEntry, RoadDirection.NorthWest);
-        WaypointNode trafficLight2 = new WaypointNode(wpTopRightLight, cell, WaypointType.TrafficLightLocation, WaypointNetworkType.Vehicle, northEntry, RoadDirection.NorthEast);
-        WaypointNode trafficLight3 = new WaypointNode(wpBottomLeftLight, cell, WaypointType.TrafficLightLocation, WaypointNetworkType.Vehicle, southEntry, RoadDirection.SouthWest);
-        WaypointNode trafficLight4 = new WaypointNode(wpBottomRightLight, cell, WaypointType.TrafficLightLocation, WaypointNetworkType.Vehicle, eastEntry, RoadDirection.SouthEast);
-
-        if (_hasWest) waypoints.Add(trafficLight1);
-        if (_hasNorth) waypoints.Add(trafficLight2);
-        if (_hasSouth) waypoints.Add(trafficLight3);
-        if (_hasEast) waypoints.Add(trafficLight4);
 
         return waypoints;
     }

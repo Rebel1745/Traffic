@@ -21,6 +21,11 @@ public class TrafficLightController : MonoBehaviour
     [SerializeField] private Renderer _yellowLightRen;
     [SerializeField] private Renderer _greenLightRen;
 
+    [Header("Main Light")]
+    private bool _isPedestrianOnlyLight = false;
+    public bool IsPedestrianOnlyLight => _isPedestrianOnlyLight;
+    [SerializeField] private Transform _mainLight;
+
     [Header("Pedestrian Crossing Lights")]
     [SerializeField] private Transform _parallelCrossingLight;
     [SerializeField] private Transform _perpendicularCrossingLight;
@@ -76,7 +81,13 @@ public class TrafficLightController : MonoBehaviour
                 _yellowLightRen.material = _yellowLightOff;
                 _greenLightRen.material = _greenLightOn;
                 break;
-
         }
+    }
+
+    public void SetPedestrianOnlyLight()
+    {
+        _isPedestrianOnlyLight = true;
+        _mainLight.gameObject.SetActive(false);
+        _parallelCrossingLight.gameObject.SetActive(false);
     }
 }
