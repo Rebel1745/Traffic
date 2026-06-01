@@ -12,6 +12,7 @@ public class GameStateButton : MonoBehaviour
     [SerializeField] private VehicleSubState _vehicleSubState;
     [SerializeField] private TrafficLightSubState _trafficLightSubState;
     [SerializeField] private PedestrianSubState _pedestrianSubState;
+    [SerializeField] private BuildingSubState _buildingSubState;
 
     private void Awake()
     {
@@ -47,6 +48,9 @@ public class GameStateButton : MonoBehaviour
                 break;
             case SimulationState.Pedestrians:
                 SimulationManager.Instance.SetPedestrianSubState(_pedestrianSubState);
+                break;
+            case SimulationState.Buildings:
+                SimulationManager.Instance.SetBuildingSubState(_buildingSubState);
                 break;
         }
     }

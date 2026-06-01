@@ -26,7 +26,8 @@ public class GridCell
 public enum CellType
 {
     Empty,
-    Road
+    Road,
+    Building
 }
 
 public enum RoadType

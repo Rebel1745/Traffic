@@ -44,21 +44,21 @@ public class ButtonGroup : MonoBehaviour
         for (int i = 0; i < _buttons.Count; i++)
         {
             ToggleButton button = _buttons[i];
-            RectTransform rect = button.GetComponent<RectTransform>();
+            // RectTransform rect = button.GetComponent<RectTransform>();
 
-            // Kill any existing tweens on this button
-            rect.DOKill(complete: true);
+            // // Kill any existing tweens on this button
+            // rect.DOKill(complete: true);
 
-            Vector2 startOffset = _isVertical
-                ? new Vector2(0, -_slideDistance)
-                : new Vector2(-_slideDistance, 0);
+            // Vector2 startOffset = _isVertical
+            //     ? new Vector2(0, -_slideDistance)
+            //     : new Vector2(-_slideDistance, 0);
 
             button.gameObject.SetActive(true);
-            rect.anchoredPosition += startOffset;
+            // rect.anchoredPosition += startOffset;
 
-            rect.DOAnchorPos(rect.anchoredPosition - startOffset, _animationDuration)
-                .SetDelay(i * _staggerDelay)
-                .SetEase(Ease.OutCubic);
+            // rect.DOAnchorPos(rect.anchoredPosition - startOffset, _animationDuration)
+            //     .SetDelay(i * _staggerDelay)
+            //     .SetEase(Ease.OutCubic);
         }
     }
 
@@ -66,36 +66,36 @@ public class ButtonGroup : MonoBehaviour
     {
         Sequence sequence = DOTween.Sequence();
 
-        for (int i = 0; i < _buttons.Count; i++)
-        {
-            ToggleButton button = _buttons[i];
-            RectTransform rect = button.GetComponent<RectTransform>();
+        // for (int i = 0; i < _buttons.Count; i++)
+        // {
+        //     ToggleButton button = _buttons[i];
+        //     RectTransform rect = button.GetComponent<RectTransform>();
 
-            rect.DOKill(complete: true);
+        //     rect.DOKill(complete: true);
 
-            Vector2 endOffset = _isVertical
-                ? new Vector2(0, -_slideDistance)
-                : new Vector2(-_slideDistance, 0);
+        //     Vector2 endOffset = _isVertical
+        //         ? new Vector2(0, -_slideDistance)
+        //         : new Vector2(-_slideDistance, 0);
 
-            // Add animation to sequence
-            sequence.Insert(i * _staggerDelay,
-                rect.DOAnchorPos(rect.anchoredPosition + endOffset, _animationDuration)
-                    .SetEase(Ease.InCubic));
-        }
+        //     // Add animation to sequence
+        //     sequence.Insert(i * _staggerDelay,
+        //         rect.DOAnchorPos(rect.anchoredPosition + endOffset, _animationDuration)
+        //             .SetEase(Ease.InCubic));
+        // }
 
         // After all animations complete, hide _buttons
-        sequence.OnComplete(() =>
+        // sequence.OnComplete(() =>
+        // {
+        foreach (ToggleButton button in _buttons)
         {
-            foreach (ToggleButton button in _buttons)
-            {
-                button.gameObject.SetActive(false);
-                RectTransform rect = button.GetComponent<RectTransform>();
-                Vector2 endOffset = _isVertical
-                    ? new Vector2(0, -_slideDistance)
-                    : new Vector2(-_slideDistance, 0);
-                rect.anchoredPosition -= endOffset;
-            }
-        });
+            button.gameObject.SetActive(false);
+            // RectTransform rect = button.GetComponent<RectTransform>();
+            // Vector2 endOffset = _isVertical
+            //     ? new Vector2(0, -_slideDistance)
+            //     : new Vector2(-_slideDistance, 0);
+            // rect.anchoredPosition -= endOffset;
+        }
+        // });
 
         return sequence;
     }

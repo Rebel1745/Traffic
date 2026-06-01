@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 [RequireComponent(typeof(RoadPlacementHandler))]
 [RequireComponent(typeof(TrafficLightPlacementHandler))]
+[RequireComponent(typeof(BuildingPlacementHandler))]
 public class GridVisualiser : MonoBehaviour
 {
     public static GridVisualiser Instance { get; private set; }
@@ -26,7 +27,8 @@ public class GridVisualiser : MonoBehaviour
         _handlers = new Dictionary<SimulationState, IPlacementHandler>
         {
             { SimulationState.Roads,         GetComponent<RoadPlacementHandler>() },
-            { SimulationState.TrafficLights, GetComponent<TrafficLightPlacementHandler>() }
+            { SimulationState.TrafficLights, GetComponent<TrafficLightPlacementHandler>() },
+            { SimulationState.Buildings, GetComponent<BuildingPlacementHandler>() }
         };
 
         InputManager.OnLeftClickPressed += HandleLeftClickPressed;

@@ -92,4 +92,19 @@ public class SimulationManager : MonoBehaviour
 
         OnStateChanged?.Invoke(CurrentState);
     }
+
+    public void SetBuildingSubState(BuildingSubState subState)
+    {
+        CurrentState = new GameStateContext
+        {
+            SimulationState = SimulationState.Buildings,
+            RoadSubState = RoadSubState.None,
+            VehicleSubState = VehicleSubState.None,
+            TrafficLightSubState = TrafficLightSubState.None,
+            PedestrianSubState = PedestrianSubState.None,
+            BuildingSubState = subState
+        };
+
+        OnStateChanged?.Invoke(CurrentState);
+    }
 }

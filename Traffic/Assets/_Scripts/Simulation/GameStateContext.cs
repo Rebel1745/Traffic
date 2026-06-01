@@ -6,6 +6,7 @@ public struct GameStateContext
     public VehicleSubState VehicleSubState;
     public TrafficLightSubState TrafficLightSubState;
     public PedestrianSubState PedestrianSubState;
+    public BuildingSubState BuildingSubState;
 }
 
 public enum SimulationState
@@ -16,7 +17,8 @@ public enum SimulationState
     Roads,
     Vehicles,
     TrafficLights,
-    Pedestrians
+    Pedestrians,
+    Buildings
 }
 
 public enum RoadSubState
@@ -46,4 +48,11 @@ public enum PedestrianSubState
     None,
     SpawnPedestrian,
     DeletePedestrian
+}
+
+public enum BuildingSubState
+{
+    None,
+    AddBuilding,
+    DeleteBuilding
 }
