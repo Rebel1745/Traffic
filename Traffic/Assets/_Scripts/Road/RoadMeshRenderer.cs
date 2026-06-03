@@ -98,6 +98,6 @@ public class RoadMeshRenderer : MonoBehaviour
     public float GetPavementWidth() => _config.pavementWidth;
 
     public float GetPavementHeight() => _config.pavementThickness;
-
+    public Material GetPavementMaterial() => _config.pavementMaterial;
     public float GetRoadHeight() => _config.roadThickness;
 }

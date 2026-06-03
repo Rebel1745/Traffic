@@ -3841,8 +3841,8 @@ MonoBehaviour:
   _validMaterial: {fileID: 2100000, guid: d603d7866c9db2943b17c15799e236d0, type: 2}
   _invalidMaterial: {fileID: 2100000, guid: 9753dd124c85d7445b3490368775bba8, type: 2}
   _buildingPrefab: {fileID: 100000, guid: 66131d8838f42f545a30ce8606ce5365, type: 3}
-  _buildingWidth: 2
-  _buildingHeight: 2
+  _buildingXCells: 2
+  _buildingZCells: 2
 --- !u!1 &325478064
 GameObject:
   m_ObjectHideFlags: 0
@@ -9024,6 +9024,7 @@ Transform:
   - {fileID: 849437085}
   - {fileID: 1312704887}
   - {fileID: 1060881725}
+  - {fileID: 1421945855}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1042404814
@@ -11334,6 +11335,50 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1390974440}
   m_CullTransparentMesh: 1
+--- !u!1 &1421945854
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1421945855}
+  - component: {fileID: 1421945856}
+  m_Layer: 0
+  m_Name: BuildingManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1421945855
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1421945854}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1031994652}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1421945856
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1421945854}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8782f8c5e5d1a2844a86c05507def5db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BuildingManager
 --- !u!1 &1444757014
 GameObject:
   m_ObjectHideFlags: 0
