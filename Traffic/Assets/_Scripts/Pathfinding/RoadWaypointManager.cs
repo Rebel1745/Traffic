@@ -907,6 +907,11 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         return lookup;
     }
 
+    private void AddBuildingVehicleWaypoints(Transform parkedWaypoint, Transform[] entryToParkedWaypoints)
+    {
+
+    }
+
     // private void OnDrawGizmos()
     // {
     //     if (_allWaypoints.Count == 0) return;

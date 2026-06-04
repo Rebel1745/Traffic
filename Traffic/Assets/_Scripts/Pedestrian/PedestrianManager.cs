@@ -37,7 +37,8 @@ public class PedestrianManager : MonoBehaviour
             return;
 
         // Get a random valid spawn location
-        WaypointNode startWaypoint = GetRandomWalkwayWaypoint();
+        //WaypointNode startWaypoint = GetRandomWalkwayWaypoint();
+        WaypointNode startWaypoint = GetRandomDoorwayWaypoint();
         if (startWaypoint == null)
         {
             Debug.LogWarning("No valid spawn location found!");
@@ -71,7 +72,7 @@ public class PedestrianManager : MonoBehaviour
         }
     }
 
-    public void RequestNewTarget(PedestrianController pedestrian)
+    public void RequestNewTarget(PedestrianController pedestrian, bool targetIsDoorway)
     {
         if (pedestrian == null || pedestrian.CurrentWaypoint == null)
         {
@@ -131,7 +132,7 @@ public class PedestrianManager : MonoBehaviour
 
     public WaypointNode GetRandomWalkwayWaypoint()
     {
-        var allWaypoints = PedestrianWaypointManager.Instance.GetAllWaypoints();
+        List<WaypointNode> allWaypoints = PedestrianWaypointManager.Instance.GetAllWaypoints();
 
         if (allWaypoints.Count == 0)
         {
@@ -140,6 +141,20 @@ public class PedestrianManager : MonoBehaviour
         }
 
         return allWaypoints[Random.Range(0, allWaypoints.Count)];
+    }
+
+    public WaypointNode GetRandomDoorwayWaypoint()
+    {
+        List<WaypointNode> allWaypoints = PedestrianWaypointManager.Instance.GetAllWaypoints();
+        List<WaypointNode> doorwayNodes = allWaypoints.Where(w => w.Type == WaypointType.BuildingDoor).ToList();
+
+        if (allWaypoints.Count == 0)
+        {
+            Debug.LogWarning("No waypoints");
+            return null;
+        }
+
+        return doorwayNodes[Random.Range(0, doorwayNodes.Count)];
     }
 
     public void Removepedestrian(PedestrianController pedestrian)

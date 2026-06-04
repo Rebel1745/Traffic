@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class PedestrianController : MonoBehaviour
@@ -176,8 +177,10 @@ public class PedestrianController : MonoBehaviour
 
         _isMoving = false;
 
+        bool newTargetIsDoorway = Path.Count > 0 && Path.Last().Type != WaypointType.BuildingDoor;
+
         // Request new target from PedestrianManager
-        PedestrianManager.Instance.RequestNewTarget(this);
+        PedestrianManager.Instance.RequestNewTarget(this, newTargetIsDoorway);
     }
 
     public void SetNewPath(List<WaypointNode> newPath, WaypointNode newTarget)

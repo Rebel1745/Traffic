@@ -46,6 +46,6 @@ public class BuildingManager : MonoBehaviour
 
         building.transform.position = finalPosition;
 
-        // Instantiate(prefab, spawnPos, prefab.transform.rotation, transform);
+        actualBuilding.GetComponent<BuildingController>().SetupBuilding(GridManager.Instance.GetCellAtWorldPosition(anchorWorldPos));
     }
 }

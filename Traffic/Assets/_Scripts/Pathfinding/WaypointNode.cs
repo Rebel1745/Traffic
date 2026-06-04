@@ -42,7 +42,10 @@ public enum WaypointType
     UTurn,
     TrafficLightLocation,
     PedestrianWalkway,
-    PedestrianRoadCrossing
+    PedestrianRoadCrossing,
+    InsideBuilding,
+    BuildingDoor,
+    VehicleEntryExit // where a person gets in/out a vehicle in a garage
 }
 
 public enum WaypointNetworkType

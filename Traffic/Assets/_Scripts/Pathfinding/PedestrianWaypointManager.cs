@@ -702,6 +702,89 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
         }
     }
 
+    public void AddBuildingPedestrianWaypoints(GridCell cell, Transform insideBuilding, Transform door, Transform[] pathToCar)
+    {
+        // find the closest pedestrian walkway node to the door nodes position to allow the person to walk from the door into the world
+        WaypointNode closestPedestrianWaypoint = FindClosestPedestrianNodeInNeighbourCellsFromPosition(cell, door.position);
+
+        // define the inside and door nodes
+        WaypointNode inBuldingNode = new WaypointNode(insideBuilding.position, cell, WaypointType.InsideBuilding, WaypointNetworkType.Pedestrian);
+        WaypointNode doorNode = new WaypointNode(door.position, cell, WaypointType.BuildingDoor, WaypointNetworkType.Pedestrian);
+
+        // connect them
+        ConnectPavementNodes(inBuldingNode, doorNode);
+
+        // Store waypoints for this cell
+        if (!_cellWaypoints.ContainsKey(cell))
+        {
+            _cellWaypoints[cell] = new List<WaypointNode>();
+        }
+        _cellWaypoints[cell].Add(inBuldingNode);
+        _cellWaypoints[cell].Add(doorNode);
+        _allWaypoints.Add(inBuldingNode);
+        _allWaypoints.Add(doorNode);
+
+        WaypointNode currentNode, previousNode = doorNode;
+
+        // loop through the path to the car and connect them
+        for (int i = 0; i < pathToCar.Length; i++)
+        {
+            currentNode = new WaypointNode(pathToCar[i].position, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
+
+            ConnectPavementNodes(currentNode, previousNode);
+
+            previousNode = currentNode;
+
+            _cellWaypoints[cell].Add(currentNode);
+            _allWaypoints.Add(currentNode);
+        }
+
+        // connect the door node to the pedestrian walkway on the pavement
+        if (closestPedestrianWaypoint != null)
+        {
+            ConnectPavementNodes(doorNode, closestPedestrianWaypoint);
+        }
+        else Debug.LogWarning("No closest node found");
+    }
+
+    private WaypointNode FindClosestPedestrianNodeInNeighbourCellsFromPosition(GridCell cell, Vector3 position)
+    {
+        List<GridCell> neighbours = new List<GridCell>();
+        WaypointNode closestNode = null;
+        float closestWaypointDistance = Mathf.Infinity;
+        float currentDistance;
+
+        if (GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.North)) neighbours.Add(GridManager.Instance.GetNeighborInDirection(cell, RoadDirection.North));
+        if (GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.South)) neighbours.Add(GridManager.Instance.GetNeighborInDirection(cell, RoadDirection.South));
+        if (GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.West)) neighbours.Add(GridManager.Instance.GetNeighborInDirection(cell, RoadDirection.West));
+        if (GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.East)) neighbours.Add(GridManager.Instance.GetNeighborInDirection(cell, RoadDirection.East));
+
+        Debug.Log("FindClosestPedestrianNodeInNeighbourCellsFromPosition:: " + cell.Position);
+
+        if (neighbours.Count > 0)
+        {
+            for (int i = 0; i < neighbours.Count; i++)
+            {
+                foreach (WaypointNode node in GetCellWaypoints(neighbours[i]))
+                {
+                    if (node.NetworkType != WaypointNetworkType.Pedestrian) continue;
+
+                    currentDistance = Utils.GetDistanceWithSetHeight(position, node.Position, 0f);
+                    if (currentDistance < closestWaypointDistance)
+                    {
+                        closestNode = node;
+                        closestWaypointDistance = currentDistance;
+                    }
+                }
+            }
+
+            if (closestNode != null)
+                return closestNode;
+        }
+
+        return null;
+    }
+
     public void PopulateSaveData(GameSaveData saveData)
     {
         var waypointData = new WaypointSaveData();
@@ -795,29 +878,29 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
         Debug.Log($"[WaypointManager] Loaded {_allWaypoints.Count} pedestrian waypoint nodes.");
     }
 
-    // private void OnDrawGizmos()
-    // {
-    //     if (_allWaypoints.Count <= 0) return;
+    private void OnDrawGizmos()
+    {
+        if (_allWaypoints.Count <= 0) return;
 
-    //     // Draw waypoints
-    //     foreach (WaypointNode node in _allWaypoints)
-    //     {
-    //         if (node.Type != WaypointType.PedestrianRoadCrossing) continue;
-    //         Gizmos.color = Color.red;
-    //         Gizmos.DrawSphere(node.Position, 0.2f);
-    //     }
+        // Draw waypoints
+        foreach (WaypointNode node in _allWaypoints)
+        {
+            //if (node.Type != WaypointType.PedestrianRoadCrossing) continue;
+            Gizmos.color = Color.red;
+            Gizmos.DrawSphere(node.Position, 0.2f);
+        }
 
-    //     // Draw connections (optional)
-    //     Gizmos.color = Color.green;
-    //     // foreach (var kvp in _cellWaypoints)
-    //     // {
-    //     //     foreach (var node in kvp.Value)
-    //     //     {
-    //     //         foreach (var connection in node.Connections)
-    //     //         {
-    //     //             Gizmos.DrawLine(node.Position, connection.TargetWaypoint.Position);
-    //     //         }
-    //     //     }
-    //     // }
-    // }
+        // Draw connections (optional)
+        Gizmos.color = Color.green;
+        foreach (var kvp in _cellWaypoints)
+        {
+            foreach (var node in kvp.Value)
+            {
+                foreach (var connection in node.Connections)
+                {
+                    Gizmos.DrawLine(node.Position, connection.TargetWaypoint.Position);
+                }
+            }
+        }
+    }
 }
