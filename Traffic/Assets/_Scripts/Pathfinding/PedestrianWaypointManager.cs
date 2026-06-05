@@ -702,34 +702,39 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
         }
     }
 
-    public void AddBuildingPedestrianWaypoints(GridCell cell, Transform insideBuilding, Transform door, Transform[] pathToCar)
+    public void AddBuildingPedestrianWaypoints(GridCell cell, Transform insideBuilding, Transform door, Transform propertyEntryExit, Transform[] propertyEntryToDoor, Transform vehicleEntryExit, Transform[] carToDoor)
     {
-        // find the closest pedestrian walkway node to the door nodes position to allow the person to walk from the door into the world
-        WaypointNode closestPedestrianWaypoint = FindClosestPedestrianNodeInNeighbourCellsFromPosition(cell, door.position);
-
-        // define the inside and door nodes
-        WaypointNode inBuldingNode = new WaypointNode(insideBuilding.position, cell, WaypointType.InsideBuilding, WaypointNetworkType.Pedestrian);
-        WaypointNode doorNode = new WaypointNode(door.position, cell, WaypointType.BuildingDoor, WaypointNetworkType.Pedestrian);
-
-        // connect them
-        ConnectPavementNodes(inBuldingNode, doorNode);
-
         // Store waypoints for this cell
         if (!_cellWaypoints.ContainsKey(cell))
         {
             _cellWaypoints[cell] = new List<WaypointNode>();
         }
+
+        // define the main property nodes
+        WaypointNode inBuldingNode = new WaypointNode(insideBuilding.position, cell, WaypointType.InsideBuilding, WaypointNetworkType.Pedestrian);
+        WaypointNode doorNode = new WaypointNode(door.position, cell, WaypointType.BuildingDoor, WaypointNetworkType.Pedestrian);
+        WaypointNode propertyEntryExitNode = new WaypointNode(propertyEntryExit.position, cell, WaypointType.PropertyEntryExit, WaypointNetworkType.Pedestrian);
+        WaypointNode vehicleEntryExitNode = new WaypointNode(vehicleEntryExit.position, cell, WaypointType.VehicleEntryExit, WaypointNetworkType.Pedestrian);
+
+        // add them to the list
         _cellWaypoints[cell].Add(inBuldingNode);
         _cellWaypoints[cell].Add(doorNode);
+        _cellWaypoints[cell].Add(propertyEntryExitNode);
+        _cellWaypoints[cell].Add(vehicleEntryExitNode);
         _allWaypoints.Add(inBuldingNode);
         _allWaypoints.Add(doorNode);
+        _allWaypoints.Add(propertyEntryExitNode);
+        _allWaypoints.Add(vehicleEntryExitNode);
 
-        WaypointNode currentNode, previousNode = doorNode;
+        // connect the inside building to the door
+        ConnectPavementNodes(inBuldingNode, doorNode);
 
-        // loop through the path to the car and connect them
-        for (int i = 0; i < pathToCar.Length; i++)
+        WaypointNode currentNode, previousNode = vehicleEntryExitNode;
+
+        // loop through the path from the car to the the node before the door and connect them
+        for (int i = 0; i < carToDoor.Length; i++)
         {
-            currentNode = new WaypointNode(pathToCar[i].position, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
+            currentNode = new WaypointNode(carToDoor[i].position, cell, WaypointType.PropertyWalkway, WaypointNetworkType.Pedestrian);
 
             ConnectPavementNodes(currentNode, previousNode);
 
@@ -739,10 +744,34 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
             _allWaypoints.Add(currentNode);
         }
 
-        // connect the door node to the pedestrian walkway on the pavement
+        // then connect to the door
+        ConnectPavementNodes(previousNode, doorNode);
+
+        previousNode = propertyEntryExitNode;
+        // loop throught the path from the entry/exit to the door and connect them
+        for (int i = 0; i < propertyEntryToDoor.Length; i++)
+        {
+            currentNode = new WaypointNode(propertyEntryToDoor[i].position, cell, WaypointType.PropertyWalkway, WaypointNetworkType.Pedestrian);
+
+            ConnectPavementNodes(currentNode, previousNode);
+
+            previousNode = currentNode;
+
+            _cellWaypoints[cell].Add(currentNode);
+            _allWaypoints.Add(currentNode);
+        }
+
+        // now connect the last path node to the door
+        currentNode = doorNode;
+        ConnectPavementNodes(currentNode, previousNode);
+
+        // find the closest pedestrian walkway node to the entry/exit nodes position to allow the person to walk from the property into the world
+        WaypointNode closestPedestrianWaypoint = FindClosestPedestrianNodeInNeighbourCellsFromPosition(cell, propertyEntryExitNode.Position);
+
+        // connect the property entry/exit node to the pedestrian walkway on the pavement
         if (closestPedestrianWaypoint != null)
         {
-            ConnectPavementNodes(doorNode, closestPedestrianWaypoint);
+            ConnectPavementNodes(propertyEntryExitNode, closestPedestrianWaypoint);
         }
         else Debug.LogWarning("No closest node found");
     }
@@ -758,8 +787,6 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
         if (GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.South)) neighbours.Add(GridManager.Instance.GetNeighborInDirection(cell, RoadDirection.South));
         if (GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.West)) neighbours.Add(GridManager.Instance.GetNeighborInDirection(cell, RoadDirection.West));
         if (GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.East)) neighbours.Add(GridManager.Instance.GetNeighborInDirection(cell, RoadDirection.East));
-
-        Debug.Log("FindClosestPedestrianNodeInNeighbourCellsFromPosition:: " + cell.Position);
 
         if (neighbours.Count > 0)
         {
@@ -887,10 +914,9 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
         {
             //if (node.Type != WaypointType.PedestrianRoadCrossing) continue;
             Gizmos.color = Color.red;
-            Gizmos.DrawSphere(node.Position, 0.2f);
+            Gizmos.DrawSphere(Utils.GetVectorWithSetHeight(node.Position, 0.5f), 0.2f);
         }
 
-        // Draw connections (optional)
         Gizmos.color = Color.green;
         foreach (var kvp in _cellWaypoints)
         {
@@ -898,7 +924,7 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
             {
                 foreach (var connection in node.Connections)
                 {
-                    Gizmos.DrawLine(node.Position, connection.TargetWaypoint.Position);
+                    Gizmos.DrawLine(Utils.GetVectorWithSetHeight(node.Position, 0.5f), Utils.GetVectorWithSetHeight(connection.TargetWaypoint.Position, 0.5f));
                 }
             }
         }

@@ -3840,7 +3840,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildingPlacementHandler
   _validMaterial: {fileID: 2100000, guid: d603d7866c9db2943b17c15799e236d0, type: 2}
   _invalidMaterial: {fileID: 2100000, guid: 9753dd124c85d7445b3490368775bba8, type: 2}
-  _buildingPrefab: {fileID: 100000, guid: 66131d8838f42f545a30ce8606ce5365, type: 3}
+  _buildingPrefab: {fileID: 413424536934244235, guid: b2cdaa662bbc71149939720950c9f318, type: 3}
   _buildingXCells: 2
   _buildingZCells: 2
 --- !u!1 &325478064

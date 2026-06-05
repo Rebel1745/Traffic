@@ -12,7 +12,7 @@ public class BuildingPlacementHandler : MonoBehaviour, IPlacementHandler
 
     private float _cellSize;
     private GameObject _previewInstance;
-    private GameObject _foundation;
+    // private GameObject _foundation;
     private MeshRenderer _foundationRenderer;
     private Material _pavementMaterial;
     private float _pavementHeight;
@@ -126,16 +126,16 @@ public class BuildingPlacementHandler : MonoBehaviour, IPlacementHandler
         _previewInstance = new GameObject("BuildingPreview");
 
         // add the 'foundations' of the building (basically a pavement)
-        _foundation = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        _foundation.name = "FoundationPreview";
-        _foundation.transform.localScale = new Vector3(_buildingXCells * _cellSize, _pavementHeight, _buildingZCells * _cellSize);
-        _foundation.transform.parent = _previewInstance.transform;
-        _foundationRenderer = _foundation.GetComponent<MeshRenderer>();
+        // _foundation = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        // _foundation.name = "FoundationPreview";
+        // _foundation.transform.localScale = new Vector3(_buildingXCells * _cellSize, _pavementHeight, _buildingZCells * _cellSize);
+        // _foundation.transform.parent = _previewInstance.transform;
 
         // add th building on top of the foundation
         GameObject building = Instantiate(_buildingPrefab, Vector3.zero, _buildingPrefab.transform.rotation);
         building.name = "BuildingPreview";
-        building.transform.parent = _foundation.transform;
+        building.transform.parent = _previewInstance.transform;
+        _foundationRenderer = building.GetComponent<BuildingController>().GetFoundationRenderer();
     }
 
     private void UpdatePreviewPosition()

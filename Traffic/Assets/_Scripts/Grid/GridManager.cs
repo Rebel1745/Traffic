@@ -419,9 +419,9 @@ public class GridManager : MonoBehaviour, ISaveable
 
         switch (direction)
         {
-            case RoadDirection.North: newZ--; break;
+            case RoadDirection.North: newZ++; break;
             case RoadDirection.East: newX++; break;
-            case RoadDirection.South: newZ++; break;
+            case RoadDirection.South: newZ--; break;
             case RoadDirection.West: newX--; break;
         }
 
