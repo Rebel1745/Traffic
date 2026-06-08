@@ -16,11 +16,13 @@ public class BuildingController : MonoBehaviour
 
     [Header("Building Waypoints - Vehicle")]
     [SerializeField] private Transform _parkedWaypoint; // car stopping point
-    [SerializeField] private Transform[] _vehicleEntryToParkedWaypoints; // path to parked waypoint
+    [SerializeField] private Transform _vehicleEntryExitWaypoint; // entry/exit to the property
+    [SerializeField] private Transform[] _vehicleEntryToParkedWaypoints; // path to parked waypoint from entry
 
     public void SetupBuilding(GridCell cell)
     {
         PedestrianWaypointManager.Instance.AddBuildingPedestrianWaypoints(cell, _insideBuildingWaypoint, _doorWaypoint, _entryExitPropertyWaypoint, _propertyEntryToDoorWaypoints, _entryExitVehicleWaypoint, _parkedToDoorWaypoints);
+        RoadWaypointManager.Instance.AddBuildingVehicleWaypoints(cell, _parkedWaypoint, _vehicleEntryToParkedWaypoints, _vehicleEntryExitWaypoint);
     }
 
     public MeshRenderer GetFoundationRenderer() => _foundationRenderer;

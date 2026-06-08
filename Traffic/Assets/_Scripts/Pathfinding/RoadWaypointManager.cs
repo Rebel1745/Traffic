@@ -776,6 +776,109 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         return cellWaypoints;
     }
 
+    public Dictionary<string, WaypointNode> GetAllWaypointLookup()
+    {
+        var lookup = new Dictionary<string, WaypointNode>();
+        foreach (var node in _allWaypoints)
+        {
+            lookup[node.Id] = node;
+        }
+        return lookup;
+    }
+
+    public void AddBuildingVehicleWaypoints(GridCell cell, Transform parkedWaypoint, Transform[] entryToParkedWaypoints, Transform entryWaypoint)
+    {
+        // Store waypoints for this cell
+        if (!_cellWaypoints.ContainsKey(cell))
+        {
+            _cellWaypoints[cell] = new List<WaypointNode>();
+        }
+
+        // define the main vehicle nodes
+        WaypointNode parkedNode = new WaypointNode(parkedWaypoint.position, cell, WaypointType.VehicleParking, WaypointNetworkType.Vehicle);
+        WaypointNode entryNode = new WaypointNode(entryWaypoint.position, cell, WaypointType.VehicleEntryExit, WaypointNetworkType.Vehicle);
+
+        // add them to the list
+        _cellWaypoints[cell].Add(parkedNode);
+        _cellWaypoints[cell].Add(entryNode);
+        _allWaypoints.Add(parkedNode);
+        _allWaypoints.Add(entryNode);
+
+        WaypointNode currentNode, previousNode = entryNode;
+
+        // loop through the path from the car to the the node before the door and connect them
+        for (int i = 0; i < entryToParkedWaypoints.Length; i++)
+        {
+            currentNode = new WaypointNode(entryToParkedWaypoints[i].position, cell, WaypointType.Midpoint, WaypointNetworkType.Vehicle);
+
+            // add connections in both directions
+            previousNode.Connections.Add(new WaypointConnection(currentNode, 0f));
+            currentNode.Connections.Add(new WaypointConnection(previousNode, 0f));
+
+            previousNode = currentNode;
+
+            _cellWaypoints[cell].Add(currentNode);
+            _allWaypoints.Add(currentNode);
+        }
+
+        // then connect to the parked node
+        previousNode.Connections.Add(new WaypointConnection(parkedNode, 0f));
+        parkedNode.Connections.Add(new WaypointConnection(previousNode, 0f));
+
+        // find the closest road node to the entry/exit nodes position to allow the vehicle to drive from the property into the world
+        List<WaypointNode> closestVehicleWaypoints = FindClosestVehicleNodesInNeighbourCellsFromPosition(cell, entryNode.Position, 2);
+
+        // connect the property entry/exit node to the Vehicle node on the road
+        foreach (WaypointNode node in closestVehicleWaypoints)
+        {
+            node.Connections.Add(new WaypointConnection(entryNode, 0f));
+            entryNode.Connections.Add(new WaypointConnection(node, 0f));
+        }
+    }
+
+    private List<WaypointNode> FindClosestVehicleNodesInNeighbourCellsFromPosition(GridCell cell, Vector3 position, int count)
+    {
+        List<GridCell> neighbours = new List<GridCell>();
+        List<WaypointNode> allNodes = new List<WaypointNode>();
+
+        if (GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.North))
+            neighbours.Add(GridManager.Instance.GetNeighborInDirection(cell, RoadDirection.North));
+        if (GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.South))
+            neighbours.Add(GridManager.Instance.GetNeighborInDirection(cell, RoadDirection.South));
+        if (GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.West))
+            neighbours.Add(GridManager.Instance.GetNeighborInDirection(cell, RoadDirection.West));
+        if (GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.East))
+            neighbours.Add(GridManager.Instance.GetNeighborInDirection(cell, RoadDirection.East));
+
+        if (neighbours.Count > 0)
+        {
+            for (int i = 0; i < neighbours.Count; i++)
+            {
+                foreach (WaypointNode node in GetCellWaypoints(neighbours[i]))
+                {
+                    if (node.NetworkType != WaypointNetworkType.Vehicle || node.Type != WaypointType.Entry)
+                        continue;
+
+                    allNodes.Add(node);
+                }
+            }
+
+            // Sort nodes by distance
+            allNodes.Sort((a, b) =>
+            {
+                float distA = Utils.GetDistanceWithSetHeight(position, a.Position, 0f);
+                float distB = Utils.GetDistanceWithSetHeight(position, b.Position, 0f);
+                return distA.CompareTo(distB);
+            });
+
+            // Return up to 'count' nodes
+            int nodesToReturn = Mathf.Min(count, allNodes.Count);
+            return allNodes.GetRange(0, nodesToReturn);
+        }
+
+        return new List<WaypointNode>();
+    }
+
     public void PopulateSaveData(GameSaveData saveData)
     {
         var waypointData = new WaypointSaveData();
@@ -897,32 +1000,28 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         Debug.Log($"[VehicleWaypointManager] Loaded {_allWaypoints.Count} vehicle waypoint nodes.");
     }
 
-    public Dictionary<string, WaypointNode> GetAllWaypointLookup()
+    private void OnDrawGizmos()
     {
-        var lookup = new Dictionary<string, WaypointNode>();
-        foreach (var node in _allWaypoints)
+        if (_allWaypoints.Count <= 0) return;
+
+        // Draw waypoints
+        foreach (WaypointNode node in _allWaypoints)
         {
-            lookup[node.Id] = node;
+            //if (node.Type != WaypointType.PedestrianRoadCrossing) continue;
+            Gizmos.color = Color.red;
+            Gizmos.DrawSphere(Utils.GetVectorWithSetHeight(node.Position, 0.5f), 0.2f);
         }
-        return lookup;
+
+        Gizmos.color = Color.green;
+        foreach (var kvp in _cellWaypoints)
+        {
+            foreach (var node in kvp.Value)
+            {
+                foreach (var connection in node.Connections)
+                {
+                    Gizmos.DrawLine(Utils.GetVectorWithSetHeight(node.Position, 0.5f), Utils.GetVectorWithSetHeight(connection.TargetWaypoint.Position, 0.5f));
+                }
+            }
+        }
     }
-
-    private void AddBuildingVehicleWaypoints(Transform parkedWaypoint, Transform[] entryToParkedWaypoints)
-    {
-
-    }
-
-    // private void OnDrawGizmos()
-    // {
-    //     if (_allWaypoints.Count == 0) return;
-
-    //     foreach (WaypointNode node in _allWaypoints)
-    //     {
-    //         if (node.Type == WaypointType.TrafficLightLocation)
-    //         {
-    //             Gizmos.color = Color.yellow;
-    //             Gizmos.DrawSphere(node.Position, 0.5f);
-    //         }
-    //     }
-    // }
 }

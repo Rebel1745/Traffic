@@ -766,27 +766,28 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
         ConnectPavementNodes(currentNode, previousNode);
 
         // find the closest pedestrian walkway node to the entry/exit nodes position to allow the person to walk from the property into the world
-        WaypointNode closestPedestrianWaypoint = FindClosestPedestrianNodeInNeighbourCellsFromPosition(cell, propertyEntryExitNode.Position);
+        List<WaypointNode> closestPedestrianWaypoints = FindClosestPedestrianNodesInNeighbourCellsFromPosition(cell, propertyEntryExitNode.Position, 2);
 
         // connect the property entry/exit node to the pedestrian walkway on the pavement
-        if (closestPedestrianWaypoint != null)
+        foreach (WaypointNode node in closestPedestrianWaypoints)
         {
-            ConnectPavementNodes(propertyEntryExitNode, closestPedestrianWaypoint);
+            ConnectPavementNodes(propertyEntryExitNode, node);
         }
-        else Debug.LogWarning("No closest node found");
     }
 
-    private WaypointNode FindClosestPedestrianNodeInNeighbourCellsFromPosition(GridCell cell, Vector3 position)
+    private List<WaypointNode> FindClosestPedestrianNodesInNeighbourCellsFromPosition(GridCell cell, Vector3 position, int count)
     {
         List<GridCell> neighbours = new List<GridCell>();
-        WaypointNode closestNode = null;
-        float closestWaypointDistance = Mathf.Infinity;
-        float currentDistance;
+        List<WaypointNode> allNodes = new List<WaypointNode>();
 
-        if (GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.North)) neighbours.Add(GridManager.Instance.GetNeighborInDirection(cell, RoadDirection.North));
-        if (GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.South)) neighbours.Add(GridManager.Instance.GetNeighborInDirection(cell, RoadDirection.South));
-        if (GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.West)) neighbours.Add(GridManager.Instance.GetNeighborInDirection(cell, RoadDirection.West));
-        if (GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.East)) neighbours.Add(GridManager.Instance.GetNeighborInDirection(cell, RoadDirection.East));
+        if (GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.North))
+            neighbours.Add(GridManager.Instance.GetNeighborInDirection(cell, RoadDirection.North));
+        if (GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.South))
+            neighbours.Add(GridManager.Instance.GetNeighborInDirection(cell, RoadDirection.South));
+        if (GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.West))
+            neighbours.Add(GridManager.Instance.GetNeighborInDirection(cell, RoadDirection.West));
+        if (GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.East))
+            neighbours.Add(GridManager.Instance.GetNeighborInDirection(cell, RoadDirection.East));
 
         if (neighbours.Count > 0)
         {
@@ -794,22 +795,27 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
             {
                 foreach (WaypointNode node in GetCellWaypoints(neighbours[i]))
                 {
-                    if (node.NetworkType != WaypointNetworkType.Pedestrian) continue;
+                    if (node.NetworkType != WaypointNetworkType.Pedestrian)
+                        continue;
 
-                    currentDistance = Utils.GetDistanceWithSetHeight(position, node.Position, 0f);
-                    if (currentDistance < closestWaypointDistance)
-                    {
-                        closestNode = node;
-                        closestWaypointDistance = currentDistance;
-                    }
+                    allNodes.Add(node);
                 }
             }
 
-            if (closestNode != null)
-                return closestNode;
+            // Sort nodes by distance
+            allNodes.Sort((a, b) =>
+            {
+                float distA = Utils.GetDistanceWithSetHeight(position, a.Position, 0f);
+                float distB = Utils.GetDistanceWithSetHeight(position, b.Position, 0f);
+                return distA.CompareTo(distB);
+            });
+
+            // Return up to 'count' nodes
+            int nodesToReturn = Mathf.Min(count, allNodes.Count);
+            return allNodes.GetRange(0, nodesToReturn);
         }
 
-        return null;
+        return new List<WaypointNode>();
     }
 
     public void PopulateSaveData(GameSaveData saveData)
@@ -905,28 +911,28 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
         Debug.Log($"[WaypointManager] Loaded {_allWaypoints.Count} pedestrian waypoint nodes.");
     }
 
-    private void OnDrawGizmos()
-    {
-        if (_allWaypoints.Count <= 0) return;
+    // private void OnDrawGizmos()
+    // {
+    //     if (_allWaypoints.Count <= 0) return;
 
-        // Draw waypoints
-        foreach (WaypointNode node in _allWaypoints)
-        {
-            //if (node.Type != WaypointType.PedestrianRoadCrossing) continue;
-            Gizmos.color = Color.red;
-            Gizmos.DrawSphere(Utils.GetVectorWithSetHeight(node.Position, 0.5f), 0.2f);
-        }
+    //     // Draw waypoints
+    //     foreach (WaypointNode node in _allWaypoints)
+    //     {
+    //         //if (node.Type != WaypointType.PedestrianRoadCrossing) continue;
+    //         Gizmos.color = Color.red;
+    //         Gizmos.DrawSphere(Utils.GetVectorWithSetHeight(node.Position, 0.5f), 0.2f);
+    //     }
 
-        Gizmos.color = Color.green;
-        foreach (var kvp in _cellWaypoints)
-        {
-            foreach (var node in kvp.Value)
-            {
-                foreach (var connection in node.Connections)
-                {
-                    Gizmos.DrawLine(Utils.GetVectorWithSetHeight(node.Position, 0.5f), Utils.GetVectorWithSetHeight(connection.TargetWaypoint.Position, 0.5f));
-                }
-            }
-        }
-    }
+    //     Gizmos.color = Color.green;
+    //     foreach (var kvp in _cellWaypoints)
+    //     {
+    //         foreach (var node in kvp.Value)
+    //         {
+    //             foreach (var connection in node.Connections)
+    //             {
+    //                 Gizmos.DrawLine(Utils.GetVectorWithSetHeight(node.Position, 0.5f), Utils.GetVectorWithSetHeight(connection.TargetWaypoint.Position, 0.5f));
+    //             }
+    //         }
+    //     }
+    // }
 }
