@@ -37,8 +37,8 @@ public class PedestrianManager : MonoBehaviour
             return;
 
         // Get a random valid spawn location
-        //WaypointNode startWaypoint = GetRandomWalkwayWaypoint();
-        WaypointNode startWaypoint = GetRandomDoorwayWaypoint();
+        //WaypointNode startWaypoint = GetRandomPedestrianWaypoint(WaypointType.PedestrianWalkway);
+        WaypointNode startWaypoint = GetRandomPedestrianWaypoint(WaypointType.InsideBuilding);
         if (startWaypoint == null)
         {
             Debug.LogWarning("No valid spawn location found!");
@@ -72,7 +72,7 @@ public class PedestrianManager : MonoBehaviour
         }
     }
 
-    public void RequestNewTarget(PedestrianController pedestrian, bool targetIsDoorway)
+    public void RequestNewTarget(PedestrianController pedestrian, WaypointType previousTargetType)
     {
         if (pedestrian == null || pedestrian.CurrentWaypoint == null)
         {
@@ -85,7 +85,12 @@ public class PedestrianManager : MonoBehaviour
 
         while (attempts < maxAttempts)
         {
-            WaypointNode newTarget = FindValidTarget(pedestrian.CurrentWaypoint);
+            WaypointNode newTarget = null;
+
+            if (previousTargetType != WaypointType.InsideBuilding)
+                newTarget = GetRandomPedestrianWaypoint(WaypointType.InsideBuilding);
+
+            if (newTarget == null) newTarget = FindValidTarget(pedestrian.CurrentWaypoint);
 
             if (newTarget != null)
             {
@@ -130,31 +135,21 @@ public class PedestrianManager : MonoBehaviour
         return null;
     }
 
-    public WaypointNode GetRandomWalkwayWaypoint()
+    public WaypointNode GetRandomPedestrianWaypoint(WaypointType type)
     {
         List<WaypointNode> allWaypoints = PedestrianWaypointManager.Instance.GetAllWaypoints();
+        List<WaypointNode> specificNodes = allWaypoints;
 
-        if (allWaypoints.Count == 0)
+        if (type != WaypointType.None)
+            specificNodes = allWaypoints.Where(w => w.Type == type).ToList();
+
+        if (specificNodes.Count == 0)
         {
-            Debug.LogWarning("No waypoints");
+            Debug.LogWarning($"No waypoints of type {type} found");
             return null;
         }
 
-        return allWaypoints[Random.Range(0, allWaypoints.Count)];
-    }
-
-    public WaypointNode GetRandomDoorwayWaypoint()
-    {
-        List<WaypointNode> allWaypoints = PedestrianWaypointManager.Instance.GetAllWaypoints();
-        List<WaypointNode> doorwayNodes = allWaypoints.Where(w => w.Type == WaypointType.BuildingDoor).ToList();
-
-        if (allWaypoints.Count == 0)
-        {
-            Debug.LogWarning("No waypoints");
-            return null;
-        }
-
-        return doorwayNodes[Random.Range(0, doorwayNodes.Count)];
+        return specificNodes[Random.Range(0, specificNodes.Count)];
     }
 
     public void Removepedestrian(PedestrianController pedestrian)

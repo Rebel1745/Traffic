@@ -786,7 +786,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         return lookup;
     }
 
-    public void AddBuildingVehicleWaypoints(GridCell cell, Transform parkedWaypoint, Transform[] entryToParkedWaypoints, Transform entryWaypoint)
+    public void AddBuildingVehicleWaypoints(GridCell cell, Transform parkedWaypoint, Transform[] entryToParkedWaypoints, Transform entryWaypoint, Transform cellCheckWaypoint)
     {
         // Store waypoints for this cell
         if (!_cellWaypoints.ContainsKey(cell))
@@ -795,14 +795,14 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         }
 
         // define the main vehicle nodes
-        WaypointNode parkedNode = new WaypointNode(parkedWaypoint.position, cell, WaypointType.VehicleParking, WaypointNetworkType.Vehicle);
         WaypointNode entryNode = new WaypointNode(entryWaypoint.position, cell, WaypointType.VehicleEntryExit, WaypointNetworkType.Vehicle);
+        WaypointNode parkedNode = new WaypointNode(parkedWaypoint.position, cell, WaypointType.VehicleParking, WaypointNetworkType.Vehicle);
 
         // add them to the list
-        _cellWaypoints[cell].Add(parkedNode);
         _cellWaypoints[cell].Add(entryNode);
-        _allWaypoints.Add(parkedNode);
+        _cellWaypoints[cell].Add(parkedNode);
         _allWaypoints.Add(entryNode);
+        _allWaypoints.Add(parkedNode);
 
         WaypointNode currentNode, previousNode = entryNode;
 
@@ -825,46 +825,41 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         previousNode.Connections.Add(new WaypointConnection(parkedNode, 0f));
         parkedNode.Connections.Add(new WaypointConnection(previousNode, 0f));
 
-        // find the closest road node to the entry/exit nodes position to allow the vehicle to drive from the property into the world
-        List<WaypointNode> closestVehicleWaypoints = FindClosestVehicleNodesInNeighbourCellsFromPosition(cell, entryNode.Position, 2);
+        // find and connect the property exit waypoint, to the waypoints exiting the adjoing cell to allow the vehicle to exit the property in multiple different directions
+        List<WaypointNode> closestVehicleWaypoints = FindClosestVehicleNodesInCellFromPosition(cellCheckWaypoint.position, entryNode.Position, 3, WaypointType.Exit);
 
         // connect the property entry/exit node to the Vehicle node on the road
         foreach (WaypointNode node in closestVehicleWaypoints)
         {
-            node.Connections.Add(new WaypointConnection(entryNode, 0f));
             entryNode.Connections.Add(new WaypointConnection(node, 0f));
+        }
+
+        // find and connect the entry points of the cell connecting to the property entry way to allow the vehicle to approach from any direction
+        closestVehicleWaypoints = FindClosestVehicleNodesInCellFromPosition(cellCheckWaypoint.position, entryNode.Position, 3, WaypointType.Entry);
+
+        // connect the property entry/exit node to the Vehicle node on the road
+        foreach (WaypointNode node in closestVehicleWaypoints)
+        {
+            node.Connections.Add(new WaypointConnection(entryNode, 100f));
         }
     }
 
-    private List<WaypointNode> FindClosestVehicleNodesInNeighbourCellsFromPosition(GridCell cell, Vector3 position, int count)
+    private List<WaypointNode> FindClosestVehicleNodesInCellFromPosition(Vector3 cellCheckPosition, Vector3 position, int count, WaypointType type)
     {
-        List<GridCell> neighbours = new List<GridCell>();
-        List<WaypointNode> allNodes = new List<WaypointNode>();
+        GridCell neighbour = GridManager.Instance.GetCellAtWorldPosition(cellCheckPosition);
+        List<WaypointNode> allNodes = GetCellWaypoints(neighbour);
+        List<WaypointNode> selectedNodes = new List<WaypointNode>();
 
-        if (GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.North))
-            neighbours.Add(GridManager.Instance.GetNeighborInDirection(cell, RoadDirection.North));
-        if (GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.South))
-            neighbours.Add(GridManager.Instance.GetNeighborInDirection(cell, RoadDirection.South));
-        if (GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.West))
-            neighbours.Add(GridManager.Instance.GetNeighborInDirection(cell, RoadDirection.West));
-        if (GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.East))
-            neighbours.Add(GridManager.Instance.GetNeighborInDirection(cell, RoadDirection.East));
-
-        if (neighbours.Count > 0)
+        if (neighbour != null)
         {
-            for (int i = 0; i < neighbours.Count; i++)
+            foreach (WaypointNode node in allNodes)
             {
-                foreach (WaypointNode node in GetCellWaypoints(neighbours[i]))
-                {
-                    if (node.NetworkType != WaypointNetworkType.Vehicle || node.Type != WaypointType.Entry)
-                        continue;
-
-                    allNodes.Add(node);
-                }
+                if (node.Type != type) continue;
+                selectedNodes.Add(node);
             }
 
             // Sort nodes by distance
-            allNodes.Sort((a, b) =>
+            selectedNodes.Sort((a, b) =>
             {
                 float distA = Utils.GetDistanceWithSetHeight(position, a.Position, 0f);
                 float distB = Utils.GetDistanceWithSetHeight(position, b.Position, 0f);
@@ -872,8 +867,8 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
             });
 
             // Return up to 'count' nodes
-            int nodesToReturn = Mathf.Min(count, allNodes.Count);
-            return allNodes.GetRange(0, nodesToReturn);
+            int nodesToReturn = Mathf.Min(count, selectedNodes.Count);
+            return selectedNodes.GetRange(0, nodesToReturn);
         }
 
         return new List<WaypointNode>();
@@ -1007,7 +1002,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         // Draw waypoints
         foreach (WaypointNode node in _allWaypoints)
         {
-            //if (node.Type != WaypointType.PedestrianRoadCrossing) continue;
+            if (node.NetworkType != WaypointNetworkType.Vehicle) continue;
             Gizmos.color = Color.red;
             Gizmos.DrawSphere(Utils.GetVectorWithSetHeight(node.Position, 0.5f), 0.2f);
         }

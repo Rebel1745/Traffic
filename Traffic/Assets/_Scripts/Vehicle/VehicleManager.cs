@@ -37,7 +37,7 @@ public class VehicleManager : MonoBehaviour
             return;
 
         // Get a random valid spawn location
-        WaypointNode startWaypoint = GetRandomEntryWaypoint();
+        WaypointNode startWaypoint = GetRandomVehicleWaypoint(WaypointType.VehicleParking);
         if (startWaypoint == null)
         {
             Debug.LogWarning("No valid spawn location found!");
@@ -71,7 +71,7 @@ public class VehicleManager : MonoBehaviour
         }
     }
 
-    public void RequestNewTarget(VehicleController vehicle)
+    public void RequestNewTarget(VehicleController vehicle, WaypointType previousTargetType)
     {
         if (vehicle == null || vehicle.CurrentWaypoint == null)
         {
@@ -84,7 +84,12 @@ public class VehicleManager : MonoBehaviour
 
         while (attempts < maxAttempts)
         {
-            WaypointNode newTarget = FindValidTarget(vehicle.CurrentWaypoint);
+            WaypointNode newTarget = null;
+
+            if (previousTargetType != WaypointType.InsideBuilding)
+                newTarget = GetRandomVehicleWaypoint(WaypointType.InsideBuilding);
+
+            if (newTarget == null) newTarget = FindValidTarget(vehicle.CurrentWaypoint);
 
             if (newTarget != null)
             {
@@ -109,7 +114,9 @@ public class VehicleManager : MonoBehaviour
     public WaypointNode FindValidTarget(WaypointNode startWaypoint, int maxAttempts = 10)
     {
         var allWaypoints = RoadWaypointManager.Instance.GetAllWaypoints();
-        var entryWaypoints = allWaypoints.Where(w => w.Type == WaypointType.Entry && w != startWaypoint).ToList();
+        var entryWaypoints = allWaypoints.Where(w => w != startWaypoint).ToList();
+
+        Debug.Log(entryWaypoints.Count);
 
         if (entryWaypoints.Count == 0)
             return null;
@@ -130,18 +137,21 @@ public class VehicleManager : MonoBehaviour
         return null;
     }
 
-    public WaypointNode GetRandomEntryWaypoint()
+    public WaypointNode GetRandomVehicleWaypoint(WaypointType type)
     {
-        var allWaypoints = RoadWaypointManager.Instance.GetAllWaypoints();
-        var entryWaypoints = allWaypoints.Where(w => w.Type == WaypointType.Entry).ToList();
+        List<WaypointNode> allWaypoints = RoadWaypointManager.Instance.GetAllWaypoints();
+        List<WaypointNode> specificNodes = allWaypoints;
 
-        if (entryWaypoints.Count == 0)
+        if (type != WaypointType.None)
+            specificNodes = allWaypoints.Where(w => w.Type == type).ToList();
+
+        if (specificNodes.Count == 0)
         {
-            Debug.LogWarning("No waypoints");
+            Debug.LogWarning($"No waypoints of type {type} found");
             return null;
         }
 
-        return entryWaypoints[Random.Range(0, entryWaypoints.Count)];
+        return specificNodes[Random.Range(0, specificNodes.Count)];
     }
 
     public void RemoveVehicle(VehicleController vehicle)

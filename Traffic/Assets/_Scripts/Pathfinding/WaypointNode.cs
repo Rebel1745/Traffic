@@ -36,6 +36,7 @@ public class WaypointNode
 
 public enum WaypointType
 {
+    None,
     Entry,
     Exit,
     Midpoint,

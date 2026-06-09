@@ -177,10 +177,10 @@ public class PedestrianController : MonoBehaviour
 
         _isMoving = false;
 
-        bool newTargetIsDoorway = Path.Count > 0 && Path.Last().Type != WaypointType.BuildingDoor;
+        WaypointType currentTargetType = Path.Count > 0 ? Path.Last().Type : WaypointType.None;
 
         // Request new target from PedestrianManager
-        PedestrianManager.Instance.RequestNewTarget(this, newTargetIsDoorway);
+        PedestrianManager.Instance.RequestNewTarget(this, currentTargetType);
     }
 
     public void SetNewPath(List<WaypointNode> newPath, WaypointNode newTarget)

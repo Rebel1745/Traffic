@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class VehicleController : MonoBehaviour
@@ -135,8 +136,15 @@ public class VehicleController : MonoBehaviour
 
         _isMoving = false;
 
+        // if we have just parked, flip the car
+        if (Path.Last().Type == WaypointType.VehicleParking)
+            transform.rotation = Quaternion.Euler(new Vector3(transform.eulerAngles.x, transform.eulerAngles.y + 180f, transform.eulerAngles.z));
+
         // Request new target from VehicleManager
-        VehicleManager.Instance.RequestNewTarget(this);
+        WaypointType currentTargetType = Path.Count > 0 ? Path.Last().Type : WaypointType.None;
+
+        // Request new target from PedestrianManager
+        VehicleManager.Instance.RequestNewTarget(this, currentTargetType);
     }
 
     public void SetNewPath(List<WaypointNode> newPath, WaypointNode newTarget)
@@ -217,9 +225,9 @@ public class VehicleController : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.black;
-        Gizmos.DrawLine(transform.position + Vector3.forward * _stopDistance, transform.position + Vector3.forward * (_stopDistance + _lookAheadDistance));
-    }
+    // private void OnDrawGizmos()
+    // {
+    //     Gizmos.color = Color.black;
+    //     Gizmos.DrawLine(transform.position + Vector3.forward * _stopDistance, transform.position + Vector3.forward * (_stopDistance + _lookAheadDistance));
+    // }
 }

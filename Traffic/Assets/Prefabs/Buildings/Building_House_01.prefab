@@ -59,6 +59,7 @@ MonoBehaviour:
   _vehicleEntryExitWaypoint: {fileID: 335167969853319501}
   _vehicleEntryToParkedWaypoints:
   - {fileID: 805885251416031779}
+  _vehicleCellCheckWaypoint: {fileID: 4696659758057400433}
 --- !u!1 &478107098368652130
 GameObject:
   m_ObjectHideFlags: 0
@@ -362,6 +363,7 @@ Transform:
   - {fileID: 4579101568455517717}
   - {fileID: 805885251416031779}
   - {fileID: 335167969853319501}
+  - {fileID: 4696659758057400433}
   m_Father: {fileID: 7508084599152268499}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3224702091404186134
@@ -394,6 +396,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4015021430888286544}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3278563648648683123
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4696659758057400433}
+  m_Layer: 0
+  m_Name: VehicleCellCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4696659758057400433
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3278563648648683123}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -5.5, y: 0, z: 11.53}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5000150006631214452}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3581204289737103477
 GameObject:
