@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine.UI;
 using System;
 
-public class TrafficLightGroupSettingsUI : MonoBehaviour
+public class TrafficLightGroupDetailsUI : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private GameObject uiPanel;
@@ -47,6 +47,11 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
     [SerializeField] private Button _cancelButton;
     [SerializeField] private Button _resetButton;
 
+
+    [Header("Selected Details")]
+    [SerializeField] private Vector3 _cameraFocusOffset; // the offset to apply to the camera that looks at the building when it is selected
+    [SerializeField] private Vector3 _cameraRotation = new(45, 0, 0);
+
     public void LoadSettings(TrafficLightGroupController group)
     {
         _group = group;
@@ -58,7 +63,7 @@ public class TrafficLightGroupSettingsUI : MonoBehaviour
         _junctionNameInput.text = group.JunctionName;
 
         uiPanel.SetActive(true);
-        CameraFollow.Instance.SetFollowTarget(GetGroupCentrePoint());
+        CameraFollow.Instance.SetFollowTarget(GetGroupCentrePoint(), _cameraFocusOffset, _cameraRotation);
 
         if (group.GroupType == TrafficLightGroupType.Junction)
         {

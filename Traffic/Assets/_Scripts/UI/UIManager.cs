@@ -5,7 +5,9 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
     [SerializeField] private List<ButtonGroup> _topLevelGroups;
-    [SerializeField] private TrafficLightGroupSettingsUI _trafficLightGroupSettingsUI;
+    [SerializeField] private TrafficLightGroupDetailsUI _trafficLightGroupSettingsUI;
+    [SerializeField] private SelectedBuildingDetailsUI _selectedBuildingDetailsUI;
+    private GameObject _currentUIDetailsWindow;
 
     private void Awake()
     {
@@ -48,10 +50,22 @@ public class UIManager : MonoBehaviour
         if (!_trafficLightGroupSettingsUI) return;
 
         _trafficLightGroupSettingsUI.LoadSettings(group);
+
+        _currentUIDetailsWindow = _trafficLightGroupSettingsUI.gameObject;
     }
 
-    public void CloseTrafficLightGroupDetails()
+    public void LoadBuildingDetails(BuildingController building)
     {
-        _trafficLightGroupSettingsUI.gameObject.SetActive(false);
+        if (!_selectedBuildingDetailsUI) return;
+
+        _selectedBuildingDetailsUI.LoadBuilding(building);
+
+        _currentUIDetailsWindow = _selectedBuildingDetailsUI.gameObject;
+    }
+
+    public void CloseUIDetailsWindow()
+    {
+        _currentUIDetailsWindow.SetActive(false);
+        _currentUIDetailsWindow = null;
     }
 }

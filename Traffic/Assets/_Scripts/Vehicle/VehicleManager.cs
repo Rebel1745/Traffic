@@ -45,7 +45,8 @@ public class VehicleManager : MonoBehaviour
         }
 
         // Get a random valid target
-        WaypointNode targetWaypoint = FindValidTarget(startWaypoint);
+        //WaypointNode targetWaypoint = FindValidTarget(startWaypoint);
+        WaypointNode targetWaypoint = GetRandomVehicleWaypoint(WaypointType.VehicleEntryExit);
         if (targetWaypoint == null)
         {
             Debug.LogWarning("No valid target found for spawn location!");
@@ -86,8 +87,8 @@ public class VehicleManager : MonoBehaviour
         {
             WaypointNode newTarget = null;
 
-            if (previousTargetType != WaypointType.InsideBuilding)
-                newTarget = GetRandomVehicleWaypoint(WaypointType.InsideBuilding);
+            if (previousTargetType != WaypointType.VehicleParking)
+                newTarget = GetRandomVehicleWaypoint(WaypointType.VehicleParking);
 
             if (newTarget == null) newTarget = FindValidTarget(vehicle.CurrentWaypoint);
 
@@ -102,7 +103,7 @@ public class VehicleManager : MonoBehaviour
                     return;
                 }
             }
-
+            Debug.Log($"Path to {newTarget.NetworkType} {newTarget.Type} {newTarget.Position} not found");
             attempts++;
         }
 
@@ -114,7 +115,7 @@ public class VehicleManager : MonoBehaviour
     public WaypointNode FindValidTarget(WaypointNode startWaypoint, int maxAttempts = 10)
     {
         var allWaypoints = RoadWaypointManager.Instance.GetAllWaypoints();
-        var entryWaypoints = allWaypoints.Where(w => w != startWaypoint).ToList();
+        var entryWaypoints = allWaypoints.Where(w => w != startWaypoint && w.Type != WaypointType.TrafficLightLocation).ToList();
 
         Debug.Log(entryWaypoints.Count);
 
@@ -132,6 +133,7 @@ public class VehicleManager : MonoBehaviour
             {
                 return candidate;
             }
+            Debug.Log($"Path to {candidate.NetworkType} {candidate.Type} {candidate.ParentCell.Position} not found");
         }
 
         return null;

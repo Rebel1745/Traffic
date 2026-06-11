@@ -25,9 +25,13 @@ public class AStarPathfinder
         if (startWaypoint == null || endWaypoint == null)
             return new List<WaypointNode>();
 
-        // Check if start and end are in the same lane (same parent cell and compatible types)
-        if (!AreWaypointsInSameLane(startWaypoint, endWaypoint))
-            return new List<WaypointNode>();
+        // Check if start and end are in the same lane (same parent cell and compatible types) 
+        // MAYBE NOT NEEDED???
+        // if (!AreWaypointsInSameLane(startWaypoint, endWaypoint))
+        // {
+        //     Debug.Log("NOT IN THE SAME LANE");
+        //     return new List<WaypointNode>();
+        // }
 
         var openSet = new List<PathNode>();
         var closedSet = new HashSet<WaypointNode>();

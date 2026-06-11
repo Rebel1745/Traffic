@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class BuildingController : MonoBehaviour
+public class BuildingController : MonoBehaviour, ISelectableObject
 {
     [Header("Renderers")]
     [SerializeField] private MeshRenderer _buildingRenderer;
@@ -20,6 +20,14 @@ public class BuildingController : MonoBehaviour
     [SerializeField] private Transform[] _vehicleEntryToParkedWaypoints; // path to parked waypoint from entry
     [SerializeField] private Transform _vehicleCellCheckWaypoint; // the position of the cell that is connected to when the car leaves
 
+    [Header("Selected Details")]
+    [SerializeField] private string _buildingName;
+    public string BuildingName => _buildingName;
+    [SerializeField] private Vector3 _cameraFocusOffset; // the offset to apply to the camera that looks at the building when it is selected
+    public Vector3 CameraFocusOffset => _cameraFocusOffset;
+    [SerializeField] private Vector3 _cameraRotation;
+    public Vector3 CameraRotation => _cameraRotation;
+
     public void SetupBuilding(GridCell cell)
     {
         PedestrianWaypointManager.Instance.AddBuildingPedestrianWaypoints(cell, _insideBuildingWaypoint, _doorWaypoint, _entryExitPropertyWaypoint, _propertyEntryToDoorWaypoints, _entryExitVehicleWaypoint, _parkedToDoorWaypoints);
@@ -28,4 +36,8 @@ public class BuildingController : MonoBehaviour
 
     public MeshRenderer GetFoundationRenderer() => _foundationRenderer;
 
+    public void SelectObject()
+    {
+        UIManager.Instance.LoadBuildingDetails(this);
+    }
 }

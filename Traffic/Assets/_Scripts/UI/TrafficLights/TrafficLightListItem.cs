@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 public class TrafficLightListItem : MonoBehaviour
 {
-    private TrafficLightGroupSettingsUI _settingsUI;
+    private TrafficLightGroupDetailsUI _settingsUI;
     [SerializeField] private TMP_Text _lightNameText;
     [SerializeField] private TMP_Text _pedestrianCrossingDurationText;
     [SerializeField] private TMP_Text _greenDurationText;
@@ -17,7 +17,7 @@ public class TrafficLightListItem : MonoBehaviour
     [SerializeField] private Button _copyButton;
     [SerializeField] private Button _removeButton;
 
-    public void SetDetails(TrafficLightGroupSettingsUI settings, TrafficLight light, UnityAction onEdit, UnityAction onMoveUp, UnityAction onMoveDown, UnityAction onCopy, UnityAction onRemove)
+    public void SetDetails(TrafficLightGroupDetailsUI settings, TrafficLight light, UnityAction onEdit, UnityAction onMoveUp, UnityAction onMoveDown, UnityAction onCopy, UnityAction onRemove)
     {
         _settingsUI = settings;
         _lightNameText.text = light.Label;

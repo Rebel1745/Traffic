@@ -145,7 +145,7 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
 
         cell.HasTrafficLights = false;
 
-        UIManager.Instance.CloseTrafficLightGroupDetails();
+        UIManager.Instance.CloseUIDetailsWindow();
     }
 
     public TrafficLightGroupController FindGroupForWaypoint(WaypointNode waypoint)

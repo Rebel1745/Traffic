@@ -8,11 +8,11 @@ public class ButtonGroup : MonoBehaviour
     [SerializeField] private List<ToggleButton> _buttons;
     [SerializeField] private bool _hideOnStartup = true;
 
-    [Header("Animation")]
-    [SerializeField] private bool _isVertical = true; // True = vertical, False = horizontal
-    [SerializeField] private float _animationDuration = 0.2f;
-    [SerializeField] private float _staggerDelay = 0.05f;
-    [SerializeField] private float _slideDistance = 50f; // Distance to slide from
+    // [Header("Animation")]
+    // [SerializeField] private bool _isVertical = true; // True = vertical, False = horizontal
+    // [SerializeField] private float _animationDuration = 0.2f;
+    // [SerializeField] private float _staggerDelay = 0.05f;
+    // [SerializeField] private float _slideDistance = 50f; // Distance to slide from
 
     public event Action<ToggleButton> OnSelectionChanged;
 
@@ -148,6 +148,6 @@ public class ButtonGroup : MonoBehaviour
     }
 
     public List<ToggleButton> GetAllButtons() => _buttons;
-    public float GetAnimationDuration() => _animationDuration;
-    public float GetStaggerDelay() => _staggerDelay;
+    // public float GetAnimationDuration() => _animationDuration;
+    // public float GetStaggerDelay() => _staggerDelay;
 }

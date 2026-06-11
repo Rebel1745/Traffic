@@ -10,7 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4276239028721331185}
   - component: {fileID: 750085003651965235}
-  m_Layer: 0
+  - component: {fileID: 5045961339903887484}
+  m_Layer: 9
   m_Name: Building_House_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57,9 +58,32 @@ MonoBehaviour:
   _propertyEntryToDoorWaypoints: []
   _parkedWaypoint: {fileID: 4579101568455517717}
   _vehicleEntryExitWaypoint: {fileID: 335167969853319501}
-  _vehicleEntryToParkedWaypoints:
-  - {fileID: 805885251416031779}
+  _vehicleEntryToParkedWaypoints: []
   _vehicleCellCheckWaypoint: {fileID: 4696659758057400433}
+  _buildingName: 
+  _cameraFocusOffset: {x: -0.5, y: -3.5, z: 9.5}
+  _cameraRotation: {x: 15, y: 0, z: 0}
+--- !u!65 &5045961339903887484
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 413424536934244235}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 10.407534, y: 4.158351, z: 10.36475}
+  m_Center: {x: -0.04166317, y: 2.1075969, z: 0.028871536}
 --- !u!1 &478107098368652130
 GameObject:
   m_ObjectHideFlags: 0
@@ -71,7 +95,7 @@ GameObject:
   - component: {fileID: 8271235746909520621}
   - component: {fileID: 6206045878735287389}
   - component: {fileID: 5013279444769424418}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Foundation
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -160,7 +184,7 @@ GameObject:
   - component: {fileID: 4675549978743607072}
   - component: {fileID: 178736880990994746}
   - component: {fileID: 6633993774056098461}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Building_House_01_color01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -247,7 +271,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3935152349918427259}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: FrontDoor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -278,7 +302,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 805885251416031779}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: FrontGarage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -309,7 +333,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4579101568455517717}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Parked
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -340,7 +364,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5000150006631214452}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Vehicle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -375,7 +399,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 345944736946774909}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: PropertyEntryExit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -406,7 +430,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4696659758057400433}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: VehicleCellCheck
   m_TagString: Untagged
   m_Icon: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000, type: 0}
@@ -437,7 +461,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2516428353995936513}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Building
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -469,7 +493,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7508084599152268499}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Waypoints
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -502,7 +526,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1874128881005132629}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Foundation
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -536,7 +560,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 78467186839818747}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: GFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -569,7 +593,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3250191999778630493}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: InsideHouse
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -600,7 +624,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 335167969853319501}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: PropertyVehicleEntryExit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -634,7 +658,7 @@ GameObject:
   - component: {fileID: 4454622665732364512}
   - component: {fileID: 4365715777388940150}
   - component: {fileID: 5118453391720005796}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: path
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -742,7 +766,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8078884104543125158}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: ExitGarage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -776,7 +800,7 @@ GameObject:
   - component: {fileID: 2062944172596043832}
   - component: {fileID: 4358223105216295105}
   - component: {fileID: 5945520703224532124}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Driveway
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -884,7 +908,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4015021430888286544}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Pedestrian
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -920,7 +944,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7336757360554075283}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: ExitVehicle
   m_TagString: Untagged
   m_Icon: {fileID: 0}

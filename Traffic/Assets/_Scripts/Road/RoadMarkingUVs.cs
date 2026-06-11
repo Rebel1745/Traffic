@@ -158,7 +158,6 @@ public static class RoadMarkingUVs
 
     public static Vector2[] GetUVsForPedestrianCrossing(RoadDirection roadDirection)
     {
-        Debug.Log(roadDirection);
         if (roadDirection == RoadDirection.WestEast)
             return _pedestrianCrossingDefault;
 

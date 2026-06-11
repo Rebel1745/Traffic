@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.Rendering;
 using UnityEngine;
 
 public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
@@ -804,6 +805,9 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         _allWaypoints.Add(entryNode);
         _allWaypoints.Add(parkedNode);
 
+        // entryNode.Connections.Add(new WaypointConnection(parkedNode, 0.1f));
+        // parkedNode.Connections.Add(new WaypointConnection(entryNode, 0.1f));
+
         WaypointNode currentNode, previousNode = entryNode;
 
         // loop through the path from the car to the the node before the door and connect them
@@ -834,7 +838,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
             entryNode.Connections.Add(new WaypointConnection(node, 0f));
         }
 
-        // find and connect the entry points of the cell connecting to the property entry way to allow the vehicle to approach from any direction
+        //find and connect the entry points of the cell connecting to the property entry way to allow the vehicle to approach from any direction
         closestVehicleWaypoints = FindClosestVehicleNodesInCellFromPosition(cellCheckWaypoint.position, entryNode.Position, 3, WaypointType.Entry);
 
         // connect the property entry/exit node to the Vehicle node on the road
