@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class VehicleController : MonoBehaviour
+public class VehicleController : MonoBehaviour, ISelectableObject
 {
     [Header("Movement Settings")]
     [SerializeField] private float _moveSpeed = 5f;
@@ -27,6 +27,14 @@ public class VehicleController : MonoBehaviour
     private WaypointNode _nextWaypointWithTrafficLight = null;
     private bool _isMoving = false;
     private float _roadHeight = 0f;
+
+    [Header("Selected Details")]
+    [SerializeField] private string _vehicleName;
+    public string VehicleName => _vehicleName;
+    [SerializeField] private Vector3 _cameraFocusOffset; // the offset to apply to the camera that looks at the building when it is selected
+    public Vector3 CameraFocusOffset => _cameraFocusOffset;
+    [SerializeField] private Vector3 _cameraRotation;
+    public Vector3 CameraRotation => _cameraRotation;
 
     private void Start()
     {
@@ -223,6 +231,11 @@ public class VehicleController : MonoBehaviour
                 break;
             }
         }
+    }
+
+    public void SelectObject()
+    {
+        UIManager.Instance.LoadVehicleDetails(this);
     }
 
     // private void OnDrawGizmos()

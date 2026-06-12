@@ -37,8 +37,8 @@ public class PedestrianManager : MonoBehaviour
             return;
 
         // Get a random valid spawn location
-        //WaypointNode startWaypoint = GetRandomPedestrianWaypoint(WaypointType.PedestrianWalkway);
-        WaypointNode startWaypoint = GetRandomPedestrianWaypoint(WaypointType.InsideBuilding);
+        WaypointNode startWaypoint = GetRandomPedestrianWaypoint(WaypointType.PedestrianWalkway);
+        //WaypointNode startWaypoint = GetRandomPedestrianWaypoint(WaypointType.InsideBuilding);
         if (startWaypoint == null)
         {
             Debug.LogWarning("No valid spawn location found!");

@@ -7,6 +7,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private List<ButtonGroup> _topLevelGroups;
     [SerializeField] private TrafficLightGroupDetailsUI _trafficLightGroupSettingsUI;
     [SerializeField] private SelectedBuildingDetailsUI _selectedBuildingDetailsUI;
+    [SerializeField] private SelectedPedestrianDetailsUI _selectedPedestrianDetailsUI;
+    [SerializeField] private SelectedVehicleDetailsUI _selectedVehicleDetailsUI;
+
     private GameObject _currentUIDetailsWindow;
 
     private void Awake()
@@ -61,6 +64,24 @@ public class UIManager : MonoBehaviour
         _selectedBuildingDetailsUI.LoadBuilding(building);
 
         _currentUIDetailsWindow = _selectedBuildingDetailsUI.gameObject;
+    }
+
+    public void LoadPedestrianDetails(PedestrianController pedestrian)
+    {
+        if (!_selectedPedestrianDetailsUI) return;
+
+        _selectedPedestrianDetailsUI.LoadPedestrian(pedestrian);
+
+        _currentUIDetailsWindow = _selectedPedestrianDetailsUI.gameObject;
+    }
+
+    public void LoadVehicleDetails(VehicleController vehicle)
+    {
+        if (!_selectedVehicleDetailsUI) return;
+
+        _selectedVehicleDetailsUI.LoadVehicle(vehicle);
+
+        _currentUIDetailsWindow = _selectedVehicleDetailsUI.gameObject;
     }
 
     public void CloseUIDetailsWindow()

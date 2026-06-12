@@ -117,8 +117,6 @@ public class VehicleManager : MonoBehaviour
         var allWaypoints = RoadWaypointManager.Instance.GetAllWaypoints();
         var entryWaypoints = allWaypoints.Where(w => w != startWaypoint && w.Type != WaypointType.TrafficLightLocation).ToList();
 
-        Debug.Log(entryWaypoints.Count);
-
         if (entryWaypoints.Count == 0)
             return null;
 

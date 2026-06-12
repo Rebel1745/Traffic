@@ -35,10 +35,11 @@ public class CameraFollow : MonoBehaviour
         _camera.gameObject.SetActive(true);
     }
 
-    public void SetFollowTarget(Transform target, Vector3 offset)
+    public void SetFollowTarget(Transform target, Vector3 offset, Vector3 rotation)
     {
-        _followTarget = target;
         _offset = offset;
+        _followTarget = target;
+        _camera.transform.rotation = Quaternion.Euler(rotation);
         _camera.gameObject.SetActive(true);
     }
 

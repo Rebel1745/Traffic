@@ -1,14 +1,21 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class PedestrianController : MonoBehaviour
+public class PedestrianController : MonoBehaviour, ISelectableObject
 {
     [Header("Movement Settings")]
     [SerializeField] private float _moveSpeed = 5f;
     [SerializeField] private float _rotationSpeed = 5f;
     [SerializeField] private float _waypointReachThreshold = 0.1f;
+
+    [Header("Selected Details")]
+    [SerializeField] private string _pedestrianName;
+    public string PedestrianName => _pedestrianName;
+    [SerializeField] private Vector3 _cameraFocusOffset; // the offset to apply to the camera that looks at the building when it is selected
+    public Vector3 CameraFocusOffset => _cameraFocusOffset;
+    [SerializeField] private Vector3 _cameraRotation;
+    public Vector3 CameraRotation => _cameraRotation;
 
     [Header("Animation")]
     private PedestrianAnimationController _animController;
@@ -242,5 +249,10 @@ public class PedestrianController : MonoBehaviour
         }
 
         return true;
+    }
+
+    public void SelectObject()
+    {
+        UIManager.Instance.LoadPedestrianDetails(this);
     }
 }

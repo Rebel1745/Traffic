@@ -14,8 +14,8 @@ TagManager:
   - Ground
   - Road
   - Vehicle
-  - Selectable
-  - 
+  - Pedestrian
+  - Building
   - 
   - 
   - 
