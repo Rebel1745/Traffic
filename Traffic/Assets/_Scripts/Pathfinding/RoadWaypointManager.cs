@@ -878,6 +878,25 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         return new List<WaypointNode>();
     }
 
+    public WaypointNode GetWaypointNodeFromPositionInCell(GridCell cell, Vector3 position)
+    {
+        List<WaypointNode> allNodes = GetCellWaypoints(cell);
+
+        if (allNodes.Count > 0)
+        {
+            allNodes.Sort((a, b) =>
+            {
+                float distA = Utils.GetDistanceWithSetHeight(position, a.Position, 0f);
+                float distB = Utils.GetDistanceWithSetHeight(position, b.Position, 0f);
+                return distA.CompareTo(distB);
+            });
+
+            return allNodes.First();
+        }
+
+        return null;
+    }
+
     public void PopulateSaveData(GameSaveData saveData)
     {
         var waypointData = new WaypointSaveData();

@@ -21,6 +21,8 @@ public class BuildingController : MonoBehaviour, ISelectableObject
     [SerializeField] private Transform _vehicleCellCheckWaypoint; // the position of the cell that is connected to when the car leaves
 
     [Header("Selected Details")]
+    public EntityId Id { get; private set; }
+    private GridCell _cell;
     [SerializeField] private string _buildingName;
     public string BuildingName => _buildingName;
     [SerializeField] private Vector3 _cameraFocusOffset; // the offset to apply to the camera that looks at the building when it is selected
@@ -28,10 +30,55 @@ public class BuildingController : MonoBehaviour, ISelectableObject
     [SerializeField] private Vector3 _cameraRotation;
     public Vector3 CameraRotation => _cameraRotation;
 
-    public void SetupBuilding(GridCell cell)
+    public void SetupBuilding(EntityId entityId, GridCell cell)
     {
+        Id = entityId;
+        _cell = cell;
+
         PedestrianWaypointManager.Instance.AddBuildingPedestrianWaypoints(cell, _insideBuildingWaypoint, _doorWaypoint, _entryExitPropertyWaypoint, _propertyEntryToDoorWaypoints, _entryExitVehicleWaypoint, _parkedToDoorWaypoints);
         RoadWaypointManager.Instance.AddBuildingVehicleWaypoints(cell, _parkedWaypoint, _vehicleEntryToParkedWaypoints, _vehicleEntryExitWaypoint, _vehicleCellCheckWaypoint);
+
+        // add a person
+        PedestrianController pc = AddPersonToBuilding();
+
+        // add a vehicle
+        VehicleController vc = AddVehicleToBuilding();
+
+        // link the person to the vehicle
+        RelationshipManager.Instance.AddRelationship(
+            RelationshipType.Driver,
+            pc.Id, // Source: person
+            vc.Id // Target: vehicle
+        );
+
+    }
+
+    public PedestrianController AddPersonToBuilding()
+    {
+        PedestrianController pc = PedestrianManager.Instance.AddAndRegisterPerson(PedestrianWaypointManager.Instance.GetWaypointNodeFromPositionInCell(_cell, _doorWaypoint.position));
+
+        // link the person to the building
+        RelationshipManager.Instance.AddRelationship(
+            RelationshipType.Resident,
+            Id, // Source: Building
+            pc.Id // Target: Person
+        );
+
+        return pc;
+    }
+
+    public VehicleController AddVehicleToBuilding()
+    {
+        VehicleController vc = VehicleManager.Instance.AddAndRegisterVehicle(RoadWaypointManager.Instance.GetWaypointNodeFromPositionInCell(_cell, _parkedWaypoint.position));
+
+        // link the vehicle to the building
+        RelationshipManager.Instance.AddRelationship(
+            RelationshipType.ParksAt,
+            Id, // Source: Building
+            vc.Id // Target: vehicle
+        );
+
+        return vc;
     }
 
     public MeshRenderer GetFoundationRenderer() => _foundationRenderer;

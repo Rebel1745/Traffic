@@ -6,7 +6,9 @@ public class PedestrianManager : MonoBehaviour
 {
     public static PedestrianManager Instance { get; private set; }
 
-    private List<PedestrianController> _activePedestrians = new List<PedestrianController>();
+    [SerializeField] private GameObject[] _pedestrianPrefabs;
+
+    private Dictionary<EntityId, PedestrianController> _allPedestrians = new();
 
     private void Awake()
     {
@@ -36,43 +38,71 @@ public class PedestrianManager : MonoBehaviour
         if (SimulationManager.Instance.CurrentState.SimulationState != SimulationState.Pedestrians)
             return;
 
+        //AddAndRegisterPerson();
+
         // Get a random valid spawn location
-        WaypointNode startWaypoint = GetRandomPedestrianWaypoint(WaypointType.PedestrianWalkway);
-        //WaypointNode startWaypoint = GetRandomPedestrianWaypoint(WaypointType.InsideBuilding);
-        if (startWaypoint == null)
-        {
-            Debug.LogWarning("No valid spawn location found!");
-            return;
-        }
+        // WaypointNode startWaypoint = GetRandomPedestrianWaypoint(WaypointType.PedestrianWalkway);
+        // //WaypointNode startWaypoint = GetRandomPedestrianWaypoint(WaypointType.InsideBuilding);
+        // if (startWaypoint == null)
+        // {
+        //     Debug.LogWarning("No valid spawn location found!");
+        //     return;
+        // }
 
-        // Get a random valid target
-        WaypointNode targetWaypoint = FindValidTarget(startWaypoint);
-        if (targetWaypoint == null)
-        {
-            Debug.LogWarning("No valid target found for spawn location!");
-            return;
-        }
+        // // Get a random valid target
+        // WaypointNode targetWaypoint = FindValidTarget(startWaypoint);
+        // if (targetWaypoint == null)
+        // {
+        //     Debug.LogWarning("No valid target found for spawn location!");
+        //     return;
+        // }
 
-        PedestrianSpawner.Instance.SpawnPedestrian(startWaypoint, targetWaypoint);
+        // PedestrianSpawner.Instance.SpawnPedestrian(startWaypoint, targetWaypoint);
     }
 
-    public void RegisterPedestrian(PedestrianController pedestrian)
+    private PedestrianController AddAndRegisterPerson()
     {
-        if (pedestrian != null && !_activePedestrians.Contains(pedestrian))
-        {
-            _activePedestrians.Add(pedestrian);
-        }
+        return AddAndRegisterPerson(GetRandomPedestrianWaypoint(WaypointType.None));
     }
 
-    public void UnregisterPedestrian(PedestrianController pedestrian)
+    public PedestrianController AddAndRegisterPerson(WaypointNode spawnWaypoint)
     {
-        if (_activePedestrians.Contains(pedestrian))
-        {
-            _activePedestrians.Remove(pedestrian);
-        }
+        // 1. Generate the ID
+        EntityId newId = EntityId.New();
+
+        // 2. Instantiate the GameObject
+        // You can use Object.Instantiate with a prefab
+        GameObject pedestrianPrefab = _pedestrianPrefabs[Random.Range(0, _pedestrianPrefabs.Length)];
+        Vector3 spawnLocation = Utils.GetVectorWithSetHeight(spawnWaypoint.Position, 0.2f);
+        //Vector3 lookDirection = (Utils.GetVectorWithSetHeight(Camera.main.transform.position, 0.2f) - spawnLocation).normalized;
+        Vector3 lookDirection = Vector3.back;
+        GameObject pedestrian = Instantiate(pedestrianPrefab, spawnLocation, Quaternion.identity, transform);
+        pedestrian.transform.rotation = Quaternion.LookRotation(lookDirection);
+        PedestrianController pc = pedestrian.GetComponent<PedestrianController>();
+
+        // 3. Assign the ID to the controller
+        pc.Initialise(newId, spawnWaypoint);
+
+        // 4. Register in the dictionary
+        _allPedestrians[newId] = pc;
+
+        // 5. Hook into the Destroy event to auto-cleanup
+        // (See Step C below)
+
+        return pc;
     }
 
-    public void RequestNewTarget(PedestrianController pedestrian, WaypointType previousTargetType)
+    public void GoToRandomWaypoint(PedestrianController pc)
+    {
+        RequestNewTarget(pc);
+    }
+
+    public void GoHome(PedestrianController pc)
+    {
+
+    }
+
+    public void RequestNewTarget(PedestrianController pedestrian, WaypointType previousTargetType = WaypointType.None)
     {
         if (pedestrian == null || pedestrian.CurrentWaypoint == null)
         {
@@ -87,8 +117,8 @@ public class PedestrianManager : MonoBehaviour
         {
             WaypointNode newTarget = null;
 
-            if (previousTargetType != WaypointType.InsideBuilding)
-                newTarget = GetRandomPedestrianWaypoint(WaypointType.InsideBuilding);
+            // if (previousTargetType != WaypointType.InsideBuilding)
+            //     newTarget = GetRandomPedestrianWaypoint(WaypointType.InsideBuilding);
 
             if (newTarget == null) newTarget = FindValidTarget(pedestrian.CurrentWaypoint);
 
@@ -109,7 +139,7 @@ public class PedestrianManager : MonoBehaviour
 
         // Failed to find a valid target after 3 attempts
         Debug.LogWarning($"Failed to find valid target for pedestrian after {maxAttempts} attempts. Destroying pedestrian.");
-        Removepedestrian(pedestrian);
+        Destroy(pedestrian.gameObject);
     }
 
     public WaypointNode FindValidTarget(WaypointNode startWaypoint, int maxAttempts = 10)
@@ -150,14 +180,5 @@ public class PedestrianManager : MonoBehaviour
         }
 
         return specificNodes[Random.Range(0, specificNodes.Count)];
-    }
-
-    public void Removepedestrian(PedestrianController pedestrian)
-    {
-        if (_activePedestrians.Contains(pedestrian))
-        {
-            _activePedestrians.Remove(pedestrian);
-        }
-        Destroy(pedestrian.gameObject);
     }
 }

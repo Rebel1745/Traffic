@@ -41,8 +41,8 @@ public class VehicleSpawner : MonoBehaviour
                 vehicleObj.transform.rotation = Quaternion.LookRotation(direction);
             }
 
-            vehicle.Initialize(path, targetWaypoint);
-            VehicleManager.Instance.RegisterVehicle(vehicle);
+            //vehicle.Initialize(path, targetWaypoint);
+            //VehicleManager.Instance.RegisterVehicle(vehicle);
             Debug.Log($"Vehicle spawned at {startWaypoint.Position} with target {targetWaypoint.Position}");
         }
         else

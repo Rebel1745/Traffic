@@ -52,6 +52,8 @@ public class UIManager : MonoBehaviour
     {
         if (!_trafficLightGroupSettingsUI) return;
 
+        CloseUIDetailsWindow();
+
         _trafficLightGroupSettingsUI.LoadSettings(group);
 
         _currentUIDetailsWindow = _trafficLightGroupSettingsUI.gameObject;
@@ -60,6 +62,8 @@ public class UIManager : MonoBehaviour
     public void LoadBuildingDetails(BuildingController building)
     {
         if (!_selectedBuildingDetailsUI) return;
+
+        CloseUIDetailsWindow();
 
         _selectedBuildingDetailsUI.LoadBuilding(building);
 
@@ -70,6 +74,8 @@ public class UIManager : MonoBehaviour
     {
         if (!_selectedPedestrianDetailsUI) return;
 
+        CloseUIDetailsWindow();
+
         _selectedPedestrianDetailsUI.LoadPedestrian(pedestrian);
 
         _currentUIDetailsWindow = _selectedPedestrianDetailsUI.gameObject;
@@ -79,6 +85,8 @@ public class UIManager : MonoBehaviour
     {
         if (!_selectedVehicleDetailsUI) return;
 
+        CloseUIDetailsWindow();
+
         _selectedVehicleDetailsUI.LoadVehicle(vehicle);
 
         _currentUIDetailsWindow = _selectedVehicleDetailsUI.gameObject;
@@ -86,6 +94,8 @@ public class UIManager : MonoBehaviour
 
     public void CloseUIDetailsWindow()
     {
+        if (_currentUIDetailsWindow == null) return;
+
         _currentUIDetailsWindow.SetActive(false);
         _currentUIDetailsWindow = null;
     }

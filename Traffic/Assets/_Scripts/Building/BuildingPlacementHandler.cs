@@ -116,7 +116,7 @@ public class BuildingPlacementHandler : MonoBehaviour, IPlacementHandler
             }
         }
 
-        BuildingManager.Instance.PlaceBuilding(_buildingPrefab, GridManager.Instance.WorldToGridPosition(position), _buildingXCells, _buildingZCells);
+        BuildingManager.Instance.PlaceAndRegisterBuilding(_buildingPrefab, GridManager.Instance.WorldToGridPosition(position), _buildingXCells, _buildingZCells);
     }
 
     private void CreatePreviewMesh()

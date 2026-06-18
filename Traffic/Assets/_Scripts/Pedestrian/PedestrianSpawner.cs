@@ -42,7 +42,7 @@ public class PedestrianSpawner : MonoBehaviour
             }
 
             pedestrian.Initialize(path, targetWaypoint);
-            PedestrianManager.Instance.RegisterPedestrian(pedestrian);
+            //PedestrianManager.Instance.RegisterPedestrian(pedestrian);
             Debug.Log($"pedestrian spawned at {startWaypoint.Position} with target {targetWaypoint.Position}");
         }
         else

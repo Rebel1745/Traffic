@@ -75,6 +75,6 @@ public class ObjectSelectionManager : MonoBehaviour
 
     private void ClearSelection()
     {
-        Debug.Log("Selection cleared");
+        UIManager.Instance.CloseUIDetailsWindow();
     }
 }

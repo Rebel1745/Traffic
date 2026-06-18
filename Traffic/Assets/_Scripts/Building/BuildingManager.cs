@@ -1,8 +1,11 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BuildingManager : MonoBehaviour
 {
     public static BuildingManager Instance { get; private set; }
+
+    private Dictionary<EntityId, BuildingController> _allBuildings = new();
 
     private void Awake()
     {
@@ -14,7 +17,7 @@ public class BuildingManager : MonoBehaviour
         Instance = this;
     }
 
-    public void PlaceBuilding(GameObject prefab, Vector3Int firstCell, int xWidth, int zWidth)
+    public void PlaceAndRegisterBuilding(GameObject prefab, Vector3Int firstCell, int xWidth, int zWidth)
     {
         float cellSize = GridManager.Instance.CellSize;
         float pavementHeight = RoadMeshRenderer.Instance.GetPavementHeight();
@@ -39,6 +42,11 @@ public class BuildingManager : MonoBehaviour
 
         building.transform.position = finalPosition;
 
-        buildingObj.GetComponent<BuildingController>().SetupBuilding(GridManager.Instance.GetCellAtWorldPosition(anchorWorldPos));
+        BuildingController bc = buildingObj.GetComponent<BuildingController>();
+
+        EntityId newId = EntityId.New();
+        _allBuildings[newId] = bc;
+
+        bc.SetupBuilding(newId, GridManager.Instance.GetCellAtWorldPosition(anchorWorldPos));
     }
 }

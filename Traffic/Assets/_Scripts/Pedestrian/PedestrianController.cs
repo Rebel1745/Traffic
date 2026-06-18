@@ -4,12 +4,9 @@ using UnityEngine;
 
 public class PedestrianController : MonoBehaviour, ISelectableObject
 {
-    [Header("Movement Settings")]
-    [SerializeField] private float _moveSpeed = 5f;
-    [SerializeField] private float _rotationSpeed = 5f;
-    [SerializeField] private float _waypointReachThreshold = 0.1f;
 
     [Header("Selected Details")]
+    public EntityId Id { get; private set; }
     [SerializeField] private string _pedestrianName;
     public string PedestrianName => _pedestrianName;
     [SerializeField] private Vector3 _cameraFocusOffset; // the offset to apply to the camera that looks at the building when it is selected
@@ -19,6 +16,11 @@ public class PedestrianController : MonoBehaviour, ISelectableObject
 
     [Header("Animation")]
     private PedestrianAnimationController _animController;
+
+    [Header("Movement Settings")]
+    [SerializeField] private float _moveSpeed = 5f;
+    [SerializeField] private float _rotationSpeed = 5f;
+    [SerializeField] private float _waypointReachThreshold = 0.1f;
 
     [Header("Debug")]
     [SerializeField] private bool _showDebugInfo = true;
@@ -53,6 +55,17 @@ public class PedestrianController : MonoBehaviour, ISelectableObject
             return;
 
         MoveTowardsNextWaypoint();
+    }
+
+    public void Initialise(EntityId entityId, WaypointNode spawnWaypoint)
+    {
+        Id = entityId;
+        CurrentWaypoint = spawnWaypoint;
+        Path = new();
+        _currentWaypointIndex = 0;
+        _isMoving = false;
+
+        _animController.SetAnimation(PedestrianAnimationType.Wave);
     }
 
     public void Initialize(List<WaypointNode> path, WaypointNode target)
@@ -184,10 +197,12 @@ public class PedestrianController : MonoBehaviour, ISelectableObject
 
         _isMoving = false;
 
-        WaypointType currentTargetType = Path.Count > 0 ? Path.Last().Type : WaypointType.None;
+        _animController.SetAnimation(PedestrianAnimationType.Wave);
 
-        // Request new target from PedestrianManager
-        PedestrianManager.Instance.RequestNewTarget(this, currentTargetType);
+        // WaypointType currentTargetType = Path.Count > 0 ? Path.Last().Type : WaypointType.None;
+
+        // // Request new target from PedestrianManager
+        // PedestrianManager.Instance.RequestNewTarget(this, currentTargetType);
     }
 
     public void SetNewPath(List<WaypointNode> newPath, WaypointNode newTarget)

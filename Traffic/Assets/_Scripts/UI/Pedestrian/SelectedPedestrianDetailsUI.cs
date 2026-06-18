@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,6 +7,7 @@ public class SelectedPedestrianDetailsUI : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private GameObject uiPanel;
+    private PedestrianController _pedestrianController;
 
     [Header(("Pedestrian Name"))]
     [SerializeField] private TMP_Text _pedestrianNameText;
@@ -14,14 +16,33 @@ public class SelectedPedestrianDetailsUI : MonoBehaviour
     [SerializeField] private Button _updatePedestrianNameButton;
     [SerializeField] private Button _cancelUpdatePedestrianNameButton;
 
+    [Header("Action Buttons")]
+    [SerializeField] private Button _goToRandomWaypointButton;
+    [SerializeField] private Button _goHomeButton;
+
     public void LoadPedestrian(PedestrianController pedestrian)
     {
+        _pedestrianController = pedestrian;
+
         uiPanel.SetActive(true);
         CameraFollow.Instance.SetFollowTarget(pedestrian.transform, pedestrian.CameraFocusOffset, pedestrian.CameraRotation);
 
         // setup Pedestrian naming
         _pedestrianNameText.text = pedestrian.PedestrianName;
         _pedestrianNameInput.text = pedestrian.PedestrianName;
+
+        _goToRandomWaypointButton.onClick.AddListener(OnGoToRandomWaypointClicked);
+        _goHomeButton.onClick.AddListener(OnGoHomeClicked);
+    }
+
+    private void OnGoToRandomWaypointClicked()
+    {
+        PedestrianManager.Instance.GoToRandomWaypoint(_pedestrianController);
+    }
+
+    private void OnGoHomeClicked()
+    {
+        PedestrianManager.Instance.GoHome(_pedestrianController);
     }
 
     public void OnEditPedestrianNameClicked()

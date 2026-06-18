@@ -29,6 +29,7 @@ public class VehicleController : MonoBehaviour, ISelectableObject
     private float _roadHeight = 0f;
 
     [Header("Selected Details")]
+    public EntityId Id { get; private set; }
     [SerializeField] private string _vehicleName;
     public string VehicleName => _vehicleName;
     [SerializeField] private Vector3 _cameraFocusOffset; // the offset to apply to the camera that looks at the building when it is selected
@@ -41,6 +42,15 @@ public class VehicleController : MonoBehaviour, ISelectableObject
         _vehicleCollider = GetComponent<Collider>();
         _stopDistance = _vehicleCollider.bounds.extents.z;
         _roadHeight = RoadMeshRenderer.Instance.GetRoadHeight();
+    }
+
+    public void Initialise(EntityId entityId, WaypointNode spawnWaypoint)
+    {
+        Id = entityId;
+        CurrentWaypoint = spawnWaypoint;
+        Path = new();
+        _currentWaypointIndex = 0;
+        _isMoving = false;
     }
 
     public void Initialize(List<WaypointNode> path, WaypointNode target)

@@ -6,7 +6,9 @@ public class VehicleManager : MonoBehaviour
 {
     public static VehicleManager Instance { get; private set; }
 
-    private List<VehicleController> _activeVehicles = new List<VehicleController>();
+    [SerializeField] private GameObject[] _vehiclePrefabs;
+
+    private Dictionary<EntityId, VehicleController> _allVehicles = new();
 
     private void Awake()
     {
@@ -36,40 +38,58 @@ public class VehicleManager : MonoBehaviour
         if (SimulationManager.Instance.CurrentState.SimulationState != SimulationState.Vehicles)
             return;
 
+        //AddAndRegisterVehicle();
+
         // Get a random valid spawn location
-        WaypointNode startWaypoint = GetRandomVehicleWaypoint(WaypointType.VehicleParking);
-        if (startWaypoint == null)
-        {
-            Debug.LogWarning("No valid spawn location found!");
-            return;
-        }
+        // WaypointNode startWaypoint = GetRandomVehicleWaypoint(WaypointType.VehicleParking);
+        // if (startWaypoint == null)
+        // {
+        //     Debug.LogWarning("No valid spawn location found!");
+        //     return;
+        // }
 
-        // Get a random valid target
-        //WaypointNode targetWaypoint = FindValidTarget(startWaypoint);
-        WaypointNode targetWaypoint = GetRandomVehicleWaypoint(WaypointType.VehicleEntryExit);
-        if (targetWaypoint == null)
-        {
-            Debug.LogWarning("No valid target found for spawn location!");
-            return;
-        }
+        // // Get a random valid target
+        // //WaypointNode targetWaypoint = FindValidTarget(startWaypoint);
+        // WaypointNode targetWaypoint = GetRandomVehicleWaypoint(WaypointType.VehicleEntryExit);
+        // if (targetWaypoint == null)
+        // {
+        //     Debug.LogWarning("No valid target found for spawn location!");
+        //     return;
+        // }
 
-        VehicleSpawner.Instance.SpawnVehicle(startWaypoint, targetWaypoint);
+        // VehicleSpawner.Instance.SpawnVehicle(startWaypoint, targetWaypoint);
     }
 
-    public void RegisterVehicle(VehicleController vehicle)
+    private VehicleController AddAndRegisterVehicle()
     {
-        if (vehicle != null && !_activeVehicles.Contains(vehicle))
-        {
-            _activeVehicles.Add(vehicle);
-        }
+        return AddAndRegisterVehicle(GetRandomVehicleWaypoint(WaypointType.None));
     }
 
-    public void UnregisterVehicle(VehicleController vehicle)
+    public VehicleController AddAndRegisterVehicle(WaypointNode spawnWaypoint)
     {
-        if (_activeVehicles.Contains(vehicle))
-        {
-            _activeVehicles.Remove(vehicle);
-        }
+        // 1. Generate the ID
+        EntityId newId = EntityId.New();
+
+        // 2. Instantiate the GameObject
+        // You can use Object.Instantiate with a prefab
+        GameObject vehiclePrefab = _vehiclePrefabs[Random.Range(0, _vehiclePrefabs.Length)];
+        Vector3 spawnLocation = Utils.GetVectorWithSetHeight(spawnWaypoint.Position, 0.2f);
+        //Vector3 lookDirection = (Utils.GetVectorWithSetHeight(Camera.main.transform.position, 0.2f) - spawnLocation).normalized;
+        Vector3 lookDirection = Vector3.back;
+        GameObject vehicle = Instantiate(vehiclePrefab, spawnLocation, Quaternion.identity, transform);
+        vehicle.transform.rotation = Quaternion.LookRotation(lookDirection);
+        VehicleController vc = vehicle.GetComponent<VehicleController>();
+
+        // 3. Assign the ID to the controller
+        vc.Initialise(newId, spawnWaypoint);
+
+        // 4. Register in the dictionary
+        _allVehicles[newId] = vc;
+
+        // 5. Hook into the Destroy event to auto-cleanup
+        // (See Step C below)
+
+        return vc;
     }
 
     public void RequestNewTarget(VehicleController vehicle, WaypointType previousTargetType)
@@ -109,7 +129,7 @@ public class VehicleManager : MonoBehaviour
 
         // Failed to find a valid target after 3 attempts
         Debug.LogWarning($"Failed to find valid target for vehicle after {maxAttempts} attempts. Destroying vehicle.");
-        RemoveVehicle(vehicle);
+        //RemoveVehicle(vehicle);
     }
 
     public WaypointNode FindValidTarget(WaypointNode startWaypoint, int maxAttempts = 10)
@@ -152,14 +172,5 @@ public class VehicleManager : MonoBehaviour
         }
 
         return specificNodes[Random.Range(0, specificNodes.Count)];
-    }
-
-    public void RemoveVehicle(VehicleController vehicle)
-    {
-        if (_activeVehicles.Contains(vehicle))
-        {
-            _activeVehicles.Remove(vehicle);
-        }
-        Destroy(vehicle.gameObject);
     }
 }
