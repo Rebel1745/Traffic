@@ -702,7 +702,7 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
         }
     }
 
-    public void AddBuildingPedestrianWaypoints(GridCell cell, Transform insideBuilding, Transform door, Transform propertyEntryExit, Transform[] propertyEntryToDoor, Transform vehicleEntryExit, Transform[] carToDoor)
+    public void AddBuildingPedestrianWaypoints(GridCell cell, BuildingController building, Transform insideBuilding, Transform door, Transform propertyEntryExit, Transform[] propertyEntryToDoor, Transform vehicleEntryExit, Transform[] carToDoor)
     {
         // Store waypoints for this cell
         if (!_cellWaypoints.ContainsKey(cell))
@@ -715,6 +715,8 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork, ISavea
         WaypointNode doorNode = new WaypointNode(door.position, cell, WaypointType.BuildingDoor, WaypointNetworkType.Pedestrian);
         WaypointNode propertyEntryExitNode = new WaypointNode(propertyEntryExit.position, cell, WaypointType.PropertyEntryExit, WaypointNetworkType.Pedestrian);
         WaypointNode vehicleEntryExitNode = new WaypointNode(vehicleEntryExit.position, cell, WaypointType.VehicleEntryExit, WaypointNetworkType.Pedestrian);
+
+        building.SetBuildingPedestrianWaypoints(inBuldingNode, doorNode, propertyEntryExitNode, vehicleEntryExitNode);
 
         // add them to the list
         _cellWaypoints[cell].Add(inBuldingNode);

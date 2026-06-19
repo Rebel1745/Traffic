@@ -99,7 +99,23 @@ public class PedestrianManager : MonoBehaviour
 
     public void GoHome(PedestrianController pc)
     {
+        EntityId buildingId = RelationshipManager.Instance.GetHomeBuildings(pc.Id).First();
 
+        if (!buildingId.IsValid) Debug.LogError("Home building not found");
+
+        BuildingController bc = BuildingManager.Instance.GetBuilding(buildingId);
+
+        if (bc == null) Debug.LogError("Building Controller not found");
+
+        WaypointNode homeNode = bc.InsideBuildingWaypoint;
+
+        if (homeNode == null) Debug.LogError("Inside building node not found");
+
+        List<WaypointNode> newPath = AStarPathfinder.FindPath(pc.CurrentWaypoint, homeNode);
+
+        if (newPath == null || newPath.Count == 0) Debug.LogError("Path to home node not found");
+
+        pc.SetNewPath(newPath, homeNode);
     }
 
     public void RequestNewTarget(PedestrianController pedestrian, WaypointType previousTargetType = WaypointType.None)

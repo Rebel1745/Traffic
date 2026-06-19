@@ -49,17 +49,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildingController
   _buildingRenderer: {fileID: 6633993774056098461}
   _foundationRenderer: {fileID: 5013279444769424418}
-  _insideBuildingWaypoint: {fileID: 3250191999778630493}
-  _doorWaypoint: {fileID: 3935152349918427259}
-  _entryExitPropertyWaypoint: {fileID: 345944736946774909}
-  _entryExitVehicleWaypoint: {fileID: 7336757360554075283}
-  _parkedToDoorWaypoints:
+  _insideBuildingWaypointPosition: {fileID: 3250191999778630493}
+  _doorWaypointPosition: {fileID: 3935152349918427259}
+  _entryExitPropertyWaypointPosition: {fileID: 345944736946774909}
+  _entryExitVehicleWaypointPosition: {fileID: 7336757360554075283}
+  _parkedToDoorWaypointPositions:
   - {fileID: 8078884104543125158}
-  _propertyEntryToDoorWaypoints: []
-  _parkedWaypoint: {fileID: 4579101568455517717}
-  _vehicleEntryExitWaypoint: {fileID: 335167969853319501}
-  _vehicleEntryToParkedWaypoints: []
-  _vehicleCellCheckWaypoint: {fileID: 4696659758057400433}
+  _propertyEntryToDoorWaypointPositions: []
+  _parkedWaypointPosition: {fileID: 4579101568455517717}
+  _vehicleEntryExitWaypointPosition: {fileID: 335167969853319501}
+  _vehicleEntryToParkedWaypointPositions:
+  - {fileID: 805885251416031779}
+  _vehicleCellCheckWaypointPosition: {fileID: 4696659758057400433}
   _buildingName: 
   _cameraFocusOffset: {x: -0.5, y: -3.5, z: 9.5}
   _cameraRotation: {x: 15, y: 0, z: 0}

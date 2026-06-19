@@ -49,4 +49,9 @@ public class BuildingManager : MonoBehaviour
 
         bc.SetupBuilding(newId, GridManager.Instance.GetCellAtWorldPosition(anchorWorldPos));
     }
+
+    public BuildingController GetBuilding(EntityId entityId)
+    {
+        return _allBuildings[entityId];
+    }
 }

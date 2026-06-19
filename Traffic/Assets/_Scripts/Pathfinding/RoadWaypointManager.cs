@@ -787,7 +787,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         return lookup;
     }
 
-    public void AddBuildingVehicleWaypoints(GridCell cell, Transform parkedWaypoint, Transform[] entryToParkedWaypoints, Transform entryWaypoint, Transform cellCheckWaypoint)
+    public void AddBuildingVehicleWaypoints(GridCell cell, BuildingController building, Transform parkedWaypoint, Transform[] entryToParkedWaypoints, Transform entryWaypoint, Transform cellCheckWaypoint)
     {
         // Store waypoints for this cell
         if (!_cellWaypoints.ContainsKey(cell))
@@ -798,6 +798,8 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         // define the main vehicle nodes
         WaypointNode entryNode = new WaypointNode(entryWaypoint.position, cell, WaypointType.VehicleEntryExit, WaypointNetworkType.Vehicle);
         WaypointNode parkedNode = new WaypointNode(parkedWaypoint.position, cell, WaypointType.VehicleParking, WaypointNetworkType.Vehicle);
+
+        building.SetBuildingVehicleWaypoints(parkedNode, entryNode);
 
         // add them to the list
         _cellWaypoints[cell].Add(entryNode);

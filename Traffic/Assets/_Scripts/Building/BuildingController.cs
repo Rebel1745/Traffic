@@ -6,19 +6,31 @@ public class BuildingController : MonoBehaviour, ISelectableObject
     [SerializeField] private MeshRenderer _buildingRenderer;
     [SerializeField] private MeshRenderer _foundationRenderer;
 
-    [Header("Building Waypoints - Pedestrian")]
-    [SerializeField] private Transform _insideBuildingWaypoint; // waypoint for being 'in' building
-    [SerializeField] private Transform _doorWaypoint; // entry to the building
-    [SerializeField] private Transform _entryExitPropertyWaypoint; // entry/exit to the whole property (will connect to the pavement)
-    [SerializeField] private Transform _entryExitVehicleWaypoint; // entry/exit to the vehicle
-    [SerializeField] private Transform[] _parkedToDoorWaypoints; // path from car to door
-    [SerializeField] private Transform[] _propertyEntryToDoorWaypoints; // path from property entry/exit to door
+    [Header("Building Waypoint Positions - Pedestrian")]
+    [SerializeField] private Transform _insideBuildingWaypointPosition; // waypoint for being 'in' building
+    [SerializeField] private Transform _doorWaypointPosition; // entry to the building
+    [SerializeField] private Transform _entryExitPropertyWaypointPosition; // entry/exit to the whole property (will connect to the pavement)
+    [SerializeField] private Transform _entryExitVehicleWaypointPosition; // entry/exit to the vehicle
+    [SerializeField] private Transform[] _parkedToDoorWaypointPositions; // path from car to door
+    [SerializeField] private Transform[] _propertyEntryToDoorWaypointPositions; // path from property entry/exit to door
+    private WaypointNode _insideBuildingWaypoint;
+    public WaypointNode InsideBuildingWaypoint => _insideBuildingWaypoint;
+    private WaypointNode _doorWaypoint;
+    public WaypointNode DoorWaypoint => _doorWaypoint;
+    private WaypointNode _entryExitPropertyWaypoint;
+    public WaypointNode EntryExitPropertyWaypoint => _entryExitPropertyWaypoint;
+    private WaypointNode _entryExitVehicleWaypoint;
+    public WaypointNode EntryExitVehicleWaypoint => _entryExitVehicleWaypoint;
 
-    [Header("Building Waypoints - Vehicle")]
-    [SerializeField] private Transform _parkedWaypoint; // car stopping point
-    [SerializeField] private Transform _vehicleEntryExitWaypoint; // entry/exit to the property
-    [SerializeField] private Transform[] _vehicleEntryToParkedWaypoints; // path to parked waypoint from entry
-    [SerializeField] private Transform _vehicleCellCheckWaypoint; // the position of the cell that is connected to when the car leaves
+    [Header("Building Waypoint Positions - Vehicle")]
+    [SerializeField] private Transform _parkedWaypointPosition; // car stopping point
+    [SerializeField] private Transform _vehicleEntryExitWaypointPosition; // entry/exit to the property
+    [SerializeField] private Transform[] _vehicleEntryToParkedWaypointPositions; // path to parked waypoint from entry
+    [SerializeField] private Transform _vehicleCellCheckWaypointPosition; // the position of the cell that is connected to when the car leaves
+    private WaypointNode _parkedWaypoint;
+    public WaypointNode ParkedWaypoint => _parkedWaypoint;
+    private WaypointNode _vehicleEntryExitPropertyWaypoint;
+    public WaypointNode VehicleEntryExitPropertyWaypoint => _vehicleEntryExitPropertyWaypoint;
 
     [Header("Selected Details")]
     public EntityId Id { get; private set; }
@@ -35,8 +47,8 @@ public class BuildingController : MonoBehaviour, ISelectableObject
         Id = entityId;
         _cell = cell;
 
-        PedestrianWaypointManager.Instance.AddBuildingPedestrianWaypoints(cell, _insideBuildingWaypoint, _doorWaypoint, _entryExitPropertyWaypoint, _propertyEntryToDoorWaypoints, _entryExitVehicleWaypoint, _parkedToDoorWaypoints);
-        RoadWaypointManager.Instance.AddBuildingVehicleWaypoints(cell, _parkedWaypoint, _vehicleEntryToParkedWaypoints, _vehicleEntryExitWaypoint, _vehicleCellCheckWaypoint);
+        PedestrianWaypointManager.Instance.AddBuildingPedestrianWaypoints(cell, this, _insideBuildingWaypointPosition, _doorWaypointPosition, _entryExitPropertyWaypointPosition, _propertyEntryToDoorWaypointPositions, _entryExitVehicleWaypointPosition, _parkedToDoorWaypointPositions);
+        RoadWaypointManager.Instance.AddBuildingVehicleWaypoints(cell, this, _parkedWaypointPosition, _vehicleEntryToParkedWaypointPositions, _vehicleEntryExitWaypointPosition, _vehicleCellCheckWaypointPosition);
 
         // add a person
         PedestrianController pc = AddPersonToBuilding();
@@ -50,12 +62,25 @@ public class BuildingController : MonoBehaviour, ISelectableObject
             pc.Id, // Source: person
             vc.Id // Target: vehicle
         );
+    }
 
+    public void SetBuildingPedestrianWaypoints(WaypointNode insideBuilding, WaypointNode door, WaypointNode entryExit, WaypointNode vehicleEntryExit)
+    {
+        _insideBuildingWaypoint = insideBuilding;
+        _doorWaypoint = door;
+        _entryExitPropertyWaypoint = entryExit;
+        _entryExitVehicleWaypoint = vehicleEntryExit;
+    }
+
+    public void SetBuildingVehicleWaypoints(WaypointNode parked, WaypointNode vehicleEntryExit)
+    {
+        _parkedWaypoint = parked;
+        _vehicleEntryExitPropertyWaypoint = vehicleEntryExit;
     }
 
     public PedestrianController AddPersonToBuilding()
     {
-        PedestrianController pc = PedestrianManager.Instance.AddAndRegisterPerson(PedestrianWaypointManager.Instance.GetWaypointNodeFromPositionInCell(_cell, _doorWaypoint.position));
+        PedestrianController pc = PedestrianManager.Instance.AddAndRegisterPerson(_doorWaypoint);
 
         // link the person to the building
         RelationshipManager.Instance.AddRelationship(
@@ -69,7 +94,7 @@ public class BuildingController : MonoBehaviour, ISelectableObject
 
     public VehicleController AddVehicleToBuilding()
     {
-        VehicleController vc = VehicleManager.Instance.AddAndRegisterVehicle(RoadWaypointManager.Instance.GetWaypointNodeFromPositionInCell(_cell, _parkedWaypoint.position));
+        VehicleController vc = VehicleManager.Instance.AddAndRegisterVehicle(_parkedWaypoint);
 
         // link the vehicle to the building
         RelationshipManager.Instance.AddRelationship(
