@@ -62,10 +62,11 @@ public class PedestrianManager : MonoBehaviour
 
     private PedestrianController AddAndRegisterPerson()
     {
-        return AddAndRegisterPerson(GetRandomPedestrianWaypoint(WaypointType.None));
+        WaypointNode randomWaypoint = GetRandomPedestrianWaypoint(WaypointType.None);
+        return AddAndRegisterPerson(randomWaypoint, randomWaypoint.Position);
     }
 
-    public PedestrianController AddAndRegisterPerson(WaypointNode spawnWaypoint)
+    public PedestrianController AddAndRegisterPerson(WaypointNode spawnWaypoint, Vector3 spawnPosition)
     {
         // 1. Generate the ID
         EntityId newId = EntityId.New();
@@ -73,7 +74,7 @@ public class PedestrianManager : MonoBehaviour
         // 2. Instantiate the GameObject
         // You can use Object.Instantiate with a prefab
         GameObject pedestrianPrefab = _pedestrianPrefabs[Random.Range(0, _pedestrianPrefabs.Length)];
-        Vector3 spawnLocation = Utils.GetVectorWithSetHeight(spawnWaypoint.Position, 0.2f);
+        Vector3 spawnLocation = Utils.GetVectorWithSetHeight(spawnPosition, 0.2f);
         //Vector3 lookDirection = (Utils.GetVectorWithSetHeight(Camera.main.transform.position, 0.2f) - spawnLocation).normalized;
         Vector3 lookDirection = Vector3.back;
         GameObject pedestrian = Instantiate(pedestrianPrefab, spawnLocation, Quaternion.identity, transform);

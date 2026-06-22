@@ -6,6 +6,7 @@ public class SelectedBuildingDetailsUI : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private GameObject uiPanel;
+    private BuildingController _buildingController;
 
     [Header(("Building Name"))]
     [SerializeField] private TMP_Text _buildingNameText;
@@ -14,14 +15,22 @@ public class SelectedBuildingDetailsUI : MonoBehaviour
     [SerializeField] private Button _updateBuildingNameButton;
     [SerializeField] private Button _cancelUpdateBuildingNameButton;
 
+    [Header("Action Buttons")]
+    [SerializeField] private Button _addPersonToBuildingButton;
+
     public void LoadBuilding(BuildingController building)
     {
+        _buildingController = building;
+
         uiPanel.SetActive(true);
         CameraFollow.Instance.SetFollowTarget(building.transform.position, building.CameraFocusOffset, building.CameraRotation);
 
         // setup building naming
         _buildingNameText.text = building.BuildingName;
         _buildingNameInput.text = building.BuildingName;
+
+        _addPersonToBuildingButton.onClick.RemoveAllListeners();
+        _addPersonToBuildingButton.onClick.AddListener(OnAddPersonToBuilding);
     }
 
     public void OnEditBuildingNameClicked()
@@ -47,5 +56,10 @@ public class SelectedBuildingDetailsUI : MonoBehaviour
         _buildingNameInput.gameObject.SetActive(show);
         _updateBuildingNameButton.gameObject.SetActive(show);
         _cancelUpdateBuildingNameButton.gameObject.SetActive(show);
+    }
+
+    private void OnAddPersonToBuilding()
+    {
+        _buildingController.AddPersonToBuilding();
     }
 }

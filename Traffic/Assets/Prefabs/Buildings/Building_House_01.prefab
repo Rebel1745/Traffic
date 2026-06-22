@@ -62,6 +62,10 @@ MonoBehaviour:
   - {fileID: 805885251416031779}
   _vehicleCellCheckWaypointPosition: {fileID: 4696659758057400433}
   _buildingName: 
+  _gridRows: 2
+  _gridCols: 2
+  _gridSize: 0.35
+  _maximumOccupancy: 4
   _cameraFocusOffset: {x: -0.5, y: -3.5, z: 9.5}
   _cameraRotation: {x: 15, y: 0, z: 0}
 --- !u!65 &5045961339903887484

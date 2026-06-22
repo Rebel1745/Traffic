@@ -32,11 +32,20 @@ public class BuildingController : MonoBehaviour, ISelectableObject
     private WaypointNode _vehicleEntryExitPropertyWaypoint;
     public WaypointNode VehicleEntryExitPropertyWaypoint => _vehicleEntryExitPropertyWaypoint;
 
-    [Header("Selected Details")]
+    [Header("Building Details")]
     public EntityId Id { get; private set; }
     private GridCell _cell;
     [SerializeField] private string _buildingName;
     public string BuildingName => _buildingName;
+
+    [Header("Occupancy")]
+    [SerializeField] private int _gridRows;
+    [SerializeField] private int _gridCols;
+    [SerializeField] private float _gridSize;
+    [SerializeField] private int _maximumOccupancy = 4;
+    private int _currentOccupancy;
+
+    [Header("Camera Focus Settings")]
     [SerializeField] private Vector3 _cameraFocusOffset; // the offset to apply to the camera that looks at the building when it is selected
     public Vector3 CameraFocusOffset => _cameraFocusOffset;
     [SerializeField] private Vector3 _cameraRotation;
@@ -80,7 +89,12 @@ public class BuildingController : MonoBehaviour, ISelectableObject
 
     public PedestrianController AddPersonToBuilding()
     {
-        PedestrianController pc = PedestrianManager.Instance.AddAndRegisterPerson(_doorWaypoint);
+
+        if (_currentOccupancy >= _maximumOccupancy) return null;
+
+        Vector3 spawnPosition = GetSpawnPositionForPerson(_doorWaypoint.Position);
+
+        PedestrianController pc = PedestrianManager.Instance.AddAndRegisterPerson(_doorWaypoint, spawnPosition);
 
         // link the person to the building
         RelationshipManager.Instance.AddRelationship(
@@ -89,7 +103,31 @@ public class BuildingController : MonoBehaviour, ISelectableObject
             pc.Id // Target: Person
         );
 
+        _currentOccupancy++;
+
         return pc;
+    }
+
+    private Vector3 GetSpawnPositionForPerson(Vector3 origin)
+    {
+        if (_currentOccupancy >= _maximumOccupancy) return Vector3.zero;
+
+        // 1. Calculate current grid coordinates based on occupancy index
+        // Occupancy 0 -> (0,0), Occupancy 1 -> (1,0), etc.
+        int colIndex = _currentOccupancy % _gridCols;
+        int rowIndex = _currentOccupancy / _gridCols;
+
+        // 2. Convert grid index to world offset
+        // We subtract half the total width/height to center the grid on the origin
+        float totalWidth = _gridCols * _gridSize;
+        float totalDepth = _gridRows * _gridSize;
+
+        float xOffset = (colIndex * _gridSize) - (totalWidth / 2f) + (_gridSize / 2f);
+        float zOffset = (rowIndex * _gridSize) - (totalDepth / 2f) + (_gridSize / 2f);
+
+        // 3. Apply to origin
+        // Note: In Unity, +X is right, +Z is forward. 
+        return new Vector3(origin.x + xOffset, origin.y, origin.z + zOffset);
     }
 
     public VehicleController AddVehicleToBuilding()

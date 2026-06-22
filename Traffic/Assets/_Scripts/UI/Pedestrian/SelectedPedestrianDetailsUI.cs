@@ -31,7 +31,9 @@ public class SelectedPedestrianDetailsUI : MonoBehaviour
         _pedestrianNameText.text = pedestrian.PedestrianName;
         _pedestrianNameInput.text = pedestrian.PedestrianName;
 
+        _goToRandomWaypointButton.onClick.RemoveAllListeners();
         _goToRandomWaypointButton.onClick.AddListener(OnGoToRandomWaypointClicked);
+        _goHomeButton.onClick.RemoveAllListeners();
         _goHomeButton.onClick.AddListener(OnGoHomeClicked);
     }
 
