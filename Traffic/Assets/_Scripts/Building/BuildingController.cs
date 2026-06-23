@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 public class BuildingController : MonoBehaviour, ISelectableObject
@@ -23,12 +24,12 @@ public class BuildingController : MonoBehaviour, ISelectableObject
     public WaypointNode EntryExitVehicleWaypoint => _entryExitVehicleWaypoint;
 
     [Header("Building Waypoint Positions - Vehicle")]
-    [SerializeField] private Transform _parkedWaypointPosition; // car stopping point
+    [SerializeField] private Transform[] _parkingSpotWaypointPositions; // car parking spots
     [SerializeField] private Transform _vehicleEntryExitWaypointPosition; // entry/exit to the property
     [SerializeField] private Transform[] _vehicleEntryToParkedWaypointPositions; // path to parked waypoint from entry
     [SerializeField] private Transform _vehicleCellCheckWaypointPosition; // the position of the cell that is connected to when the car leaves
-    private WaypointNode _parkedWaypoint;
-    public WaypointNode ParkedWaypoint => _parkedWaypoint;
+    private WaypointNode[] _parkedWaypoints;
+    public WaypointNode[] ParkedWaypoints => _parkedWaypoints;
     private WaypointNode _vehicleEntryExitPropertyWaypoint;
     public WaypointNode VehicleEntryExitPropertyWaypoint => _vehicleEntryExitPropertyWaypoint;
 
@@ -43,7 +44,9 @@ public class BuildingController : MonoBehaviour, ISelectableObject
     [SerializeField] private int _gridCols;
     [SerializeField] private float _gridSize;
     [SerializeField] private int _maximumOccupancy = 4;
-    private int _currentOccupancy;
+    private int _currentOccupancy = 0;
+    private int _maximumVehicleOccupancy;
+    private int _currentVehicleOccupancy = 0;
 
     [Header("Camera Focus Settings")]
     [SerializeField] private Vector3 _cameraFocusOffset; // the offset to apply to the camera that looks at the building when it is selected
@@ -56,8 +59,12 @@ public class BuildingController : MonoBehaviour, ISelectableObject
         Id = entityId;
         _cell = cell;
 
+        _maximumVehicleOccupancy = _parkingSpotWaypointPositions.Count();
+
+        Debug.Log($"{_maximumVehicleOccupancy} {_parkingSpotWaypointPositions.Count()}");
+
         PedestrianWaypointManager.Instance.AddBuildingPedestrianWaypoints(cell, this, _insideBuildingWaypointPosition, _doorWaypointPosition, _entryExitPropertyWaypointPosition, _propertyEntryToDoorWaypointPositions, _entryExitVehicleWaypointPosition, _parkedToDoorWaypointPositions);
-        RoadWaypointManager.Instance.AddBuildingVehicleWaypoints(cell, this, _parkedWaypointPosition, _vehicleEntryToParkedWaypointPositions, _vehicleEntryExitWaypointPosition, _vehicleCellCheckWaypointPosition);
+        RoadWaypointManager.Instance.AddBuildingVehicleWaypoints(cell, this, _parkingSpotWaypointPositions, _vehicleEntryToParkedWaypointPositions, _vehicleEntryExitWaypointPosition, _vehicleCellCheckWaypointPosition);
 
         // add a person
         PedestrianController pc = AddPersonToBuilding();
@@ -81,15 +88,14 @@ public class BuildingController : MonoBehaviour, ISelectableObject
         _entryExitVehicleWaypoint = vehicleEntryExit;
     }
 
-    public void SetBuildingVehicleWaypoints(WaypointNode parked, WaypointNode vehicleEntryExit)
+    public void SetBuildingVehicleWaypoints(WaypointNode[] parked, WaypointNode vehicleEntryExit)
     {
-        _parkedWaypoint = parked;
+        _parkedWaypoints = parked;
         _vehicleEntryExitPropertyWaypoint = vehicleEntryExit;
     }
 
     public PedestrianController AddPersonToBuilding()
     {
-
         if (_currentOccupancy >= _maximumOccupancy) return null;
 
         Vector3 spawnPosition = GetSpawnPositionForPerson(_doorWaypoint.Position);
@@ -127,12 +133,14 @@ public class BuildingController : MonoBehaviour, ISelectableObject
 
         // 3. Apply to origin
         // Note: In Unity, +X is right, +Z is forward. 
-        return new Vector3(origin.x + xOffset, origin.y, origin.z + zOffset);
+        return new Vector3(origin.x + xOffset, origin.y, origin.z - zOffset);
     }
 
     public VehicleController AddVehicleToBuilding()
     {
-        VehicleController vc = VehicleManager.Instance.AddAndRegisterVehicle(_parkedWaypoint);
+        if (_currentVehicleOccupancy >= _maximumVehicleOccupancy) return null;
+
+        VehicleController vc = VehicleManager.Instance.AddAndRegisterVehicle(_parkedWaypoints[_currentVehicleOccupancy]);
 
         // link the vehicle to the building
         RelationshipManager.Instance.AddRelationship(
@@ -140,6 +148,8 @@ public class BuildingController : MonoBehaviour, ISelectableObject
             Id, // Source: Building
             vc.Id // Target: vehicle
         );
+
+        _currentVehicleOccupancy++;
 
         return vc;
     }

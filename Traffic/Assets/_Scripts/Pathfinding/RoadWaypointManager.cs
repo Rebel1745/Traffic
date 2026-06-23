@@ -787,7 +787,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         return lookup;
     }
 
-    public void AddBuildingVehicleWaypoints(GridCell cell, BuildingController building, Transform parkedWaypoint, Transform[] entryToParkedWaypoints, Transform entryWaypoint, Transform cellCheckWaypoint)
+    public void AddBuildingVehicleWaypoints(GridCell cell, BuildingController building, Transform[] parkedWaypoints, Transform[] entryToParkedWaypoints, Transform entryWaypoint, Transform cellCheckWaypoint)
     {
         // Store waypoints for this cell
         if (!_cellWaypoints.ContainsKey(cell))
@@ -797,18 +797,24 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
 
         // define the main vehicle nodes
         WaypointNode entryNode = new WaypointNode(entryWaypoint.position, cell, WaypointType.VehicleEntryExit, WaypointNetworkType.Vehicle);
-        WaypointNode parkedNode = new WaypointNode(parkedWaypoint.position, cell, WaypointType.VehicleParking, WaypointNetworkType.Vehicle);
 
-        building.SetBuildingVehicleWaypoints(parkedNode, entryNode);
+        List<WaypointNode> parkedNodeList = new();
+        WaypointNode parkedNode = null;
+
+        foreach (Transform t in parkedWaypoints)
+        {
+            parkedNode = new WaypointNode(t.position, cell, WaypointType.VehicleParking, WaypointNetworkType.Vehicle);
+
+            parkedNodeList.Add(parkedNode);
+            _cellWaypoints[cell].Add(parkedNode);
+            _allWaypoints.Add(parkedNode);
+        }
+
+        building.SetBuildingVehicleWaypoints(parkedNodeList.ToArray(), entryNode);
 
         // add them to the list
         _cellWaypoints[cell].Add(entryNode);
-        _cellWaypoints[cell].Add(parkedNode);
         _allWaypoints.Add(entryNode);
-        _allWaypoints.Add(parkedNode);
-
-        // entryNode.Connections.Add(new WaypointConnection(parkedNode, 0.1f));
-        // parkedNode.Connections.Add(new WaypointConnection(entryNode, 0.1f));
 
         WaypointNode currentNode, previousNode = entryNode;
 
@@ -827,9 +833,12 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
             _allWaypoints.Add(currentNode);
         }
 
-        // then connect to the parked node
-        previousNode.Connections.Add(new WaypointConnection(parkedNode, 0f));
-        parkedNode.Connections.Add(new WaypointConnection(previousNode, 0f));
+        // then connect to the parked nodes
+        foreach (WaypointNode node in parkedNodeList)
+        {
+            previousNode.Connections.Add(new WaypointConnection(node, 0f));
+            node.Connections.Add(new WaypointConnection(previousNode, 0f));
+        }
 
         // find and connect the property exit waypoint, to the waypoints exiting the adjoing cell to allow the vehicle to exit the property in multiple different directions
         List<WaypointNode> closestVehicleWaypoints = FindClosestVehicleNodesInCellFromPosition(cellCheckWaypoint.position, entryNode.Position, 3, WaypointType.Exit);

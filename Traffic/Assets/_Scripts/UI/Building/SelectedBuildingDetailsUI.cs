@@ -17,6 +17,7 @@ public class SelectedBuildingDetailsUI : MonoBehaviour
 
     [Header("Action Buttons")]
     [SerializeField] private Button _addPersonToBuildingButton;
+    [SerializeField] private Button _addVehicleToBuildingButton;
 
     public void LoadBuilding(BuildingController building)
     {
@@ -31,6 +32,9 @@ public class SelectedBuildingDetailsUI : MonoBehaviour
 
         _addPersonToBuildingButton.onClick.RemoveAllListeners();
         _addPersonToBuildingButton.onClick.AddListener(OnAddPersonToBuilding);
+
+        _addVehicleToBuildingButton.onClick.RemoveAllListeners();
+        _addVehicleToBuildingButton.onClick.AddListener(OnAddVehicleToBuilding);
     }
 
     public void OnEditBuildingNameClicked()
@@ -61,5 +65,10 @@ public class SelectedBuildingDetailsUI : MonoBehaviour
     private void OnAddPersonToBuilding()
     {
         _buildingController.AddPersonToBuilding();
+    }
+
+    private void OnAddVehicleToBuilding()
+    {
+        _buildingController.AddVehicleToBuilding();
     }
 }

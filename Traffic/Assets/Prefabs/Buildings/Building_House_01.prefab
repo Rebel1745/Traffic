@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &98309095972324506
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 576607627611016680}
+  m_Layer: 10
+  m_Name: ParkingSpot2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &576607627611016680
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 98309095972324506}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -5.5, y: 0, z: 1.42}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5000150006631214452}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &413424536934244235
 GameObject:
   m_ObjectHideFlags: 0
@@ -56,7 +87,10 @@ MonoBehaviour:
   _parkedToDoorWaypointPositions:
   - {fileID: 8078884104543125158}
   _propertyEntryToDoorWaypointPositions: []
-  _parkedWaypointPosition: {fileID: 4579101568455517717}
+  _parkingSpotWaypointPositions:
+  - {fileID: 4579101568455517717}
+  - {fileID: 576607627611016680}
+  - {fileID: 6023102874589924822}
   _vehicleEntryExitWaypointPosition: {fileID: 335167969853319501}
   _vehicleEntryToParkedWaypointPositions:
   - {fileID: 805885251416031779}
@@ -339,7 +373,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4579101568455517717}
   m_Layer: 10
-  m_Name: Parked
+  m_Name: ParkingSpot1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -390,6 +424,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4579101568455517717}
+  - {fileID: 576607627611016680}
+  - {fileID: 6023102874589924822}
   - {fileID: 805885251416031779}
   - {fileID: 335167969853319501}
   - {fileID: 4696659758057400433}
@@ -588,6 +624,37 @@ Transform:
   - {fileID: 2516428353995936513}
   - {fileID: 1874128881005132629}
   m_Father: {fileID: 4276239028721331185}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5348437251444305036
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6023102874589924822}
+  m_Layer: 10
+  m_Name: ParkingSpot3
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6023102874589924822
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5348437251444305036}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -5.5, y: 0, z: 5.66}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5000150006631214452}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5396187940035530309
 GameObject:
