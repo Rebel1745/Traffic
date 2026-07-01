@@ -86,7 +86,7 @@ Assets/
    WaypointNode.cs
   Pedestrian/
    PedestrianAnimationController.cs
-   PedestrianController.cs
+   AgentController.cs
    PedestrianManager.cs
    PedestrianSpawner.cs
   Road/

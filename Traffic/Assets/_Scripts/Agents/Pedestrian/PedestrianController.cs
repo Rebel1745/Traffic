@@ -268,6 +268,6 @@ public class PedestrianController : MonoBehaviour, ISelectableObject
 
     public void SelectObject()
     {
-        UIManager.Instance.LoadPedestrianDetails(this);
+        //UIManager.Instance.LoadPedestrianDetails(this);
     }
 }

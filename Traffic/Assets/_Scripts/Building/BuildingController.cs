@@ -61,13 +61,11 @@ public class BuildingController : MonoBehaviour, ISelectableObject
 
         _maximumVehicleOccupancy = _parkingSpotWaypointPositions.Count();
 
-        Debug.Log($"{_maximumVehicleOccupancy} {_parkingSpotWaypointPositions.Count()}");
-
         PedestrianWaypointManager.Instance.AddBuildingPedestrianWaypoints(cell, this, _insideBuildingWaypointPosition, _doorWaypointPosition, _entryExitPropertyWaypointPosition, _propertyEntryToDoorWaypointPositions, _entryExitVehicleWaypointPosition, _parkedToDoorWaypointPositions);
         RoadWaypointManager.Instance.AddBuildingVehicleWaypoints(cell, this, _parkingSpotWaypointPositions, _vehicleEntryToParkedWaypointPositions, _vehicleEntryExitWaypointPosition, _vehicleCellCheckWaypointPosition);
 
         // add a person
-        PedestrianController pc = AddPersonToBuilding();
+        AgentController pc = AddPersonToBuilding();
 
         // add a vehicle
         VehicleController vc = AddVehicleToBuilding();
@@ -94,13 +92,13 @@ public class BuildingController : MonoBehaviour, ISelectableObject
         _vehicleEntryExitPropertyWaypoint = vehicleEntryExit;
     }
 
-    public PedestrianController AddPersonToBuilding()
+    public AgentController AddPersonToBuilding()
     {
         if (_currentOccupancy >= _maximumOccupancy) return null;
 
         Vector3 spawnPosition = GetSpawnPositionForPerson(_doorWaypoint.Position);
 
-        PedestrianController pc = PedestrianManager.Instance.AddAndRegisterPerson(_doorWaypoint, spawnPosition);
+        AgentController pc = PedestrianManager.Instance.AddAndRegisterPerson(_doorWaypoint, spawnPosition);
 
         // link the person to the building
         RelationshipManager.Instance.AddRelationship(

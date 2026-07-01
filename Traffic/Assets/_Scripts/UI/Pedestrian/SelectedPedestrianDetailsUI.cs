@@ -7,7 +7,8 @@ public class SelectedPedestrianDetailsUI : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private GameObject uiPanel;
-    private PedestrianController _pedestrianController;
+    private AgentController _agent;
+    private PedestrianData _pedestrian;
 
     [Header(("Pedestrian Name"))]
     [SerializeField] private TMP_Text _pedestrianNameText;
@@ -20,16 +21,17 @@ public class SelectedPedestrianDetailsUI : MonoBehaviour
     [SerializeField] private Button _goToRandomWaypointButton;
     [SerializeField] private Button _goHomeButton;
 
-    public void LoadPedestrian(PedestrianController pedestrian)
+    public void LoadPedestrian(AgentController agent, PedestrianData pedestrian)
     {
-        _pedestrianController = pedestrian;
+        _agent = agent;
+        _pedestrian = pedestrian;
 
         uiPanel.SetActive(true);
-        CameraFollow.Instance.SetFollowTarget(pedestrian.transform, pedestrian.CameraFocusOffset, pedestrian.CameraRotation);
+        CameraFollow.Instance.SetFollowTarget(pedestrian.transform, agent.CameraFocusOffset, agent.CameraRotation);
 
         // setup Pedestrian naming
-        _pedestrianNameText.text = pedestrian.PedestrianName;
-        _pedestrianNameInput.text = pedestrian.PedestrianName;
+        _pedestrianNameText.text = pedestrian.FullName;
+        _pedestrianNameInput.text = pedestrian.FullName;
 
         _goToRandomWaypointButton.onClick.RemoveAllListeners();
         _goToRandomWaypointButton.onClick.AddListener(OnGoToRandomWaypointClicked);
@@ -39,12 +41,12 @@ public class SelectedPedestrianDetailsUI : MonoBehaviour
 
     private void OnGoToRandomWaypointClicked()
     {
-        PedestrianManager.Instance.GoToRandomWaypoint(_pedestrianController);
+        PedestrianManager.Instance.GoToRandomWaypoint(_agent);
     }
 
     private void OnGoHomeClicked()
     {
-        PedestrianManager.Instance.GoHome(_pedestrianController);
+        PedestrianManager.Instance.GoHome(_agent);
     }
 
     public void OnEditPedestrianNameClicked()

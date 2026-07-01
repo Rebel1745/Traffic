@@ -70,13 +70,13 @@ public class UIManager : MonoBehaviour
         _currentUIDetailsWindow = _selectedBuildingDetailsUI.gameObject;
     }
 
-    public void LoadPedestrianDetails(PedestrianController pedestrian)
+    public void LoadPedestrianDetails(AgentController pedestrian)
     {
         if (!_selectedPedestrianDetailsUI) return;
 
         CloseUIDetailsWindow();
 
-        _selectedPedestrianDetailsUI.LoadPedestrian(pedestrian);
+        _selectedPedestrianDetailsUI.LoadPedestrian(pedestrian, pedestrian.GetComponent<PedestrianData>());
 
         _currentUIDetailsWindow = _selectedPedestrianDetailsUI.gameObject;
     }
