@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TrafficLightManager : MonoBehaviour, ISaveable
+public class TrafficLightManager : MonoBehaviour//, ISaveable
 {
     public static TrafficLightManager Instance { get; private set; }
 
@@ -44,7 +44,7 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
     {
         if (SaveManager.Instance != null)
         {
-            SaveManager.Instance.UnregisterSaveable(this);
+            //SaveManager.Instance.UnregisterSaveable(this);
             _subscribedToSaveManager = false;
         }
     }
@@ -53,7 +53,7 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
     {
         if (SaveManager.Instance == null) return;
 
-        SaveManager.Instance.RegisterSaveable(this);
+        //SaveManager.Instance.RegisterSaveable(this);
         _subscribedToSaveManager = true;
     }
 
@@ -252,111 +252,111 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
         return null;
     }
 
-    public void PopulateSaveData(GameSaveData saveData)
-    {
-        var trafficLight = new TrafficLightsSaveData();
+    // public void PopulateSaveData(GameSaveData saveData)
+    // {
+    //     var trafficLight = new TrafficLightsSaveData();
 
-        foreach (var group in _allGroups)
-        {
-            var groupData = new TrafficLightGroupSaveData
-            {
-                Id = group.Id,
-                JunctionName = group.JunctionName,
-                GroupType = group.GroupType,
-                Lights = new List<TrafficLightSaveData>()
-            };
+    //     foreach (var group in _allGroups)
+    //     {
+    //         var groupData = new TrafficLightGroupSaveData
+    //         {
+    //             Id = group.Id,
+    //             JunctionName = group.JunctionName,
+    //             GroupType = group.GroupType,
+    //             Lights = new List<TrafficLightSaveData>()
+    //         };
 
-            foreach (var light in group.Lights)
-            {
-                if (light.Light?.AssignedWaypoint == null)
-                    continue;
+    //         foreach (var light in group.Lights)
+    //         {
+    //             if (light.Light?.AssignedWaypoint == null)
+    //                 continue;
 
-                groupData.Lights.Add(new TrafficLightSaveData
-                {
-                    LightWaypointNodeId = light.Light.AssignedWaypoint.Id,
-                    Label = light.Label,
-                    IsCopyOfLight = light.IsCopyOfLight,
-                    LightPosition = light.LightPosition,
-                    GreenDuration = light.GreenDuration,
-                    YellowDuration = light.YellowDuration,
-                    RedDuration = light.RedDuration,
-                    AllRedDuration = light.AllRedDuration,
-                    PedestrianCrossingDuration = light.PedestrianCrossingDuration,
-                    OriginalLabel = light.OriginalLabel,
-                    OriginalGreenDuration = light.OriginalGreenDuration,
-                    OriginalYellowDuration = light.OriginalYellowDuration,
-                    OriginalRedDuration = light.OriginalRedDuration,
-                    OriginalAllRedDuration = light.OriginalAllRedDuration,
-                    OriginalPedestrianCrossingDuration = light.OriginalPedestrianCrossingDuration
-                });
-            }
+    //             groupData.Lights.Add(new TrafficLightSaveData
+    //             {
+    //                 LightWaypointNodeId = light.Light.AssignedWaypoint.Id,
+    //                 Label = light.Label,
+    //                 IsCopyOfLight = light.IsCopyOfLight,
+    //                 LightPosition = light.LightPosition,
+    //                 GreenDuration = light.GreenDuration,
+    //                 YellowDuration = light.YellowDuration,
+    //                 RedDuration = light.RedDuration,
+    //                 AllRedDuration = light.AllRedDuration,
+    //                 PedestrianCrossingDuration = light.PedestrianCrossingDuration,
+    //                 OriginalLabel = light.OriginalLabel,
+    //                 OriginalGreenDuration = light.OriginalGreenDuration,
+    //                 OriginalYellowDuration = light.OriginalYellowDuration,
+    //                 OriginalRedDuration = light.OriginalRedDuration,
+    //                 OriginalAllRedDuration = light.OriginalAllRedDuration,
+    //                 OriginalPedestrianCrossingDuration = light.OriginalPedestrianCrossingDuration
+    //             });
+    //         }
 
-            trafficLight.Groups.Add(groupData);
-        }
+    //         trafficLight.Groups.Add(groupData);
+    //     }
 
-        saveData.TrafficLights = trafficLight;
-    }
+    //     saveData.TrafficLights = trafficLight;
+    // }
 
-    public void LoadFromSaveData(GameSaveData saveData)
-    {
-        if (saveData.TrafficLights == null)
-        {
-            Debug.LogWarning("[TrafficLightManager] No traffic light data in save file.");
-            return;
-        }
+    // public void LoadFromSaveData(GameSaveData saveData)
+    // {
+    //     if (saveData.TrafficLights == null)
+    //     {
+    //         Debug.LogWarning("[TrafficLightManager] No traffic light data in save file.");
+    //         return;
+    //     }
 
-        _allGroups.Clear();
+    //     _allGroups.Clear();
 
-        var nodeLookup = RoadWaypointManager.Instance.GetAllWaypointLookup();  // You'll need to expose this method
+    //     var nodeLookup = RoadWaypointManager.Instance.GetAllWaypointLookup();  // You'll need to expose this method
 
-        foreach (var groupData in saveData.TrafficLights.Groups)
-        {
-            // Create group GameObject
-            GameObject groupObj = new GameObject($"LightGroup_{groupData.JunctionName}");
-            groupObj.transform.position = Vector3.zero;  // Will be set later
-            groupObj.transform.parent = this.transform;
-            TrafficLightGroupController group = groupObj.AddComponent<TrafficLightGroupController>();
+    //     foreach (var groupData in saveData.TrafficLights.Groups)
+    //     {
+    //         // Create group GameObject
+    //         GameObject groupObj = new GameObject($"LightGroup_{groupData.JunctionName}");
+    //         groupObj.transform.position = Vector3.zero;  // Will be set later
+    //         groupObj.transform.parent = this.transform;
+    //         TrafficLightGroupController group = groupObj.AddComponent<TrafficLightGroupController>();
 
-            // Set group properties
-            group.SetupGroup(groupData.GroupType);
-            group.Id = groupData.Id;
-            group.UpdateJunctionName(groupData.JunctionName);
+    //         // Set group properties
+    //         group.SetupGroup(groupData.GroupType);
+    //         group.Id = groupData.Id;
+    //         group.UpdateJunctionName(groupData.JunctionName);
 
-            // Create lights for each phase
-            foreach (TrafficLightSaveData light in groupData.Lights)
-            {
-                if (!nodeLookup.TryGetValue(light.LightWaypointNodeId, out var waypoint))
-                {
-                    Debug.LogWarning($"[TrafficLightManager] Waypoint {light.LightWaypointNodeId} not found for traffic light.");
-                    continue;
-                }
+    //         // Create lights for each phase
+    //         foreach (TrafficLightSaveData light in groupData.Lights)
+    //         {
+    //             if (!nodeLookup.TryGetValue(light.LightWaypointNodeId, out var waypoint))
+    //             {
+    //                 Debug.LogWarning($"[TrafficLightManager] Waypoint {light.LightWaypointNodeId} not found for traffic light.");
+    //                 continue;
+    //             }
 
-                // Create light prefab at waypoint position
-                GameObject lightObj = Instantiate(_trafficLightPrefab, waypoint.Position, Quaternion.identity);
-                lightObj.transform.rotation = Quaternion.Euler(0, GetYRotationFromLightPosition(waypoint.LightPosition), 0);
-                TrafficLightController newLight = lightObj.GetComponent<TrafficLightController>();
-                newLight.AssignedWaypoint = waypoint;
+    //             // Create light prefab at waypoint position
+    //             GameObject lightObj = Instantiate(_trafficLightPrefab, waypoint.Position, Quaternion.identity);
+    //             lightObj.transform.rotation = Quaternion.Euler(0, GetYRotationFromLightPosition(waypoint.LightPosition), 0);
+    //             TrafficLightController newLight = lightObj.GetComponent<TrafficLightController>();
+    //             newLight.AssignedWaypoint = waypoint;
 
-                // Assign to waypoint
-                waypoint.LaneNodeForTrafficLight.AssignedLight = newLight;
+    //             // Assign to waypoint
+    //             waypoint.LaneNodeForTrafficLight.AssignedLight = newLight;
 
-                // Register in group
-                group.RegisterLight(newLight, light.LightPosition, light.LightPosition.ToString(), light.GreenDuration, light.YellowDuration, light.RedDuration, light.AllRedDuration, light.PedestrianCrossingDuration, light.OriginalLabel, light.OriginalGreenDuration, light.OriginalYellowDuration, light.OriginalRedDuration, light.OriginalAllRedDuration, light.OriginalPedestrianCrossingDuration);
+    //             // Register in group
+    //             group.RegisterLight(newLight, light.LightPosition, light.LightPosition.ToString(), light.GreenDuration, light.YellowDuration, light.RedDuration, light.AllRedDuration, light.PedestrianCrossingDuration, light.OriginalLabel, light.OriginalGreenDuration, light.OriginalYellowDuration, light.OriginalRedDuration, light.OriginalAllRedDuration, light.OriginalPedestrianCrossingDuration);
 
-                // Set group position to first light's position (or junction center)
-                if (groupObj.transform.position == Vector3.zero)
-                {
-                    groupObj.transform.position = waypoint.Position;
-                }
+    //             // Set group position to first light's position (or junction center)
+    //             if (groupObj.transform.position == Vector3.zero)
+    //             {
+    //                 groupObj.transform.position = waypoint.Position;
+    //             }
 
-                lightObj.transform.parent = groupObj.transform;
-            }
+    //             lightObj.transform.parent = groupObj.transform;
+    //         }
 
-            _allGroups.Add(group);
-        }
+    //         _allGroups.Add(group);
+    //     }
 
-        Debug.Log($"[TrafficLightManager] Loaded {saveData.TrafficLights.Groups.Count} traffic light groups.");
-    }
+    //     Debug.Log($"[TrafficLightManager] Loaded {saveData.TrafficLights.Groups.Count} traffic light groups.");
+    // }
 }
 
 public enum LightState { Red, Yellow, Green }

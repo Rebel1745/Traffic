@@ -8,7 +8,7 @@ public class VehicleManager : MonoBehaviour
 
     [SerializeField] private GameObject[] _vehiclePrefabs;
 
-    private Dictionary<EntityId, VehicleController> _allVehicles = new();
+    private Dictionary<EntityId, AgentController> _allVehicles = new();
 
     private void Awake()
     {
@@ -60,12 +60,12 @@ public class VehicleManager : MonoBehaviour
         // VehicleSpawner.Instance.SpawnVehicle(startWaypoint, targetWaypoint);
     }
 
-    private VehicleController AddAndRegisterVehicle()
+    private AgentController AddAndRegisterVehicle()
     {
         return AddAndRegisterVehicle(GetRandomVehicleWaypoint(WaypointType.None));
     }
 
-    public VehicleController AddAndRegisterVehicle(WaypointNode spawnWaypoint)
+    public AgentController AddAndRegisterVehicle(WaypointNode spawnWaypoint)
     {
         // 1. Generate the ID
         EntityId newId = EntityId.New();
@@ -75,13 +75,13 @@ public class VehicleManager : MonoBehaviour
         GameObject vehiclePrefab = _vehiclePrefabs[Random.Range(0, _vehiclePrefabs.Length)];
         Vector3 spawnLocation = Utils.GetVectorWithSetHeight(spawnWaypoint.Position, 0.2f);
         //Vector3 lookDirection = (Utils.GetVectorWithSetHeight(Camera.main.transform.position, 0.2f) - spawnLocation).normalized;
-        Vector3 lookDirection = Vector3.back;
         GameObject vehicle = Instantiate(vehiclePrefab, spawnLocation, Quaternion.identity, transform);
+        Vector3 lookDirection = Vector3.back;
         vehicle.transform.rotation = Quaternion.LookRotation(lookDirection);
-        VehicleController vc = vehicle.GetComponent<VehicleController>();
+        AgentController vc = vehicle.GetComponent<AgentController>();
 
         // 3. Assign the ID to the controller
-        vc.Initialise(newId, spawnWaypoint);
+        vc.Initialise(AgentType.Vehicle, newId, spawnWaypoint);
 
         // 4. Register in the dictionary
         _allVehicles[newId] = vc;
@@ -92,58 +92,83 @@ public class VehicleManager : MonoBehaviour
         return vc;
     }
 
-    public void RequestNewTarget(VehicleController vehicle, WaypointType previousTargetType)
+    public void GoToRandomWaypoint(AgentController agent)
     {
-        if (vehicle == null || vehicle.CurrentWaypoint == null)
-        {
-            Debug.LogWarning("Invalid vehicle or current waypoint!");
-            return;
-        }
+        VehicleMovement pm = agent.GetComponent<VehicleMovement>();
 
-        int attempts = 0;
-        int maxAttempts = 3;
+        WaypointNode randomNode = FindValidTarget(pm.CurrentWaypoint, type: WaypointType.Entry);
+        string name = "Drive to random node at " + randomNode.Position;
 
-        while (attempts < maxAttempts)
-        {
-            WaypointNode newTarget = null;
-
-            if (previousTargetType != WaypointType.VehicleParking)
-                newTarget = GetRandomVehicleWaypoint(WaypointType.VehicleParking);
-
-            if (newTarget == null) newTarget = FindValidTarget(vehicle.CurrentWaypoint);
-
-            if (newTarget != null)
-            {
-                List<WaypointNode> newPath = AStarPathfinder.FindPath(vehicle.CurrentWaypoint, newTarget);
-
-                if (newPath != null && newPath.Count > 0)
-                {
-                    vehicle.SetNewPath(newPath, newTarget);
-                    //Debug.Log($"New target assigned to vehicle: {newTarget.Position}");
-                    return;
-                }
-            }
-            Debug.Log($"Path to {newTarget.NetworkType} {newTarget.Type} {newTarget.Position} not found");
-            attempts++;
-        }
-
-        // Failed to find a valid target after 3 attempts
-        Debug.LogWarning($"Failed to find valid target for vehicle after {maxAttempts} attempts. Destroying vehicle.");
-        //RemoveVehicle(vehicle);
+        if (randomNode != null)
+            agent.AddGoal(new DriveToRandomGoal(randomNode, name));
+        else Debug.LogWarning("No random location found");
     }
 
-    public WaypointNode FindValidTarget(WaypointNode startWaypoint, int maxAttempts = 10)
+    public void GoHome(AgentController agent)
     {
-        var allWaypoints = RoadWaypointManager.Instance.GetAllWaypoints();
-        var entryWaypoints = allWaypoints.Where(w => w != startWaypoint && w.Type != WaypointType.TrafficLightLocation).ToList();
+        VehicleMovement vm = agent.GetComponent<VehicleMovement>();
+        EntityId waypointId = RelationshipManager.Instance.GetHomeParkingSpot(agent.Id).First();
 
-        if (entryWaypoints.Count == 0)
-            return null;
+        if (!waypointId.IsValid) Debug.LogError("Home building not found");
 
+        WaypointNode parkingSpot = RoadWaypointManager.Instance.GetWaypointFromId(waypointId);
+
+        List<WaypointNode> newPath = AStarPathfinder.FindPath(vm.CurrentWaypoint, parkingSpot);
+
+        if (newPath == null || newPath.Count == 0) Debug.LogError("Path to home node not found");
+
+        string name = "Driven home to " + parkingSpot.Position;
+
+        agent.InterruptAndAddGoal(new ParkAtHomeGoal(parkingSpot, name));
+    }
+
+    // public void RequestNewTarget(AgentController vehicle, WaypointType previousTargetType)
+    // {
+    //     if (vehicle == null || vehicle.CurrentWaypoint == null)
+    //     {
+    //         Debug.LogWarning("Invalid vehicle or current waypoint!");
+    //         return;
+    //     }
+
+    //     int attempts = 0;
+    //     int maxAttempts = 3;
+
+    //     while (attempts < maxAttempts)
+    //     {
+    //         WaypointNode newTarget = null;
+
+    //         if (previousTargetType != WaypointType.VehicleParking)
+    //             newTarget = GetRandomVehicleWaypoint(WaypointType.VehicleParking);
+
+    //         if (newTarget == null) newTarget = FindValidTarget(vehicle.CurrentWaypoint);
+
+    //         if (newTarget != null)
+    //         {
+    //             List<WaypointNode> newPath = AStarPathfinder.FindPath(vehicle.CurrentWaypoint, newTarget);
+
+    //             if (newPath != null && newPath.Count > 0)
+    //             {
+    //                 vehicle.SetNewPath(newPath, newTarget);
+    //                 //Debug.Log($"New target assigned to vehicle: {newTarget.Position}");
+    //                 return;
+    //             }
+    //         }
+    //         Debug.Log($"Path to {newTarget.NetworkType} {newTarget.Type} {newTarget.Position} not found");
+    //         attempts++;
+    //     }
+
+    //     // Failed to find a valid target after 3 attempts
+    //     Debug.LogWarning($"Failed to find valid target for vehicle after {maxAttempts} attempts. Destroying vehicle.");
+    //     //RemoveVehicle(vehicle);
+    // }
+
+    public WaypointNode FindValidTarget(WaypointNode startWaypoint, WaypointType type = WaypointType.None, int maxAttempts = 10)
+    {
         // Try to find a valid target
         for (int i = 0; i < maxAttempts; i++)
         {
-            WaypointNode candidate = entryWaypoints[Random.Range(0, entryWaypoints.Count)];
+            WaypointNode candidate = GetRandomVehicleWaypoint(type);
+            if (candidate == startWaypoint) continue;
 
             // Check if path exists
             List<WaypointNode> path = AStarPathfinder.FindPath(startWaypoint, candidate);
@@ -151,7 +176,6 @@ public class VehicleManager : MonoBehaviour
             {
                 return candidate;
             }
-            Debug.Log($"Path to {candidate.NetworkType} {candidate.Type} {candidate.ParentCell.Position} not found");
         }
 
         return null;

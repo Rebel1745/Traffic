@@ -53,10 +53,12 @@ public class ObjectSelectionManager : MonoBehaviour
             // 2. Check if it implements ISelectableObject
             if (hitObj.TryGetComponent(out ISelectableObject selectable))
             {
+                Debug.Log("Hit object " + hitObj.name);
                 selectable.SelectObject();
             }
             else
             {
+                Debug.Log("Missed Object");
                 // Clicked something that isn't selectable, clear selection
                 ClearSelection();
             }

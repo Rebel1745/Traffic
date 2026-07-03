@@ -68,7 +68,7 @@ public class BuildingController : MonoBehaviour, ISelectableObject
         AgentController pc = AddPersonToBuilding();
 
         // add a vehicle
-        VehicleController vc = AddVehicleToBuilding();
+        AgentController vc = AddVehicleToBuilding();
 
         // link the person to the vehicle
         RelationshipManager.Instance.AddRelationship(
@@ -134,17 +134,26 @@ public class BuildingController : MonoBehaviour, ISelectableObject
         return new Vector3(origin.x + xOffset, origin.y, origin.z - zOffset);
     }
 
-    public VehicleController AddVehicleToBuilding()
+    public AgentController AddVehicleToBuilding()
     {
         if (_currentVehicleOccupancy >= _maximumVehicleOccupancy) return null;
 
-        VehicleController vc = VehicleManager.Instance.AddAndRegisterVehicle(_parkedWaypoints[_currentVehicleOccupancy]);
+        WaypointNode parkingSpot = _parkedWaypoints[_parkedWaypoints.Length - 1];
+
+        AgentController vc = VehicleManager.Instance.AddAndRegisterVehicle(parkingSpot);
 
         // link the vehicle to the building
+        // RelationshipManager.Instance.AddRelationship(
+        //     RelationshipType.ParksAt,
+        //     Id, // Source: Building
+        //     vc.Id // Target: vehicle
+        // );
+
+        // link the parking spot to the vehicle
         RelationshipManager.Instance.AddRelationship(
-            RelationshipType.ParksAt,
-            Id, // Source: Building
-            vc.Id // Target: vehicle
+            RelationshipType.HomeParkingSpot,
+            vc.Id,
+            parkingSpot.Id
         );
 
         _currentVehicleOccupancy++;

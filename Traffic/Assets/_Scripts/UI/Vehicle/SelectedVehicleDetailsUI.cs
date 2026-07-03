@@ -6,6 +6,8 @@ public class SelectedVehicleDetailsUI : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private GameObject uiPanel;
+    private AgentController _agent;
+    private VehicleData _vehicle;
 
     [Header(("Vehicle Name"))]
     [SerializeField] private TMP_Text _vehicleNameText;
@@ -14,14 +16,36 @@ public class SelectedVehicleDetailsUI : MonoBehaviour
     [SerializeField] private Button _updateVehicleNameButton;
     [SerializeField] private Button _cancelUpdateVehicleNameButton;
 
-    public void LoadVehicle(VehicleController vehicle)
+    [Header("Action Buttons")]
+    [SerializeField] private Button _goToRandomWaypointButton;
+    [SerializeField] private Button _goHomeButton;
+
+    public void LoadVehicle(AgentController agent, VehicleData vehicle)
     {
+        _agent = agent;
+        _vehicle = vehicle;
+
         uiPanel.SetActive(true);
-        CameraFollow.Instance.SetFollowTarget(vehicle.transform, vehicle.CameraFocusOffset, vehicle.CameraRotation);
+        CameraFollow.Instance.SetFollowTarget(vehicle.transform, agent.CameraFocusOffset, agent.CameraRotation);
 
         // setup Vehicle naming
         _vehicleNameText.text = vehicle.VehicleName;
         _vehicleNameInput.text = vehicle.VehicleName;
+
+        _goToRandomWaypointButton.onClick.RemoveAllListeners();
+        _goToRandomWaypointButton.onClick.AddListener(OnGoToRandomWaypointClicked);
+        _goHomeButton.onClick.RemoveAllListeners();
+        _goHomeButton.onClick.AddListener(OnGoHomeClicked);
+    }
+
+    private void OnGoToRandomWaypointClicked()
+    {
+        VehicleManager.Instance.GoToRandomWaypoint(_agent);
+    }
+
+    private void OnGoHomeClicked()
+    {
+        VehicleManager.Instance.GoHome(_agent);
     }
 
     public void OnEditVehicleNameClicked()

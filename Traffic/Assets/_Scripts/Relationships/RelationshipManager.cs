@@ -121,4 +121,7 @@ public class RelationshipManager : MonoBehaviour
     // Reverse: Person -> Building
     public List<EntityId> GetHomeBuildings(EntityId personId)
         => GetTargets(RelationshipType.Resident, personId, reverse: true);
+
+    public List<EntityId> GetHomeParkingSpot(EntityId vehicleId)
+    => GetTargets(RelationshipType.HomeParkingSpot, vehicleId, reverse: false);
 }

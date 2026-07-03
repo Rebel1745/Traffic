@@ -81,13 +81,13 @@ public class UIManager : MonoBehaviour
         _currentUIDetailsWindow = _selectedPedestrianDetailsUI.gameObject;
     }
 
-    public void LoadVehicleDetails(VehicleController vehicle)
+    public void LoadVehicleDetails(AgentController vehicle)
     {
         if (!_selectedVehicleDetailsUI) return;
 
         CloseUIDetailsWindow();
 
-        _selectedVehicleDetailsUI.LoadVehicle(vehicle);
+        _selectedVehicleDetailsUI.LoadVehicle(vehicle, vehicle.GetComponent<VehicleData>());
 
         _currentUIDetailsWindow = _selectedVehicleDetailsUI.gameObject;
     }

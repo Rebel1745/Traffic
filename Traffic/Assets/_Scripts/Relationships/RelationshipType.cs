@@ -7,5 +7,6 @@ public struct RelationshipType
     public static readonly RelationshipType Resident = new("Resident");
     public static readonly RelationshipType Driver = new("Driver");
     public static readonly RelationshipType ParksAt = new("ParksAt");
+    public static readonly RelationshipType HomeParkingSpot = new("HomeParkingSpot");
     // Add new types here without changing the core logic
 }

@@ -76,8 +76,8 @@ public class PedestrianManager : MonoBehaviour
         GameObject pedestrianPrefab = _pedestrianPrefabs[Random.Range(0, _pedestrianPrefabs.Length)];
         Vector3 spawnLocation = Utils.GetVectorWithSetHeight(spawnPosition, 0.2f);
         //Vector3 lookDirection = (Utils.GetVectorWithSetHeight(Camera.main.transform.position, 0.2f) - spawnLocation).normalized;
-        Vector3 lookDirection = Vector3.back;
         GameObject pedestrian = Instantiate(pedestrianPrefab, spawnLocation, Quaternion.identity, transform);
+        Vector3 lookDirection = Vector3.back;
         pedestrian.transform.rotation = Quaternion.LookRotation(lookDirection);
         AgentController pc = pedestrian.GetComponent<AgentController>();
 
@@ -128,72 +128,6 @@ public class PedestrianManager : MonoBehaviour
 
         agent.InterruptAndAddGoal(new WalkHomeGoal(homeNode, name));
     }
-
-    // public void GoToRandomWaypoint(PedestrianMovement pc)
-    // {
-    //     RequestNewTarget(pc);
-    // }
-
-    // public void GoHome(PedestrianMovement pc)
-    // {
-    //     EntityId buildingId = RelationshipManager.Instance.GetHomeBuildings(pc.Id).First();
-
-    //     if (!buildingId.IsValid) Debug.LogError("Home building not found");
-
-    //     BuildingController bc = BuildingManager.Instance.GetBuilding(buildingId);
-
-    //     if (bc == null) Debug.LogError("Building Controller not found");
-
-    //     WaypointNode homeNode = bc.InsideBuildingWaypoint;
-
-    //     if (homeNode == null) Debug.LogError("Inside building node not found");
-
-    //     List<WaypointNode> newPath = AStarPathfinder.FindPath(pc.CurrentWaypoint, homeNode);
-
-    //     if (newPath == null || newPath.Count == 0) Debug.LogError("Path to home node not found");
-
-    //     pc.SetNewPath(newPath, homeNode);
-    // }
-
-    // public void RequestNewTarget(PedestrianMovement pedestrian, WaypointType previousTargetType = WaypointType.None)
-    // {
-    //     if (pedestrian == null || pedestrian.CurrentWaypoint == null)
-    //     {
-    //         Debug.LogWarning("Invalid pedestrian or current waypoint!");
-    //         return;
-    //     }
-
-    //     int attempts = 0;
-    //     int maxAttempts = 3;
-
-    //     while (attempts < maxAttempts)
-    //     {
-    //         WaypointNode newTarget = null;
-
-    //         // if (previousTargetType != WaypointType.InsideBuilding)
-    //         //     newTarget = GetRandomPedestrianWaypoint(WaypointType.InsideBuilding);
-
-    //         if (newTarget == null) newTarget = FindValidTarget(pedestrian.CurrentWaypoint);
-
-    //         if (newTarget != null)
-    //         {
-    //             List<WaypointNode> newPath = AStarPathfinder.FindPath(pedestrian.CurrentWaypoint, newTarget);
-
-    //             if (newPath != null && newPath.Count > 0)
-    //             {
-    //                 pedestrian.SetNewPath(newPath, newTarget);
-    //                 //Debug.Log($"New target assigned to pedestrian: {newTarget.Position}");
-    //                 return;
-    //             }
-    //         }
-
-    //         attempts++;
-    //     }
-
-    //     // Failed to find a valid target after 3 attempts
-    //     Debug.LogWarning($"Failed to find valid target for pedestrian after {maxAttempts} attempts. Destroying pedestrian.");
-    //     Destroy(pedestrian.gameObject);
-    // }
 
     public WaypointNode FindValidTarget(WaypointNode startWaypoint, WaypointType type = WaypointType.None, int maxAttempts = 10)
     {

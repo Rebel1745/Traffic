@@ -116,6 +116,9 @@ public class AgentController : MonoBehaviour, ISelectableObject
             case AgentType.Person:
                 UIManager.Instance.LoadPedestrianDetails(this);
                 break;
+            case AgentType.Vehicle:
+                UIManager.Instance.LoadVehicleDetails(this);
+                break;
         }
     }
 }

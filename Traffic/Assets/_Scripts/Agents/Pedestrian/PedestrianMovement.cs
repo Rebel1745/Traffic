@@ -5,7 +5,8 @@ using System.IO;
 
 public class PedestrianMovement : MonoBehaviour, IMovable
 {
-    [Header("Settings")][SerializeField] private float _moveSpeed = 5f;
+    [Header("Movement Settings")]
+    [SerializeField] private float _moveSpeed = 5f;
     [SerializeField] private float _rotationSpeed = 5f;
     [SerializeField] private float _waypointReachThreshold = 0.1f;
 
@@ -71,13 +72,11 @@ public class PedestrianMovement : MonoBehaviour, IMovable
         _currentPath = new List<WaypointNode>(path);
         _currentWaypointIndex = 0;
         _isMoving = true;
-        Debug.Log("SetPath");
     }
 
     public void Stop()
     {
         _isMoving = false;
-        Debug.Log("Stop");
         _animController.SetAnimation(PedestrianAnimationType.Wave);
         OnArrivedAtDestination?.Invoke();
     }

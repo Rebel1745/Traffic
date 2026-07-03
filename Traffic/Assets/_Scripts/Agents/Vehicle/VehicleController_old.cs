@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class VehicleController : MonoBehaviour, ISelectableObject
+public class VehicleController_old : MonoBehaviour, ISelectableObject
 {
     [Header("Movement Settings")]
     [SerializeField] private float _moveSpeed = 5f;
@@ -51,29 +51,6 @@ public class VehicleController : MonoBehaviour, ISelectableObject
         Path = new();
         _currentWaypointIndex = 0;
         _isMoving = false;
-    }
-
-    public void Initialize(List<WaypointNode> path, WaypointNode target)
-    {
-        if (path == null || path.Count == 0)
-        {
-            Debug.LogError("Cannot initialize vehicle with empty path!");
-            return;
-        }
-
-        Path = new List<WaypointNode>(path);
-        TargetWaypoint = target;
-        CurrentWaypoint = path[0];
-        _currentWaypointIndex = 0;
-        _isMoving = true;
-
-        // Position vehicle at first waypoint
-        transform.position = Path[0].Position;
-
-        if (_showDebugInfo)
-        {
-            Debug.Log($"Vehicle initialized with path of {Path.Count} waypoints");
-        }
     }
 
     private void Update()
@@ -162,7 +139,7 @@ public class VehicleController : MonoBehaviour, ISelectableObject
         WaypointType currentTargetType = Path.Count > 0 ? Path.Last().Type : WaypointType.None;
 
         // Request new target from PedestrianManager
-        VehicleManager.Instance.RequestNewTarget(this, currentTargetType);
+        //VehicleManager.Instance.RequestNewTarget(this, currentTargetType);
     }
 
     public void SetNewPath(List<WaypointNode> newPath, WaypointNode newTarget)
@@ -245,7 +222,7 @@ public class VehicleController : MonoBehaviour, ISelectableObject
 
     public void SelectObject()
     {
-        UIManager.Instance.LoadVehicleDetails(this);
+        // UIManager.Instance.LoadVehicleDetails(this);
     }
 
     // private void OnDrawGizmos()

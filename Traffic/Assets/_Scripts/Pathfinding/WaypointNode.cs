@@ -4,7 +4,7 @@ using UnityEngine;
 [System.Serializable]
 public class WaypointNode
 {
-    public string Id { get; set; }
+    public EntityId Id { get; set; }
     public Vector3 Position { get; set; }
     public List<WaypointConnection> Connections { get; set; }
     public GridCell ParentCell { get; set; }
@@ -21,7 +21,7 @@ public class WaypointNode
 
     public WaypointNode(Vector3 position, GridCell parentCell, WaypointType type, WaypointNetworkType networkType = WaypointNetworkType.Vehicle, WaypointNode laneNode = null, RoadDirection lightPos = RoadDirection.None)
     {
-        Id = System.Guid.NewGuid().ToString();
+        Id = EntityId.New();
         Position = position;
         ParentCell = parentCell;
         Type = type;
