@@ -8,6 +8,11 @@ public class WalkToRandomGoal : Goal
 
     public override void OnArrived(AgentController agent)
     {
-        //Debug.Log($"{agent.name} arrived at random spot. Smile and wave boys, smile and wave.");
+        WaypointNode randomNode = PedestrianManager.Instance.GetRandomWaypoint(agent, WaypointType.PedestrianWalkway);
+        string name = "Walk to random node at " + randomNode.Position;
+
+        agent.AddGoal(new WalkToRandomGoal(randomNode, name));
+
+        Debug.Log($"{agent.name} arrived at random spot. Move on.");
     }
 }

@@ -77,6 +77,7 @@ public class PedestrianMovement : MonoBehaviour, IMovable
     public void Stop()
     {
         _isMoving = false;
+        transform.rotation = Quaternion.LookRotation(Vector3.back);
         _animController.SetAnimation(PedestrianAnimationType.Wave);
         OnArrivedAtDestination?.Invoke();
     }

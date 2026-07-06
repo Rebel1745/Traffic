@@ -15,7 +15,11 @@ public class AgentController : MonoBehaviour, ISelectableObject
 
     private IMovable _mover;
     public IMovable Mover => _mover;
-    private Queue<Goal> _goalQueue = new Queue<Goal>();
+    //private Queue<Goal> _goalQueue = new Queue<Goal>();
+
+    private LinkedList<Goal> _goalQueue = new LinkedList<Goal>();
+    private Goal _currentGoal; // Track the active goal separately
+    private LinkedListNode<Goal> _currentNode;
 
     private void Awake()
     {
@@ -41,37 +45,62 @@ public class AgentController : MonoBehaviour, ISelectableObject
 
     private void OnMovementFinished()
     {
-        if (_goalQueue.Count == 0) return;
+        if (_currentGoal == null) return;
 
-        Goal finishedGoal = _goalQueue.Dequeue();
-        Debug.Log($"{gameObject.name} finished: {finishedGoal.GoalName}");
+        // 1. Remove the current goal from the list
+        _goalQueue.Remove(_currentNode);
 
-        // first, let the goal handle its specific logic (e.g., wait, trigger event, or add next goal)
-        finishedGoal.OnArrived(this);
+        // 2. Ask the goal what to do next (if it has logic)
+        // Note: With this new system, we might NOT want the goal to add the next one automatically.
+        // We want the "AddGoalAfterCurrent" to handle the chaining.
+        // So, OnArrived might just be empty or handle specific side effects.
+        _currentGoal.OnArrived(this);
 
-        // next check if there is any goal waiting to be executed
-        // This handles the case where:
-        // A) The goal added a new one immediately (e.g., chain reaction)
-        // B) The goal did nothing, but a user interrupted and added one to the queue
+        // 3. Check if there is a next goal
         if (_goalQueue.Count > 0)
         {
-            StartGoal(_goalQueue.Peek());
+            // The next goal is now at the head of the list
+            Goal nextGoal = _goalQueue.First.Value;
+            StartGoal(nextGoal);
         }
         else
         {
-            // Truly done
-            Debug.Log($"{gameObject.name} has finished all goals.");
+            _currentGoal = null;
+            _currentNode = null;
         }
     }
 
     public void AddGoal(Goal goal)
     {
-        _goalQueue.Enqueue(goal);
+        _goalQueue.AddLast(goal);
 
-        // If this is the first goal, start it immediately
-        if (_goalQueue.Count == 1)
+        // If the queue was empty, start this goal immediately
+        if (_goalQueue.Count == 1 && _currentGoal == null)
         {
             StartGoal(goal);
+        }
+    }
+
+    public void AddGoalAfterCurrent(Goal goal)
+    {
+        if (_currentNode != null)
+        {
+            // There is an active goal. Insert the new goal immediately after it.
+            // This pushes all existing queued goals further down the list.
+            _goalQueue.AddAfter(_currentNode, goal);
+
+            Debug.Log($"{gameObject.name} Inserted {goal.GoalName} after current goal.");
+        }
+        else
+        {
+            // No active goal. Just add to the end.
+            _goalQueue.AddLast(goal);
+
+            // If this is the first goal, start it
+            if (_goalQueue.Count == 1)
+            {
+                StartGoal(goal);
+            }
         }
     }
 
@@ -86,15 +115,16 @@ public class AgentController : MonoBehaviour, ISelectableObject
         _goalQueue.Clear();
 
         // Add the new goal and start it
-        _goalQueue.Enqueue(goal);
+        _goalQueue.AddFirst(goal);
         StartGoal(goal);
     }
 
     private void StartGoal(Goal goal)
     {
+        _currentGoal = goal;
+        _currentNode = _goalQueue.First;
+
         // Calculate path from current position to goal target
-        // You might need a PathfindingSystem that takes the type of mover into account
-        // e.g., PathfindingSystem.FindPath(_mover.CurrentPosition, goal.Target, MoverType.Vehicle)
         List<WaypointNode> path = AStarPathfinder.FindPath(_mover.CurrentWaypoint, goal.Target);
 
         if (path != null && path.Count > 0)

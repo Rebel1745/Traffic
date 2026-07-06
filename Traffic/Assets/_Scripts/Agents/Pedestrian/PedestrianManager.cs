@@ -95,9 +95,7 @@ public class PedestrianManager : MonoBehaviour
 
     public void GoToRandomWaypoint(AgentController agent)
     {
-        PedestrianMovement pm = agent.GetComponent<PedestrianMovement>();
-
-        WaypointNode randomNode = FindValidTarget(pm.CurrentWaypoint, type: WaypointType.PedestrianWalkway);
+        WaypointNode randomNode = GetRandomWaypoint(agent, WaypointType.PedestrianWalkway);
         string name = "Walk to random node at " + randomNode.Position;
 
         if (randomNode != null)
@@ -105,7 +103,23 @@ public class PedestrianManager : MonoBehaviour
         else Debug.LogWarning("No random location found");
     }
 
+    public WaypointNode GetRandomWaypoint(AgentController agent, WaypointType type)
+    {
+        PedestrianMovement pm = agent.GetComponent<PedestrianMovement>();
+
+        return FindValidTarget(pm.CurrentWaypoint, type: WaypointType.PedestrianWalkway);
+    }
+
     public void GoHome(AgentController agent)
+    {
+        WaypointNode homeNode = GetHomeWaypoint(agent);
+
+        string name = "Walked home to " + homeNode.Position;
+
+        agent.InterruptAndAddGoal(new WalkHomeGoal(homeNode, name));
+    }
+
+    public WaypointNode GetHomeWaypoint(AgentController agent)
     {
         PedestrianMovement pm = agent.GetComponent<PedestrianMovement>();
         EntityId buildingId = RelationshipManager.Instance.GetHomeBuildings(agent.Id).First();
@@ -124,9 +138,7 @@ public class PedestrianManager : MonoBehaviour
 
         if (newPath == null || newPath.Count == 0) Debug.LogError("Path to home node not found");
 
-        string name = "Walked home to " + homeNode.Position;
-
-        agent.InterruptAndAddGoal(new WalkHomeGoal(homeNode, name));
+        return homeNode;
     }
 
     public WaypointNode FindValidTarget(WaypointNode startWaypoint, WaypointType type = WaypointType.None, int maxAttempts = 10)
