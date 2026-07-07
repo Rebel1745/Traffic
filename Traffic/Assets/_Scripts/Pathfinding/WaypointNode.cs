@@ -18,6 +18,8 @@ public class WaypointNode
     public string LaneNodeForTrafficLightId { get; set; }
     public RoadDirection LightPosition { get; set; } // the cardinal position of the light e.g. top left of a junction would be NorthWest
     public bool PedestiranOnlyTrafficLight { get; set; } // the light is not for road users
+    public WaypointNode PairedParkingSpotWaypoint { get; set; }
+    public EntityId PairedParkingSpotWaypointId { get; set; }
 
     public WaypointNode(Vector3 position, GridCell parentCell, WaypointType type, WaypointNetworkType networkType = WaypointNetworkType.Vehicle, WaypointNode laneNode = null, RoadDirection lightPos = RoadDirection.None)
     {

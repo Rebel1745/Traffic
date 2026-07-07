@@ -11,7 +11,7 @@ public class BuildingController : MonoBehaviour, ISelectableObject
     [SerializeField] private Transform _insideBuildingWaypointPosition; // waypoint for being 'in' building
     [SerializeField] private Transform _doorWaypointPosition; // entry to the building
     [SerializeField] private Transform _entryExitPropertyWaypointPosition; // entry/exit to the whole property (will connect to the pavement)
-    [SerializeField] private Transform _entryExitVehicleWaypointPosition; // entry/exit to the vehicle
+    [SerializeField] private Transform[] _entryExitVehicleWaypointPositions; // entry/exit to the vehicle
     [SerializeField] private Transform[] _parkedToDoorWaypointPositions; // path from car to door
     [SerializeField] private Transform[] _propertyEntryToDoorWaypointPositions; // path from property entry/exit to door
     private WaypointNode _insideBuildingWaypoint;
@@ -20,8 +20,8 @@ public class BuildingController : MonoBehaviour, ISelectableObject
     public WaypointNode DoorWaypoint => _doorWaypoint;
     private WaypointNode _entryExitPropertyWaypoint;
     public WaypointNode EntryExitPropertyWaypoint => _entryExitPropertyWaypoint;
-    private WaypointNode _entryExitVehicleWaypoint;
-    public WaypointNode EntryExitVehicleWaypoint => _entryExitVehicleWaypoint;
+    private WaypointNode[] _entryExitVehicleWaypoints;
+    public WaypointNode[] EntryExitVehicleWaypoint => _entryExitVehicleWaypoints;
 
     [Header("Building Waypoint Positions - Vehicle")]
     [SerializeField] private Transform[] _parkingSpotWaypointPositions; // car parking spots
@@ -59,10 +59,27 @@ public class BuildingController : MonoBehaviour, ISelectableObject
         Id = entityId;
         _cell = cell;
 
+        // check that we have the same number of parking spots as entry exit vehicle points
+        if (_entryExitVehicleWaypoints.Length != _parkedWaypoints.Length)
+        {
+            Debug.LogError("We have different number of parking spots and vehicle entry exit points!!");
+            return;
+        }
+
         _maximumVehicleOccupancy = _parkingSpotWaypointPositions.Count();
 
-        PedestrianWaypointManager.Instance.AddBuildingPedestrianWaypoints(cell, this, _insideBuildingWaypointPosition, _doorWaypointPosition, _entryExitPropertyWaypointPosition, _propertyEntryToDoorWaypointPositions, _entryExitVehicleWaypointPosition, _parkedToDoorWaypointPositions);
+        PedestrianWaypointManager.Instance.AddBuildingPedestrianWaypoints(cell, this, _insideBuildingWaypointPosition, _doorWaypointPosition, _entryExitPropertyWaypointPosition, _propertyEntryToDoorWaypointPositions, _entryExitVehicleWaypointPositions, _parkedToDoorWaypointPositions);
         RoadWaypointManager.Instance.AddBuildingVehicleWaypoints(cell, this, _parkingSpotWaypointPositions, _vehicleEntryToParkedWaypointPositions, _vehicleEntryExitWaypointPosition, _vehicleCellCheckWaypointPosition);
+
+        // now that we have set up the buildings waypoints, we can update the parking spot waypoints with their corresponding vehicle entry / exit waypoints
+        for (int i = 0; i < _entryExitVehicleWaypoints.Length; i++)
+        {
+            _entryExitVehicleWaypoints[i].PairedParkingSpotWaypoint = _parkedWaypoints[i];
+            _entryExitVehicleWaypoints[i].PairedParkingSpotWaypointId = _parkedWaypoints[i].Id;
+
+            _parkedWaypoints[i].PairedParkingSpotWaypoint = _entryExitVehicleWaypoints[i];
+            _parkedWaypoints[i].PairedParkingSpotWaypointId = _entryExitVehicleWaypoints[i].Id;
+        }
 
         // add a person
         AgentController pc = AddPersonToBuilding();
@@ -78,12 +95,12 @@ public class BuildingController : MonoBehaviour, ISelectableObject
         );
     }
 
-    public void SetBuildingPedestrianWaypoints(WaypointNode insideBuilding, WaypointNode door, WaypointNode entryExit, WaypointNode vehicleEntryExit)
+    public void SetBuildingPedestrianWaypoints(WaypointNode insideBuilding, WaypointNode door, WaypointNode entryExit, WaypointNode[] vehicleEntryExit)
     {
         _insideBuildingWaypoint = insideBuilding;
         _doorWaypoint = door;
         _entryExitPropertyWaypoint = entryExit;
-        _entryExitVehicleWaypoint = vehicleEntryExit;
+        _entryExitVehicleWaypoints = vehicleEntryExit;
     }
 
     public void SetBuildingVehicleWaypoints(WaypointNode[] parked, WaypointNode vehicleEntryExit)

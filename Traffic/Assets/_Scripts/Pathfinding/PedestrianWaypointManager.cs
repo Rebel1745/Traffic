@@ -702,7 +702,7 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
         }
     }
 
-    public void AddBuildingPedestrianWaypoints(GridCell cell, BuildingController building, Transform insideBuilding, Transform door, Transform propertyEntryExit, Transform[] propertyEntryToDoor, Transform vehicleEntryExit, Transform[] carToDoor)
+    public void AddBuildingPedestrianWaypoints(GridCell cell, BuildingController building, Transform insideBuilding, Transform door, Transform propertyEntryExit, Transform[] propertyEntryToDoor, Transform[] vehicleEntryExit, Transform[] carToDoor)
     {
         // Store waypoints for this cell
         if (!_cellWaypoints.ContainsKey(cell))
@@ -714,36 +714,56 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
         WaypointNode inBuldingNode = new WaypointNode(insideBuilding.position, cell, WaypointType.InsideBuilding, WaypointNetworkType.Pedestrian);
         WaypointNode doorNode = new WaypointNode(door.position, cell, WaypointType.BuildingDoor, WaypointNetworkType.Pedestrian);
         WaypointNode propertyEntryExitNode = new WaypointNode(propertyEntryExit.position, cell, WaypointType.PropertyEntryExit, WaypointNetworkType.Pedestrian);
-        WaypointNode vehicleEntryExitNode = new WaypointNode(vehicleEntryExit.position, cell, WaypointType.VehicleEntryExit, WaypointNetworkType.Pedestrian);
 
-        building.SetBuildingPedestrianWaypoints(inBuldingNode, doorNode, propertyEntryExitNode, vehicleEntryExitNode);
+        List<WaypointNode> vehicleEntryExitNodes = new List<WaypointNode>();
+        WaypointNode firstCarToDoorNode = null;
+        WaypointNode vehicleEntryExitNode = null;
+
+        foreach (Transform t in vehicleEntryExit)
+        {
+            vehicleEntryExitNode = new WaypointNode(t.position, cell, WaypointType.VehicleEntryExit, WaypointNetworkType.Pedestrian);
+            vehicleEntryExitNodes.Add(vehicleEntryExitNode);
+            _cellWaypoints[cell].Add(vehicleEntryExitNode);
+            _allWaypoints.Add(vehicleEntryExitNode);
+
+            // if we have a path from the car to the door, connect to the first element in that path
+            if (carToDoor.Length > 0)
+            {
+                firstCarToDoorNode = new WaypointNode(carToDoor[0].position, cell, WaypointType.PropertyWalkway, WaypointNetworkType.Pedestrian);
+                ConnectPavementNodes(vehicleEntryExitNode, firstCarToDoorNode);
+            }
+        }
+
+        building.SetBuildingPedestrianWaypoints(inBuldingNode, doorNode, propertyEntryExitNode, vehicleEntryExitNodes.ToArray());
 
         // add them to the list
         _cellWaypoints[cell].Add(inBuldingNode);
         _cellWaypoints[cell].Add(doorNode);
         _cellWaypoints[cell].Add(propertyEntryExitNode);
-        _cellWaypoints[cell].Add(vehicleEntryExitNode);
         _allWaypoints.Add(inBuldingNode);
         _allWaypoints.Add(doorNode);
         _allWaypoints.Add(propertyEntryExitNode);
-        _allWaypoints.Add(vehicleEntryExitNode);
 
         // connect the inside building to the door
         ConnectPavementNodes(inBuldingNode, doorNode);
 
-        WaypointNode currentNode, previousNode = vehicleEntryExitNode;
+        WaypointNode currentNode, previousNode = firstCarToDoorNode == null ? firstCarToDoorNode : vehicleEntryExitNode;
 
         // loop through the path from the car to the the node before the door and connect them
-        for (int i = 0; i < carToDoor.Length; i++)
+        // we previously connect to the first element in the path so start from the second if there is one
+        if (carToDoor.Length > 1)
         {
-            currentNode = new WaypointNode(carToDoor[i].position, cell, WaypointType.PropertyWalkway, WaypointNetworkType.Pedestrian);
+            for (int i = 1; i < carToDoor.Length; i++)
+            {
+                currentNode = new WaypointNode(carToDoor[i].position, cell, WaypointType.PropertyWalkway, WaypointNetworkType.Pedestrian);
 
-            ConnectPavementNodes(currentNode, previousNode);
+                ConnectPavementNodes(currentNode, previousNode);
 
-            previousNode = currentNode;
+                previousNode = currentNode;
 
-            _cellWaypoints[cell].Add(currentNode);
-            _allWaypoints.Add(currentNode);
+                _cellWaypoints[cell].Add(currentNode);
+                _allWaypoints.Add(currentNode);
+            }
         }
 
         // then connect to the door
