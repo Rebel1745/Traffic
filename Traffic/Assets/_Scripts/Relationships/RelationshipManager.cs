@@ -123,5 +123,14 @@ public class RelationshipManager : MonoBehaviour
         => GetTargets(RelationshipType.Resident, personId, reverse: true);
 
     public List<EntityId> GetHomeParkingSpot(EntityId vehicleId)
-    => GetTargets(RelationshipType.HomeParkingSpot, vehicleId, reverse: false);
+        => GetTargets(RelationshipType.HomeParkingSpot, vehicleId, reverse: false);
+
+    public List<EntityId> GetVehicles(EntityId personId)
+        => GetTargets(RelationshipType.Driver, personId, reverse: false);
+
+    public List<EntityId> GetCurrentParkingSpot(EntityId vehicleId)
+        => GetTargets(RelationshipType.HomeParkingSpot, vehicleId, reverse: false);
+
+    public List<EntityId> GetAlight(EntityId waypointId)
+        => GetTargets(RelationshipType.AlightsAt, waypointId, reverse: false);
 }

@@ -629,6 +629,16 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
         return cellWaypoints;
     }
 
+    public WaypointNode GetWaypointFromId(EntityId id)
+    {
+        foreach (var node in _allWaypoints)
+        {
+            if (node.Id.Equals(id)) return node;
+        }
+
+        return null;
+    }
+
     public void ConnectAllCells()
     {
         // After all cells have been created, connect Neighbouring cells

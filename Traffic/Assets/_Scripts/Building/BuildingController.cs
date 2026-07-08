@@ -60,7 +60,7 @@ public class BuildingController : MonoBehaviour, ISelectableObject
         _cell = cell;
 
         // check that we have the same number of parking spots as entry exit vehicle points
-        if (_entryExitVehicleWaypoints.Length != _parkedWaypoints.Length)
+        if (_entryExitVehicleWaypointPositions.Length != _parkingSpotWaypointPositions.Length)
         {
             Debug.LogError("We have different number of parking spots and vehicle entry exit points!!");
             return;
@@ -74,11 +74,16 @@ public class BuildingController : MonoBehaviour, ISelectableObject
         // now that we have set up the buildings waypoints, we can update the parking spot waypoints with their corresponding vehicle entry / exit waypoints
         for (int i = 0; i < _entryExitVehicleWaypoints.Length; i++)
         {
-            _entryExitVehicleWaypoints[i].PairedParkingSpotWaypoint = _parkedWaypoints[i];
-            _entryExitVehicleWaypoints[i].PairedParkingSpotWaypointId = _parkedWaypoints[i].Id;
+            RelationshipManager.Instance.AddRelationship(
+                RelationshipType.AlightsAt,
+                _parkedWaypoints[i].Id,
+                _entryExitVehicleWaypoints[i].Id
+            );
+            // _entryExitVehicleWaypoints[i].PairedParkingSpotWaypoint = _parkedWaypoints[i];
+            // _entryExitVehicleWaypoints[i].PairedParkingSpotWaypointId = _parkedWaypoints[i].Id;
 
-            _parkedWaypoints[i].PairedParkingSpotWaypoint = _entryExitVehicleWaypoints[i];
-            _parkedWaypoints[i].PairedParkingSpotWaypointId = _entryExitVehicleWaypoints[i].Id;
+            // _parkedWaypoints[i].PairedParkingSpotWaypoint = _entryExitVehicleWaypoints[i];
+            // _parkedWaypoints[i].PairedParkingSpotWaypointId = _entryExitVehicleWaypoints[i].Id;
         }
 
         // add a person
@@ -160,15 +165,22 @@ public class BuildingController : MonoBehaviour, ISelectableObject
         AgentController vc = VehicleManager.Instance.AddAndRegisterVehicle(parkingSpot);
 
         // link the vehicle to the building
-        // RelationshipManager.Instance.AddRelationship(
-        //     RelationshipType.ParksAt,
-        //     Id, // Source: Building
-        //     vc.Id // Target: vehicle
-        // );
+        RelationshipManager.Instance.AddRelationship(
+            RelationshipType.HomeBuilding,
+            Id, // Source: Building
+            vc.Id // Target: vehicle
+        );
 
         // link the parking spot to the vehicle
         RelationshipManager.Instance.AddRelationship(
             RelationshipType.HomeParkingSpot,
+            vc.Id,
+            parkingSpot.Id
+        );
+
+        // link the parking spot to the vehicles current spot
+        RelationshipManager.Instance.AddRelationship(
+            RelationshipType.CurrentParkingSpot,
             vc.Id,
             parkingSpot.Id
         );

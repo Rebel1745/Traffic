@@ -122,46 +122,6 @@ public class VehicleManager : MonoBehaviour
         agent.InterruptAndAddGoal(new ParkAtHomeGoal(parkingSpot, name));
     }
 
-    // public void RequestNewTarget(AgentController vehicle, WaypointType previousTargetType)
-    // {
-    //     if (vehicle == null || vehicle.CurrentWaypoint == null)
-    //     {
-    //         Debug.LogWarning("Invalid vehicle or current waypoint!");
-    //         return;
-    //     }
-
-    //     int attempts = 0;
-    //     int maxAttempts = 3;
-
-    //     while (attempts < maxAttempts)
-    //     {
-    //         WaypointNode newTarget = null;
-
-    //         if (previousTargetType != WaypointType.VehicleParking)
-    //             newTarget = GetRandomVehicleWaypoint(WaypointType.VehicleParking);
-
-    //         if (newTarget == null) newTarget = FindValidTarget(vehicle.CurrentWaypoint);
-
-    //         if (newTarget != null)
-    //         {
-    //             List<WaypointNode> newPath = AStarPathfinder.FindPath(vehicle.CurrentWaypoint, newTarget);
-
-    //             if (newPath != null && newPath.Count > 0)
-    //             {
-    //                 vehicle.SetNewPath(newPath, newTarget);
-    //                 //Debug.Log($"New target assigned to vehicle: {newTarget.Position}");
-    //                 return;
-    //             }
-    //         }
-    //         Debug.Log($"Path to {newTarget.NetworkType} {newTarget.Type} {newTarget.Position} not found");
-    //         attempts++;
-    //     }
-
-    //     // Failed to find a valid target after 3 attempts
-    //     Debug.LogWarning($"Failed to find valid target for vehicle after {maxAttempts} attempts. Destroying vehicle.");
-    //     //RemoveVehicle(vehicle);
-    // }
-
     public WaypointNode FindValidTarget(WaypointNode startWaypoint, WaypointType type = WaypointType.None, int maxAttempts = 10)
     {
         // Try to find a valid target
@@ -196,5 +156,10 @@ public class VehicleManager : MonoBehaviour
         }
 
         return specificNodes[Random.Range(0, specificNodes.Count)];
+    }
+
+    public AgentController GetVehicle(EntityId entityId)
+    {
+        return _allVehicles[entityId];
     }
 }

@@ -20,6 +20,7 @@ public class SelectedPedestrianDetailsUI : MonoBehaviour
     [Header("Action Buttons")]
     [SerializeField] private Button _goToRandomWaypointButton;
     [SerializeField] private Button _goHomeButton;
+    [SerializeField] private Button _goOnADriveThenComeHomeButton;
 
     public void LoadPedestrian(AgentController agent, PedestrianData pedestrian)
     {
@@ -37,6 +38,8 @@ public class SelectedPedestrianDetailsUI : MonoBehaviour
         _goToRandomWaypointButton.onClick.AddListener(OnGoToRandomWaypointClicked);
         _goHomeButton.onClick.RemoveAllListeners();
         _goHomeButton.onClick.AddListener(OnGoHomeClicked);
+        _goOnADriveThenComeHomeButton.onClick.RemoveAllListeners();
+        _goOnADriveThenComeHomeButton.onClick.AddListener(OnGoOnADriveAndComeHomeClicked);
     }
 
     private void OnGoToRandomWaypointClicked()
@@ -47,6 +50,11 @@ public class SelectedPedestrianDetailsUI : MonoBehaviour
     private void OnGoHomeClicked()
     {
         PedestrianManager.Instance.GoHome(_agent);
+    }
+
+    private void OnGoOnADriveAndComeHomeClicked()
+    {
+        PedestrianManager.Instance.GoOnADriveAndComeHome(_agent);
     }
 
     public void OnEditPedestrianNameClicked()

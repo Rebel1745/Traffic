@@ -45,7 +45,7 @@ public class PedestrianManager : MonoBehaviour
         // //WaypointNode startWaypoint = GetRandomPedestrianWaypoint(WaypointType.InsideBuilding);
         // if (startWaypoint == null)
         // {
-        //     Debug.LogWarning("No valid spawn location found!");
+        //     Debug.LogError("No valid spawn location found!");
         //     return;
         // }
 
@@ -53,7 +53,7 @@ public class PedestrianManager : MonoBehaviour
         // WaypointNode targetWaypoint = FindValidTarget(startWaypoint);
         // if (targetWaypoint == null)
         // {
-        //     Debug.LogWarning("No valid target found for spawn location!");
+        //     Debug.LogError("No valid target found for spawn location!");
         //     return;
         // }
 
@@ -93,54 +93,6 @@ public class PedestrianManager : MonoBehaviour
         return pc;
     }
 
-    public void GoToRandomWaypoint(AgentController agent)
-    {
-        WaypointNode randomNode = GetRandomWaypoint(agent, WaypointType.PedestrianWalkway);
-        string name = "Walk to random node at " + randomNode.Position;
-
-        if (randomNode != null)
-            agent.AddGoal(new WalkToRandomGoal(randomNode, name));
-        else Debug.LogWarning("No random location found");
-    }
-
-    public WaypointNode GetRandomWaypoint(AgentController agent, WaypointType type)
-    {
-        PedestrianMovement pm = agent.GetComponent<PedestrianMovement>();
-
-        return FindValidTarget(pm.CurrentWaypoint, type: WaypointType.PedestrianWalkway);
-    }
-
-    public void GoHome(AgentController agent)
-    {
-        WaypointNode homeNode = GetHomeWaypoint(agent);
-
-        string name = "Walked home to " + homeNode.Position;
-
-        agent.InterruptAndAddGoal(new WalkHomeGoal(homeNode, name));
-    }
-
-    public WaypointNode GetHomeWaypoint(AgentController agent)
-    {
-        PedestrianMovement pm = agent.GetComponent<PedestrianMovement>();
-        EntityId buildingId = RelationshipManager.Instance.GetHomeBuildings(agent.Id).First();
-
-        if (!buildingId.IsValid) Debug.LogError("Home building not found");
-
-        BuildingController bc = BuildingManager.Instance.GetBuilding(buildingId);
-
-        if (bc == null) Debug.LogError("Building Controller not found");
-
-        WaypointNode homeNode = bc.DoorWaypoint;
-
-        if (homeNode == null) Debug.LogError("Inside building node not found");
-
-        List<WaypointNode> newPath = AStarPathfinder.FindPath(pm.CurrentWaypoint, homeNode);
-
-        if (newPath == null || newPath.Count == 0) Debug.LogError("Path to home node not found");
-
-        return homeNode;
-    }
-
     public WaypointNode FindValidTarget(WaypointNode startWaypoint, WaypointType type = WaypointType.None, int maxAttempts = 10)
     {
         // Try to find a valid target
@@ -170,10 +122,98 @@ public class PedestrianManager : MonoBehaviour
 
         if (specificNodes.Count == 0)
         {
-            Debug.LogWarning($"No waypoints of type {type} found");
+            Debug.LogError($"No waypoints of type {type} found");
             return null;
         }
 
         return specificNodes[Random.Range(0, specificNodes.Count)];
     }
+
+    #region Goals and Target Stuff
+    public void GoToRandomWaypoint(AgentController agent)
+    {
+        WaypointNode randomNode = GetRandomWaypoint(agent, WaypointType.PedestrianWalkway);
+        string goalName = "Walk to random node at " + randomNode.Position;
+
+        if (randomNode != null)
+            agent.AddGoal(new WalkToRandomGoal(randomNode, goalName));
+        else Debug.LogError("No random location found");
+    }
+
+    public WaypointNode GetRandomWaypoint(AgentController agent, WaypointType type)
+    {
+        PedestrianMovement pm = agent.GetComponent<PedestrianMovement>();
+
+        return FindValidTarget(pm.CurrentWaypoint, type: WaypointType.PedestrianWalkway);
+    }
+
+    public void GoHome(AgentController agent)
+    {
+        WaypointNode homeNode = GetHomeWaypoint(agent);
+
+        string goalName = "Walked home to " + homeNode.Position;
+
+        agent.InterruptAndAddGoal(new WalkHomeGoal(homeNode, goalName));
+    }
+
+    public WaypointNode GetHomeWaypoint(AgentController agent)
+    {
+        PedestrianMovement pm = agent.GetComponent<PedestrianMovement>();
+        EntityId buildingId = RelationshipManager.Instance.GetHomeBuildings(agent.Id).FirstOrDefault();
+
+        if (!buildingId.IsValid) Debug.LogError("Home building not found");
+
+        BuildingController bc = BuildingManager.Instance.GetBuilding(buildingId);
+
+        if (bc == null) Debug.LogError("Building Controller not found");
+
+        WaypointNode homeNode = bc.DoorWaypoint;
+
+        if (homeNode == null) Debug.LogError("Inside building node not found");
+
+        List<WaypointNode> newPath = AStarPathfinder.FindPath(pm.CurrentWaypoint, homeNode);
+
+        if (newPath == null || newPath.Count == 0) Debug.LogError("Path to home node not found");
+
+        return homeNode;
+    }
+
+    public void GoOnADriveAndComeHome(AgentController agent)
+    {
+        // first, do we have a car?
+        EntityId vehicleId = RelationshipManager.Instance.GetVehicles(agent.Id).FirstOrDefault();
+
+        if (!vehicleId.IsValid) Debug.LogError("Owned vehicle not found");
+
+        AgentController ac = VehicleManager.Instance.GetVehicle(vehicleId);
+
+        if (ac == null) Debug.LogError("No agent found for vehicle");
+
+        VehicleMovement vm = ac.GetComponent<VehicleMovement>();
+
+        // what is the cars home parking spot?
+        EntityId homeSpotId = RelationshipManager.Instance.GetHomeParkingSpot(vehicleId).FirstOrDefault();
+        if (!homeSpotId.IsValid) Debug.LogError("HomeSpot not found");
+
+        // is the car in its spot?
+        EntityId currentSpotId = RelationshipManager.Instance.GetCurrentParkingSpot(vehicleId).FirstOrDefault();
+        if (!currentSpotId.IsValid) Debug.LogError("CurrentSpot not found");
+
+        if (!homeSpotId.Equals(currentSpotId)) Debug.LogError("HomeSpot is not the same as CurrentSpot");
+
+        // what is the waypoint that connects to the cars spot?
+        EntityId alightId = RelationshipManager.Instance.GetAlight(homeSpotId).FirstOrDefault();
+
+        if (!alightId.IsValid) Debug.LogError("Alight waypoint not valid");
+
+        WaypointNode alightWaypoint = PedestrianWaypointManager.Instance.GetWaypointFromId(alightId);
+
+        string goalName = "Walking to the alight waypoint";
+
+        if (alightWaypoint != null)
+            agent.AddGoal(new WalkToAlightGoal(alightWaypoint, goalName));
+        else Debug.LogWarning("Alight waypoint not found");
+    }
+
+    #endregion
 }
