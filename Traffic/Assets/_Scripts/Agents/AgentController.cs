@@ -6,6 +6,7 @@ public class AgentController : MonoBehaviour, ISelectableObject
 {
     [Header("Identity")]
     public EntityId Id { get; private set; }
+    [SerializeField] GameObject _agentModel;
     private AgentType _agentType;
     public AgentType AgentType => _agentType;
     [SerializeField] private Vector3 _cameraFocusOffset; // the offset to apply to the camera that looks at the object when it is selected
@@ -83,7 +84,7 @@ public class AgentController : MonoBehaviour, ISelectableObject
 
     public void AddGoalAfterCurrent(Goal goal)
     {
-        if (_currentNode != null)
+        if (_currentNode != null && _goalQueue.Count > 0)
         {
             // There is an active goal. Insert the new goal immediately after it.
             // This pushes all existing queued goals further down the list.
@@ -124,8 +125,23 @@ public class AgentController : MonoBehaviour, ISelectableObject
         _currentGoal = goal;
         _currentNode = _goalQueue.First;
 
+        List<WaypointNode> path = null;
+
         // Calculate path from current position to goal target
-        List<WaypointNode> path = AStarPathfinder.FindPath(_mover.CurrentWaypoint, goal.Target);
+        if (_mover.CurrentWaypoint.NetworkType == goal.Target.NetworkType)
+            path = AStarPathfinder.FindPath(_mover.CurrentWaypoint, goal.Target);
+        else
+        {
+            // if the goal isn't on the same network as the current waypoint (e.g. moving from pedestrian into vehicle waypoints)
+            if (_mover.CurrentWaypoint != goal.Target)
+            {
+                path = new()
+                {
+                    _mover.CurrentWaypoint,
+                    goal.Target
+                };
+            }
+        }
 
         if (path != null && path.Count > 0)
         {
@@ -150,6 +166,11 @@ public class AgentController : MonoBehaviour, ISelectableObject
                 UIManager.Instance.LoadVehicleDetails(this);
                 break;
         }
+    }
+
+    public void ShowHideAgent(bool show)
+    {
+        _agentModel.SetActive(show);
     }
 }
 

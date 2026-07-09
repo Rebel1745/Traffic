@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using UnityEngine;
 
 public class PedestrianManager : MonoBehaviour
@@ -181,7 +182,7 @@ public class PedestrianManager : MonoBehaviour
     public void GoOnADriveAndComeHome(AgentController agent)
     {
         // first, do we have a car?
-        EntityId vehicleId = RelationshipManager.Instance.GetVehicles(agent.Id).FirstOrDefault();
+        EntityId vehicleId = GetPersonsVehicle(agent.Id);
 
         if (!vehicleId.IsValid) Debug.LogError("Owned vehicle not found");
 
@@ -192,11 +193,13 @@ public class PedestrianManager : MonoBehaviour
         VehicleMovement vm = ac.GetComponent<VehicleMovement>();
 
         // what is the cars home parking spot?
-        EntityId homeSpotId = RelationshipManager.Instance.GetHomeParkingSpot(vehicleId).FirstOrDefault();
+        EntityId homeSpotId = VehicleManager.Instance.GetVehiclesHomeSpotId(vehicleId);
+
         if (!homeSpotId.IsValid) Debug.LogError("HomeSpot not found");
 
         // is the car in its spot?
-        EntityId currentSpotId = RelationshipManager.Instance.GetCurrentParkingSpot(vehicleId).FirstOrDefault();
+        EntityId currentSpotId = VehicleManager.Instance.GetVehiclesCurrentSpotId(vehicleId);
+
         if (!currentSpotId.IsValid) Debug.LogError("CurrentSpot not found");
 
         if (!homeSpotId.Equals(currentSpotId)) Debug.LogError("HomeSpot is not the same as CurrentSpot");
@@ -211,8 +214,16 @@ public class PedestrianManager : MonoBehaviour
         string goalName = "Walking to the alight waypoint";
 
         if (alightWaypoint != null)
-            agent.AddGoal(new WalkToAlightGoal(alightWaypoint, goalName));
+            agent.AddGoal(new GFAD_WalkToAlightGoal(alightWaypoint, goalName));
         else Debug.LogWarning("Alight waypoint not found");
+    }
+
+    public EntityId GetPersonsVehicle(EntityId personId)
+        => RelationshipManager.Instance.GetVehicles(personId).FirstOrDefault();
+
+    public void ReParentPedestrian(AgentController ac)
+    {
+        ac.transform.SetParent(transform);
     }
 
     #endregion

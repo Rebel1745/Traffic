@@ -325,6 +325,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5579a09dc34228447ad190be08378389, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AgentController
+  _agentModel: {fileID: 265570961268726291}
   _cameraFocusOffset: {x: 0, y: -1, z: 0.75}
   _cameraRotation: {x: 45, y: 0, z: 0}
 --- !u!114 &5850076945027939214

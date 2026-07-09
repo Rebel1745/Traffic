@@ -159,7 +159,11 @@ public class VehicleManager : MonoBehaviour
     }
 
     public AgentController GetVehicle(EntityId entityId)
-    {
-        return _allVehicles[entityId];
-    }
+        => _allVehicles[entityId];
+
+    public EntityId GetVehiclesHomeSpotId(EntityId vehicleId)
+        => RelationshipManager.Instance.GetHomeParkingSpot(vehicleId).FirstOrDefault();
+
+    public EntityId GetVehiclesCurrentSpotId(EntityId vehicleId)
+        => RelationshipManager.Instance.GetCurrentParkingSpot(vehicleId).FirstOrDefault();
 }
