@@ -205,7 +205,7 @@ public class PedestrianManager : MonoBehaviour
         if (!homeSpotId.Equals(currentSpotId)) Debug.LogError("HomeSpot is not the same as CurrentSpot");
 
         // what is the waypoint that connects to the cars spot?
-        EntityId alightId = RelationshipManager.Instance.GetAlight(homeSpotId).FirstOrDefault();
+        EntityId alightId = GetAlightWaypointId(homeSpotId);
 
         if (!alightId.IsValid) Debug.LogError("Alight waypoint not valid");
 
@@ -220,6 +220,9 @@ public class PedestrianManager : MonoBehaviour
 
     public EntityId GetPersonsVehicle(EntityId personId)
         => RelationshipManager.Instance.GetVehicles(personId).FirstOrDefault();
+
+    public EntityId GetAlightWaypointId(EntityId homeParkingSpotId)
+        => RelationshipManager.Instance.GetAlight(homeParkingSpotId).FirstOrDefault();
 
     public void ReParentPedestrian(AgentController ac)
     {
