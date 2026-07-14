@@ -5,7 +5,7 @@ public class BuildingManager : MonoBehaviour
 {
     public static BuildingManager Instance { get; private set; }
 
-    private Dictionary<EntityId, BuildingController> _allBuildings = new();
+    private Dictionary<EntityId, BuildingBase> _allBuildings = new();
 
     private void Awake()
     {
@@ -42,15 +42,15 @@ public class BuildingManager : MonoBehaviour
 
         building.transform.position = finalPosition;
 
-        BuildingController bc = buildingObj.GetComponent<BuildingController>();
+        BuildingBase bc = buildingObj.GetComponent<BuildingBase>();
 
         EntityId newId = EntityId.New();
         _allBuildings[newId] = bc;
 
-        bc.SetupBuilding(newId, GridManager.Instance.GetCellAtWorldPosition(anchorWorldPos));
+        bc.InitialiseBuilding(newId, GridManager.Instance.GetCellAtWorldPosition(anchorWorldPos));
     }
 
-    public BuildingController GetBuilding(EntityId entityId)
+    public BuildingBase GetBuilding(EntityId entityId)
     {
         return _allBuildings[entityId];
     }

@@ -6,7 +6,7 @@ public class SelectedBuildingDetailsUI : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private GameObject uiPanel;
-    private BuildingController _buildingController;
+    private BuildingBase _buildingBase;
 
     [Header(("Building Name"))]
     [SerializeField] private TMP_Text _buildingNameText;
@@ -19,9 +19,9 @@ public class SelectedBuildingDetailsUI : MonoBehaviour
     [SerializeField] private Button _addPersonToBuildingButton;
     [SerializeField] private Button _addVehicleToBuildingButton;
 
-    public void LoadBuilding(BuildingController building)
+    public void LoadBuilding(BuildingBase building)
     {
-        _buildingController = building;
+        _buildingBase = building;
 
         uiPanel.SetActive(true);
         CameraFollow.Instance.SetFollowTarget(building.transform.position, building.CameraFocusOffset, building.CameraRotation);
@@ -64,11 +64,11 @@ public class SelectedBuildingDetailsUI : MonoBehaviour
 
     private void OnAddPersonToBuilding()
     {
-        _buildingController.AddPersonToBuilding();
+        _buildingBase.AddPersonToBuilding();
     }
 
     private void OnAddVehicleToBuilding()
     {
-        _buildingController.AddVehicleToBuilding();
+        _buildingBase.AddVehicleToBuilding();
     }
 }

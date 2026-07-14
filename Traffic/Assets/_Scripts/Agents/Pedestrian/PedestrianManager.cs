@@ -164,11 +164,15 @@ public class PedestrianManager : MonoBehaviour
 
         if (!buildingId.IsValid) Debug.LogError("Home building not found");
 
-        BuildingController bc = BuildingManager.Instance.GetBuilding(buildingId);
+        BuildingBase bc = BuildingManager.Instance.GetBuilding(buildingId);
 
         if (bc == null) Debug.LogError("Building Controller not found");
 
-        WaypointNode homeNode = bc.DoorWaypoint;
+        WaypointNode homeNode = null;
+
+        if (bc is BuildingHouse house)
+            homeNode = house.DoorWaypoint;
+        else Debug.LogError("This building is not a house");
 
         if (homeNode == null) Debug.LogError("Inside building node not found");
 

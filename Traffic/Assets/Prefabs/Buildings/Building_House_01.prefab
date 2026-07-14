@@ -40,8 +40,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4276239028721331185}
-  - component: {fileID: 750085003651965235}
   - component: {fileID: 5045961339903887484}
+  - component: {fileID: 7401254167983557421}
   m_Layer: 10
   m_Name: Building_House_01
   m_TagString: Untagged
@@ -66,45 +66,6 @@ Transform:
   - {fileID: 7508084599152268499}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &750085003651965235
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 413424536934244235}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2260357a4673ea34088104249a299a79, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BuildingController
-  _buildingRenderer: {fileID: 6633993774056098461}
-  _foundationRenderer: {fileID: 5013279444769424418}
-  _insideBuildingWaypointPosition: {fileID: 3250191999778630493}
-  _doorWaypointPosition: {fileID: 3935152349918427259}
-  _entryExitPropertyWaypointPosition: {fileID: 345944736946774909}
-  _entryExitVehicleWaypointPositions:
-  - {fileID: 7336757360554075283}
-  - {fileID: 1794109714881016473}
-  - {fileID: 459489294760044187}
-  _parkedToDoorWaypointPositions:
-  - {fileID: 8078884104543125158}
-  _propertyEntryToDoorWaypointPositions: []
-  _parkingSpotWaypointPositions:
-  - {fileID: 4579101568455517717}
-  - {fileID: 576607627611016680}
-  - {fileID: 6023102874589924822}
-  _vehicleEntryExitWaypointPosition: {fileID: 335167969853319501}
-  _vehicleEntryToParkedWaypointPositions:
-  - {fileID: 805885251416031779}
-  _vehicleCellCheckWaypointPosition: {fileID: 4696659758057400433}
-  _buildingName: 
-  _gridRows: 2
-  _gridCols: 2
-  _gridSize: 0.35
-  _maximumOccupancy: 4
-  _cameraFocusOffset: {x: -0.5, y: -3.5, z: 9.5}
-  _cameraRotation: {x: 15, y: 0, z: 0}
 --- !u!65 &5045961339903887484
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -126,6 +87,46 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 10.407534, y: 0.51688075, z: 10.36475}
   m_Center: {x: -0.04166317, y: 3.9283319, z: 0.028871536}
+--- !u!114 &7401254167983557421
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 413424536934244235}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 133ae8461bd59d34789e786decf35c14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BuildingHouse
+  _buildingRenderer: {fileID: 6633993774056098461}
+  _foundationRenderer: {fileID: 5013279444769424418}
+  _buildingName: House
+  _cameraFocusOffset: {x: -0.5, y: -3.5, z: 9.5}
+  _cameraRotation: {x: 15, y: 0, z: 0}
+  _insideBuildingWaypointPosition: {fileID: 3250191999778630493}
+  _doorWaypointPosition: {fileID: 3935152349918427259}
+  _entryExitPropertyWaypointPosition: {fileID: 345944736946774909}
+  _entryExitVehicleWaypointPositions:
+  - {fileID: 7336757360554075283}
+  - {fileID: 1794109714881016473}
+  - {fileID: 459489294760044187}
+  _parkedToDoorWaypointPositions:
+  - {fileID: 8078884104543125158}
+  _propertyEntryToDoorWaypointPositions: []
+  _parkingSpotWaypointPositions:
+  - {fileID: 4579101568455517717}
+  - {fileID: 576607627611016680}
+  - {fileID: 6023102874589924822}
+  _vehicleEntryExitWaypointPosition: {fileID: 335167969853319501}
+  _vehicleEntryToParkedWaypointPositions:
+  - {fileID: 805885251416031779}
+  _vehicleCellCheckWaypointPosition: {fileID: 4696659758057400433}
+  _gridRows: 2
+  _gridCols: 2
+  _gridSize: 0.35
+  _maximumOccupancy: 4
+  _maximumVehicleOccupancy: 3
 --- !u!1 &478107098368652130
 GameObject:
   m_ObjectHideFlags: 0

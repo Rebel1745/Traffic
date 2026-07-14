@@ -135,7 +135,7 @@ public class BuildingPlacementHandler : MonoBehaviour, IPlacementHandler
         GameObject building = Instantiate(_buildingPrefab, Vector3.zero, _buildingPrefab.transform.rotation);
         building.name = "BuildingPreview";
         building.transform.parent = _previewInstance.transform;
-        _foundationRenderer = building.GetComponent<BuildingController>().GetFoundationRenderer();
+        _foundationRenderer = building.GetComponent<BuildingBase>().GetFoundationRenderer();
     }
 
     private void UpdatePreviewPosition()

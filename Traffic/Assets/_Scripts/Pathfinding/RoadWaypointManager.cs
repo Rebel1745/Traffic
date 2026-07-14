@@ -797,7 +797,16 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork//, ISaveable
         return null;
     }
 
-    public void AddBuildingVehicleWaypoints(GridCell cell, BuildingController building, Transform[] parkedWaypoints, Transform[] entryToParkedWaypoints, Transform entryWaypoint, Transform cellCheckWaypoint)
+    #region Building waypoint setup
+    public void AddHouseVehicleWaypoints(
+        GridCell cell,
+        Transform[] parkedWaypoints,
+        Transform[] entryToParkedWaypoints,
+        Transform entryWaypoint,
+        Transform cellCheckWaypoint,
+        out WaypointNode[] parkingSpotWaypoints,
+        out WaypointNode vehicleEntryExitPropertyWaypoint
+    )
     {
         // Store waypoints for this cell
         if (!_cellWaypoints.ContainsKey(cell))
@@ -806,7 +815,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork//, ISaveable
         }
 
         // define the main vehicle nodes
-        WaypointNode entryNode = new WaypointNode(entryWaypoint.position, cell, WaypointType.VehicleEntryExit, WaypointNetworkType.Vehicle);
+        vehicleEntryExitPropertyWaypoint = new WaypointNode(entryWaypoint.position, cell, WaypointType.VehicleEntryExit, WaypointNetworkType.Vehicle);
 
         List<WaypointNode> parkedNodeList = new();
         WaypointNode parkedNode = null;
@@ -820,13 +829,13 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork//, ISaveable
             _allWaypoints.Add(parkedNode);
         }
 
-        building.SetBuildingVehicleWaypoints(parkedNodeList.ToArray(), entryNode);
+        parkingSpotWaypoints = parkedNodeList.ToArray();
 
         // add them to the list
-        _cellWaypoints[cell].Add(entryNode);
-        _allWaypoints.Add(entryNode);
+        _cellWaypoints[cell].Add(vehicleEntryExitPropertyWaypoint);
+        _allWaypoints.Add(vehicleEntryExitPropertyWaypoint);
 
-        WaypointNode currentNode, previousNode = entryNode;
+        WaypointNode currentNode, previousNode = vehicleEntryExitPropertyWaypoint;
 
         // loop through the path from the car to the the node before the door and connect them
         for (int i = 0; i < entryToParkedWaypoints.Length; i++)
@@ -851,23 +860,24 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork//, ISaveable
         }
 
         // find and connect the property exit waypoint, to the waypoints exiting the adjoing cell to allow the vehicle to exit the property in multiple different directions
-        List<WaypointNode> closestVehicleWaypoints = FindClosestVehicleNodesInCellFromPosition(cellCheckWaypoint.position, entryNode.Position, 3, WaypointType.Exit);
+        List<WaypointNode> closestVehicleWaypoints = FindClosestVehicleNodesInCellFromPosition(cellCheckWaypoint.position, vehicleEntryExitPropertyWaypoint.Position, 3, WaypointType.Exit);
 
         // connect the property entry/exit node to the Vehicle node on the road
         foreach (WaypointNode node in closestVehicleWaypoints)
         {
-            entryNode.Connections.Add(new WaypointConnection(node, 0f));
+            vehicleEntryExitPropertyWaypoint.Connections.Add(new WaypointConnection(node, 0f));
         }
 
         //find and connect the entry points of the cell connecting to the property entry way to allow the vehicle to approach from any direction
-        closestVehicleWaypoints = FindClosestVehicleNodesInCellFromPosition(cellCheckWaypoint.position, entryNode.Position, 3, WaypointType.Entry);
+        closestVehicleWaypoints = FindClosestVehicleNodesInCellFromPosition(cellCheckWaypoint.position, vehicleEntryExitPropertyWaypoint.Position, 3, WaypointType.Entry);
 
         // connect the property entry/exit node to the Vehicle node on the road
         foreach (WaypointNode node in closestVehicleWaypoints)
         {
-            node.Connections.Add(new WaypointConnection(entryNode, 100f));
+            node.Connections.Add(new WaypointConnection(vehicleEntryExitPropertyWaypoint, 100f));
         }
     }
+    #endregion
 
     private List<WaypointNode> FindClosestVehicleNodesInCellFromPosition(Vector3 cellCheckPosition, Vector3 position, int count, WaypointType type)
     {

@@ -1,7 +1,7 @@
 using System.Linq;
 using UnityEngine;
 
-public class BuildingController : MonoBehaviour, ISelectableObject
+public class BuildingController_old : MonoBehaviour, ISelectableObject
 {
     [Header("Renderers")]
     [SerializeField] private MeshRenderer _buildingRenderer;
@@ -68,8 +68,8 @@ public class BuildingController : MonoBehaviour, ISelectableObject
 
         _maximumVehicleOccupancy = _parkingSpotWaypointPositions.Count();
 
-        PedestrianWaypointManager.Instance.AddBuildingPedestrianWaypoints(cell, this, _insideBuildingWaypointPosition, _doorWaypointPosition, _entryExitPropertyWaypointPosition, _propertyEntryToDoorWaypointPositions, _entryExitVehicleWaypointPositions, _parkedToDoorWaypointPositions);
-        RoadWaypointManager.Instance.AddBuildingVehicleWaypoints(cell, this, _parkingSpotWaypointPositions, _vehicleEntryToParkedWaypointPositions, _vehicleEntryExitWaypointPosition, _vehicleCellCheckWaypointPosition);
+        // PedestrianWaypointManager.Instance.AddBuildingPedestrianWaypoints(cell, this, _insideBuildingWaypointPosition, _doorWaypointPosition, _entryExitPropertyWaypointPosition, _propertyEntryToDoorWaypointPositions, _entryExitVehicleWaypointPositions, _parkedToDoorWaypointPositions);
+        // RoadWaypointManager.Instance.AddBuildingVehicleWaypoints(cell, this, _parkingSpotWaypointPositions, _vehicleEntryToParkedWaypointPositions, _vehicleEntryExitWaypointPosition, _vehicleCellCheckWaypointPosition);
 
         // now that we have set up the buildings waypoints, we can update the parking spot waypoints with their corresponding vehicle entry / exit waypoints
         for (int i = 0; i < _entryExitVehicleWaypoints.Length; i++)
@@ -194,6 +194,6 @@ public class BuildingController : MonoBehaviour, ISelectableObject
 
     public void SelectObject()
     {
-        UIManager.Instance.LoadBuildingDetails(this);
+        // UIManager.Instance.LoadBuildingDetails(this);
     }
 }

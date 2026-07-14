@@ -59,7 +59,7 @@ public class UIManager : MonoBehaviour
         _currentUIDetailsWindow = _trafficLightGroupSettingsUI.gameObject;
     }
 
-    public void LoadBuildingDetails(BuildingController building)
+    public void LoadBuildingDetails(BuildingBase building)
     {
         if (!_selectedBuildingDetailsUI) return;
 
