@@ -53,6 +53,6 @@ public enum PedestrianSubState
 public enum BuildingSubState
 {
     None,
-    AddBuilding,
-    DeleteBuilding
+    House,
+    PetrolStation
 }

@@ -8,6 +8,10 @@ public abstract class BuildingBase : MonoBehaviour, ISelectableObject
 
     [Header("Building Details")]
     public EntityId Id { get; protected set; }
+    [SerializeField] private int _buildingXCells = 2;  // X axis
+    public int BuildingXCells => _buildingXCells;
+    [SerializeField] private int _buildingZCells = 2; // Z axis
+    public int BuildingZCells => _buildingZCells;
     protected GridCell _cell;
     [SerializeField] protected string _buildingName;
     public string BuildingName => _buildingName;

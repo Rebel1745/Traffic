@@ -5,6 +5,10 @@ public class BuildingManager : MonoBehaviour
 {
     public static BuildingManager Instance { get; private set; }
 
+    [Header("Building Prefabs")]
+    [SerializeField] private GameObject _housePrefab;
+    [SerializeField] private GameObject _petrolStationPrefab;
+
     private Dictionary<EntityId, BuildingBase> _allBuildings = new();
 
     private void Awake()
@@ -53,5 +57,19 @@ public class BuildingManager : MonoBehaviour
     public BuildingBase GetBuilding(EntityId entityId)
     {
         return _allBuildings[entityId];
+    }
+
+    public void GetBuildingPrefabDetailsFromSimulationState(out GameObject prefab, out int xCells, out int zCells)
+    {
+        prefab = SimulationManager.Instance.CurrentState.BuildingSubState switch
+        {
+            BuildingSubState.House => _housePrefab,
+            BuildingSubState.PetrolStation => _petrolStationPrefab,
+            _ => _housePrefab
+        };
+
+        BuildingBase bb = prefab.GetComponent<BuildingBase>();
+        xCells = bb.BuildingXCells;
+        zCells = bb.BuildingZCells;
     }
 }

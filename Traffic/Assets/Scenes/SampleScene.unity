@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 909440}
   - component: {fileID: 909439}
   m_Layer: 5
-  m_Name: B2
+  m_Name: PetrolStationButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4472,7 +4472,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: B1
+  m_text: H
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -4817,9 +4817,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildingPlacementHandler
   _validMaterial: {fileID: 2100000, guid: d603d7866c9db2943b17c15799e236d0, type: 2}
   _invalidMaterial: {fileID: 2100000, guid: 9753dd124c85d7445b3490368775bba8, type: 2}
-  _buildingPrefab: {fileID: 413424536934244235, guid: b2cdaa662bbc71149939720950c9f318, type: 3}
-  _buildingXCells: 2
-  _buildingZCells: 2
 --- !u!1 &325478064
 GameObject:
   m_ObjectHideFlags: 0
@@ -8893,7 +8890,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: B2
+  m_text: P
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -16161,6 +16158,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8782f8c5e5d1a2844a86c05507def5db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BuildingManager
+  _housePrefab: {fileID: 413424536934244235, guid: b2cdaa662bbc71149939720950c9f318, type: 3}
+  _petrolStationPrefab: {fileID: 2963063035210150145, guid: 1c2cad2159c73524c86e8873a94df79a, type: 3}
 --- !u!1 &1444757014
 GameObject:
   m_ObjectHideFlags: 0
@@ -20923,7 +20922,7 @@ GameObject:
   - component: {fileID: 1840691222}
   - component: {fileID: 1840691221}
   m_Layer: 5
-  m_Name: B1
+  m_Name: HouseButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

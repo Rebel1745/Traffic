@@ -1,46 +1,66 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
+using Unity.VisualScripting;
 
 public class BuildingPlacementHandler : MonoBehaviour, IPlacementHandler
 {
-    [Header("References")][SerializeField] private Material _validMaterial;     // Green
+    [Header("References")]
+    [SerializeField] private Material _validMaterial;     // Green
     [SerializeField] private Material _invalidMaterial;   // Red
-    [SerializeField] private GameObject _buildingPrefab; // Your prefab reference
-
-    [Header("Building Configuration")][SerializeField] private int _buildingXCells = 2;  // X axis
-    [SerializeField] private int _buildingZCells = 2; // Z axis
 
     private float _cellSize;
     private GameObject _previewInstance;
-    // private GameObject _foundation;
+    private GameObject _building;
     private MeshRenderer _foundationRenderer;
     private Material _pavementMaterial;
     private float _pavementHeight;
 
+    // building details
+    private GameObject _buildingPrefab;
+    private int _buildingXCells;
+    private int _buildingZCells;
+
     // Track if we are currently hovering a valid spot
-    private Vector3Int _gridPos;
     private bool _isValidPosition = false;
 
     public void OnEnter()
     {
+        SimulationManager.Instance.OnStateChanged += OnStateChanged;
+
         _cellSize = GridManager.Instance.CellSize;
         _pavementMaterial = RoadMeshRenderer.Instance.GetPavementMaterial();
         _pavementHeight = RoadMeshRenderer.Instance.GetPavementHeight();
-        CreatePreviewMesh();
-        _previewInstance.SetActive(true);
+
+        // BuildingManager.Instance.GetBuildingPrefabDetailsFromSimulationState(out _buildingPrefab, out _buildingXCells, out _buildingZCells);
+
+        // CreatePreviewMesh();
+        // _previewInstance.SetActive(true);
+
     }
 
     public void OnExit()
     {
+        SimulationManager.Instance.OnStateChanged -= OnStateChanged;
+
         if (_previewInstance != null)
         {
             _previewInstance.SetActive(false);
         }
     }
 
+    private void OnStateChanged(GameStateContext context)
+    {
+        if (_previewInstance != null) Destroy(_previewInstance);
+
+        BuildingManager.Instance.GetBuildingPrefabDetailsFromSimulationState(out _buildingPrefab, out _buildingXCells, out _buildingZCells);
+
+        StartCoroutine(CreatePreviewMesh());
+    }
+
     public void OnUpdate()
     {
-        UpdatePreviewPosition();
+        //UpdatePreviewPosition();
     }
 
     public void OnLeftClickPressed(Vector3 hitPoint)
@@ -63,10 +83,8 @@ public class BuildingPlacementHandler : MonoBehaviour, IPlacementHandler
 
     public void OnMouseMoved(Vector3 hitPoint)
     {
-        _gridPos = GridManager.Instance.WorldToGridPosition(hitPoint);
-
         // Check validity
-        if (IsValidPlacement(_gridPos))
+        if (IsValidPlacement(hitPoint))
         {
             SetPreviewColor(_pavementMaterial);
             _isValidPosition = true;
@@ -77,11 +95,13 @@ public class BuildingPlacementHandler : MonoBehaviour, IPlacementHandler
             _isValidPosition = false;
         }
 
-        UpdatePreviewPosition();
+        UpdatePreviewPosition(hitPoint);
     }
 
-    private bool IsValidPlacement(Vector3Int anchor)
+    private bool IsValidPlacement(Vector3 position)
     {
+        Vector3Int anchor = GridManager.Instance.WorldToGridPosition(position);
+
         // Check bounds for all 4 cells
         for (int x = 0; x < _buildingXCells; x++)
         {
@@ -119,31 +139,28 @@ public class BuildingPlacementHandler : MonoBehaviour, IPlacementHandler
         BuildingManager.Instance.PlaceAndRegisterBuilding(_buildingPrefab, GridManager.Instance.WorldToGridPosition(position), _buildingXCells, _buildingZCells);
     }
 
-    private void CreatePreviewMesh()
+    private System.Collections.IEnumerator CreatePreviewMesh()
     {
-        if (_previewInstance != null) return;
+        yield return new WaitForEndOfFrame();
 
         _previewInstance = new GameObject("BuildingPreview");
 
-        // add the 'foundations' of the building (basically a pavement)
-        // _foundation = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        // _foundation.name = "FoundationPreview";
-        // _foundation.transform.localScale = new Vector3(_buildingXCells * _cellSize, _pavementHeight, _buildingZCells * _cellSize);
-        // _foundation.transform.parent = _previewInstance.transform;
+        // add the building
+        _building = Instantiate(_buildingPrefab, Vector3.zero, _buildingPrefab.transform.rotation);
+        _building.name = "BuildingPreview";
+        _building.transform.parent = _previewInstance.transform;
+        _foundationRenderer = _building.GetComponent<BuildingBase>().GetFoundationRenderer();
 
-        // add th building on top of the foundation
-        GameObject building = Instantiate(_buildingPrefab, Vector3.zero, _buildingPrefab.transform.rotation);
-        building.name = "BuildingPreview";
-        building.transform.parent = _previewInstance.transform;
-        _foundationRenderer = building.GetComponent<BuildingBase>().GetFoundationRenderer();
+        _previewInstance.SetActive(true);
     }
 
-    private void UpdatePreviewPosition()
+    private void UpdatePreviewPosition(Vector3 position)
     {
         if (_previewInstance == null) return;
 
         // Get the world position of the anchor cell (bottom-left of the footprint)
-        Vector3 anchorWorldPos = GridManager.Instance.GridToWorldPosition(_gridPos.x, _gridPos.z);
+        Vector3Int anchor = GridManager.Instance.WorldToGridPosition(position);
+        Vector3 anchorWorldPos = GridManager.Instance.GridToWorldPosition(anchor.x, anchor.z);
 
         float xOffset = ((_buildingXCells * _cellSize) / 2f) - (_cellSize / 2f);
         float zOffset = ((_buildingZCells * _cellSize) / 2f) - (_cellSize / 2f);
