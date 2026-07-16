@@ -101,6 +101,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildingHouse
   _buildingRenderer: {fileID: 6633993774056098461}
   _foundationRenderer: {fileID: 5013279444769424418}
+  _buildingXCells: 2
+  _buildingZCells: 2
   _buildingName: House
   _cameraFocusOffset: {x: -0.5, y: -3.5, z: 9.5}
   _cameraRotation: {x: 15, y: 0, z: 0}
@@ -511,7 +513,7 @@ GameObject:
   m_Layer: 10
   m_Name: VehicleCellCheck
   m_TagString: Untagged
-  m_Icon: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1

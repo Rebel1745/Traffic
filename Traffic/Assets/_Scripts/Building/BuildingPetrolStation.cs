@@ -1,14 +1,23 @@
+using System;
 using UnityEngine;
 
 public class BuildingPetrolStation : BuildingBase
 {
-    protected override int MaximumOccupancy => throw new System.NotImplementedException();
+    // base class references
+    protected override int MaximumOccupancy => 0;
+    protected override int CurrentOccupancy => 0;
 
-    protected override int CurrentOccupancy => throw new System.NotImplementedException();
+    private int _maximumVehicleOccupancy = 0;
+    protected override int MaximumVehicleOccupancy => _maximumVehicleOccupancy;
+    private int _currentVehicleOccupancy = 0;
+    protected override int CurrentVehicleOccupancy => _currentVehicleOccupancy;
 
-    protected override int MaximumVehicleOccupancy => throw new System.NotImplementedException();
-
-    protected override int CurrentVehicleOccupancy => throw new System.NotImplementedException();
+    [Header("Waypoints")]
+    [SerializeField] private Transform _cellCheckEntry;
+    [SerializeField] private Transform _propertyEntry;
+    [SerializeField] private PumpDetails[] _pumps;
+    [SerializeField] private Transform _propertyExit;
+    [SerializeField] private Transform _cellCheckExit;
 
     public override AgentController AddPersonToBuilding()
     {
@@ -22,7 +31,17 @@ public class BuildingPetrolStation : BuildingBase
 
     public override void InitialiseBuilding(EntityId entityId, GridCell cell)
     {
-        throw new System.NotImplementedException();
+        Id = entityId;
+        _cell = cell;
+
+        _maximumVehicleOccupancy = _pumps.Length;
+
+        InitialiseVehicleWaypoints();
+    }
+
+    private void InitialiseVehicleWaypoints()
+    {
+        RoadWaypointManager.Instance.AddPetrolStationVehicleWaypoints(_cell, _propertyEntry, _pumps, _propertyExit, _cellCheckEntry, _cellCheckExit);
     }
 
     public override void PopulateBuilding()
@@ -32,16 +51,16 @@ public class BuildingPetrolStation : BuildingBase
 
     protected override int GetGridCols()
     {
-        throw new System.NotImplementedException();
+        return 0;
     }
 
     protected override int GetGridRows()
     {
-        throw new System.NotImplementedException();
+        return 0;
     }
 
     protected override float GetGridSize()
     {
-        throw new System.NotImplementedException();
+        return 0;
     }
 }

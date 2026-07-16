@@ -815,7 +815,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork//, ISaveable
         }
 
         // define the main vehicle nodes
-        vehicleEntryExitPropertyWaypoint = new WaypointNode(entryWaypoint.position, cell, WaypointType.VehicleEntryExit, WaypointNetworkType.Vehicle);
+        vehicleEntryExitPropertyWaypoint = new WaypointNode(entryWaypoint.position, cell, WaypointType.VehiclePropertyEntryExit, WaypointNetworkType.Vehicle);
 
         List<WaypointNode> parkedNodeList = new();
         WaypointNode parkedNode = null;
@@ -875,6 +875,63 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork//, ISaveable
         foreach (WaypointNode node in closestVehicleWaypoints)
         {
             node.Connections.Add(new WaypointConnection(vehicleEntryExitPropertyWaypoint, 100f));
+        }
+    }
+
+    public void AddPetrolStationVehicleWaypoints(GridCell cell, Transform entry, PumpDetails[] pumps, Transform exit, Transform cellCheckEntry, Transform cellCheckExit)
+    {
+        // Store waypoints for this cell
+        if (!_cellWaypoints.ContainsKey(cell))
+        {
+            _cellWaypoints[cell] = new List<WaypointNode>();
+        }
+
+        // create waypoints for the entry and exit points of the petrol station
+        WaypointNode propertyEntry = new WaypointNode(entry.position, cell, WaypointType.VehiclePropertyEntry, WaypointNetworkType.Vehicle);
+        WaypointNode propertyExit = new WaypointNode(exit.position, cell, WaypointType.VehiclePropertyExit, WaypointNetworkType.Vehicle);
+
+        _cellWaypoints[cell].Add(propertyEntry);
+        _allWaypoints.Add(propertyEntry);
+        _cellWaypoints[cell].Add(propertyExit);
+        _allWaypoints.Add(propertyExit);
+
+        foreach (PumpDetails p in pumps)
+        {
+            // create waypoints for each pump
+            WaypointNode pumpEntry = new WaypointNode(p.PumpEntry.position, cell, WaypointType.Midpoint, WaypointNetworkType.Vehicle);
+            WaypointNode pump = new WaypointNode(p.Pump.position, cell, WaypointType.PetrolStationPump, WaypointNetworkType.Vehicle);
+            WaypointNode pumpExit = new WaypointNode(p.PumpExit.position, cell, WaypointType.Midpoint, WaypointNetworkType.Vehicle);
+
+            // add the to the waypoints list
+            _cellWaypoints[cell].Add(pumpEntry);
+            _allWaypoints.Add(pumpEntry);
+            _cellWaypoints[cell].Add(pump);
+            _allWaypoints.Add(pump);
+            _cellWaypoints[cell].Add(pumpExit);
+            _allWaypoints.Add(pumpExit);
+
+            // connect property entry to pump entry
+            propertyEntry.Connections.Add(new WaypointConnection(pumpEntry, 0f));
+            // connect pump entry to pump
+            pumpEntry.Connections.Add(new WaypointConnection(pump, 0f));
+            // connect pump to pump exit
+            pump.Connections.Add(new WaypointConnection(pumpExit, 0f));
+            // connect pump exit to property exit
+            pumpExit.Connections.Add(new WaypointConnection(propertyExit, 0f));
+        }
+
+        // now we need to connect the road to the property entry
+        List<WaypointNode> closestVehicleWaypoints = FindClosestVehicleNodesInCellFromPosition(cellCheckEntry.position, propertyEntry.Position, 3, WaypointType.Entry);
+        foreach (WaypointNode node in closestVehicleWaypoints)
+        {
+            node.Connections.Add(new WaypointConnection(propertyEntry, 100f));
+        }
+
+        // now connect the property exit to the road
+        closestVehicleWaypoints = FindClosestVehicleNodesInCellFromPosition(cellCheckExit.position, propertyExit.Position, 3, WaypointType.Exit);
+        foreach (WaypointNode node in closestVehicleWaypoints)
+        {
+            node.Connections.Add(new WaypointConnection(propertyExit, 100f));
         }
     }
     #endregion
@@ -1056,7 +1113,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork//, ISaveable
     //     // Draw waypoints
     //     foreach (WaypointNode node in _allWaypoints)
     //     {
-    //         if (node.NetworkType != WaypointNetworkType.Vehicle) continue;
+    //         if (node.NetworkType != WaypointNetworkType.Vehicle || node.Type == WaypointType.TrafficLightLocation) continue;
     //         Gizmos.color = Color.red;
     //         Gizmos.DrawSphere(Utils.GetVectorWithSetHeight(node.Position, 0.5f), 0.2f);
     //     }

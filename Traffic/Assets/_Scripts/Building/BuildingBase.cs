@@ -42,8 +42,6 @@ public abstract class BuildingBase : MonoBehaviour, ISelectableObject
 
     protected Vector3 GetSpawnPositionForPerson(Vector3 origin)
     {
-        // Keep your existing grid-based spawning logic here
-        // This can be overridden if needed for specific building types
         int colIndex = CurrentOccupancy % GetGridCols();
         int rowIndex = CurrentOccupancy / GetGridCols();
 

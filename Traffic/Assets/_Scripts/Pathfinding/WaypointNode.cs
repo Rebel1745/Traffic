@@ -51,7 +51,11 @@ public enum WaypointType
     PropertyWalkway,
     PropertyEntryExit, // the entry/exit point of a property (maybe not needed)
     VehicleParking,
-    VehicleEntryExit // where a person gets in/out a vehicle in a garage
+    VehicleEntryExit, // where a person gets in/out a vehicle in a garage
+    VehiclePropertyEntryExit, // if the entry and exit point is the same
+    VehiclePropertyEntry,
+    VehiclePropertyExit,
+    PetrolStationPump
 }
 
 public enum WaypointNetworkType

@@ -55,16 +55,16 @@ public class BuildingHouse : BuildingBase
             return;
         }
 
-        // Initialize waypoints through managers
-        InitializePedestrianWaypoints();
-        InitializeVehicleWaypoints();
+        // Initialise waypoints through managers
+        InitialisePedestrianWaypoints();
+        InitialiseVehicleWaypoints();
 
         SetupVehicleRelationships();
 
         PopulateBuilding();
     }
 
-    private void InitializePedestrianWaypoints()
+    private void InitialisePedestrianWaypoints()
     {
         PedestrianWaypointManager.Instance.AddHousePedestrianWaypoints(
             _cell,
@@ -81,7 +81,7 @@ public class BuildingHouse : BuildingBase
         );
     }
 
-    private void InitializeVehicleWaypoints()
+    private void InitialiseVehicleWaypoints()
     {
         RoadWaypointManager.Instance.AddHouseVehicleWaypoints(
             _cell,
