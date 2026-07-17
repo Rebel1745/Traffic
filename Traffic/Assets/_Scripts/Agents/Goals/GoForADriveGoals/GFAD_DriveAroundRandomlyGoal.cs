@@ -32,7 +32,7 @@ public class GFAD_DriveAroundRandomlyGoal : Goal
         // Subscribe to the Car's event
         _vehicleMovement.OnArrivedAtDestination += _onCarArrived;
 
-        WaypointNode randomNode = VehicleManager.Instance.FindValidTarget(_vehicleMovement.CurrentWaypoint, type: WaypointType.Entry);
+        WaypointNode randomNode = VehicleManager.Instance.FindValidTarget(_vehicleMovement.CurrentWaypoint, type: WaypointType.PetrolStationPump);
         string name = "Drive to random node at " + randomNode.Position;
 
         if (randomNode != null)

@@ -931,7 +931,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork//, ISaveable
         closestVehicleWaypoints = FindClosestVehicleNodesInCellFromPosition(cellCheckExit.position, propertyExit.Position, 3, WaypointType.Exit);
         foreach (WaypointNode node in closestVehicleWaypoints)
         {
-            node.Connections.Add(new WaypointConnection(propertyExit, 100f));
+            propertyExit.Connections.Add(new WaypointConnection(node, 100f));
         }
     }
     #endregion
