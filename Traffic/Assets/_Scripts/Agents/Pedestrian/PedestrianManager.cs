@@ -136,7 +136,7 @@ public class PedestrianManager : MonoBehaviour
         string goalName = "Walk to random node at " + randomNode.Position;
 
         if (randomNode != null)
-            agent.AddGoal(new WalkToRandomGoal(randomNode, goalName));
+            agent.AddGoal(new WalkToWaypointGoal(randomNode, goalName));
         else Debug.LogError("No random location found");
     }
 
@@ -153,7 +153,7 @@ public class PedestrianManager : MonoBehaviour
 
         string goalName = "Walked home to " + homeNode.Position;
 
-        agent.InterruptAndAddGoal(new WalkHomeGoal(homeNode, goalName));
+        agent.InterruptAndAddGoal(new WalkToWaypointGoal(homeNode, goalName));
     }
 
     public WaypointNode GetHomeWaypoint(AgentController agent)

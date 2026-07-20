@@ -41,7 +41,7 @@ public class InputManager : MonoBehaviour
         }
         Instance = this;
 
-        // Initialize input actions
+        // Initialise input actions
         _inputActions = new GameInputActions();
     }
 

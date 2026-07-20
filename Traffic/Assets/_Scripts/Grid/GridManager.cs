@@ -37,7 +37,7 @@ public class GridManager : MonoBehaviour, ISaveable
 
     private void Start()
     {
-        InitializeGrid();
+        InitialiseGrid();
     }
 
     private void Update()
@@ -68,12 +68,12 @@ public class GridManager : MonoBehaviour, ISaveable
         _subscribedToSaveManager = true;
     }
 
-    private void InitializeGrid()
+    private void InitialiseGrid()
     {
         _grid = new GridCell[_gridWidth, _gridHeight];
         _gridOrigin = transform.position;
 
-        // Initialize grid cells
+        // Initialise grid cells
         for (int x = 0; x < _gridWidth; x++)
         {
             for (int z = 0; z < _gridHeight; z++)
@@ -482,7 +482,7 @@ public class GridManager : MonoBehaviour, ISaveable
         _gridWidth = gridData.Width;
         _gridHeight = gridData.Height;
 
-        // Initialize grid with all Empty cells
+        // Initialise grid with all Empty cells
         _grid = new GridCell[_gridWidth, _gridHeight];
         for (int x = 0; x < _gridWidth; x++)
         {

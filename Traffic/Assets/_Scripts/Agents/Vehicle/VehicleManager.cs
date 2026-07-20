@@ -100,7 +100,7 @@ public class VehicleManager : MonoBehaviour
         string name = "Drive to random node at " + randomNode.Position;
 
         if (randomNode != null)
-            agent.AddGoal(new DriveToRandomGoal(randomNode, name));
+            agent.AddGoal(new DriveToWaypointGoal(randomNode, name));
         else Debug.LogWarning("No random location found");
     }
 
@@ -119,7 +119,7 @@ public class VehicleManager : MonoBehaviour
 
         string name = "Driven home to " + parkingSpot.Position;
 
-        agent.InterruptAndAddGoal(new ParkAtHomeGoal(parkingSpot, name));
+        agent.InterruptAndAddGoal(new DriveToWaypointGoal(parkingSpot, name));
     }
 
     public WaypointNode FindValidTarget(WaypointNode startWaypoint, WaypointType type = WaypointType.None, int maxAttempts = 10)

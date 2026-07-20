@@ -13,7 +13,7 @@ public interface IMovable
     void SetPath(List<WaypointNode> path);
 
     // Action: Stop immediately
-    void Stop();
+    void Stop(bool forceStop = false);
 
     // Property: Get current waypoint (used for pathfinding start points)
     WaypointNode CurrentWaypoint { get; }

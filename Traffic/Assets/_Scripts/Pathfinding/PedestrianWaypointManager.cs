@@ -791,7 +791,6 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
             }
         }
 
-        Debug.Log(prevNodeString);
         // then connect to the door
         ConnectPavementNodes(previousNode, doorWaypoint);
 

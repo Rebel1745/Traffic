@@ -4,10 +4,14 @@ public class GFAD_WalkToAlightGoal : Goal
 {
     private WaypointNode _target;
 
-    public GFAD_WalkToAlightGoal(WaypointNode target, string name) : base(target, name: name, requiresMovement: true)
+    public GFAD_WalkToAlightGoal(WaypointNode target, string name)
     {
-        Debug.Log(name);
         _target = target;
+    }
+
+    public override void Initialise(AgentController agent)
+    {
+
     }
 
     public override void OnArrived(AgentController agent)

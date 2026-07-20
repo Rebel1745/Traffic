@@ -9,11 +9,16 @@ public class GFAD_DriveHomeGoal : Goal
     private VehicleMovement _vehicleMovement;
     private System.Action _onCarArrived;
 
-    public GFAD_DriveHomeGoal(WaypointNode target, AgentController vehicle, AgentController person, string name) : base(target, name, requiresMovement: true)
+    public GFAD_DriveHomeGoal(WaypointNode target, AgentController vehicle, AgentController person, string name)
     {
         _person = person;
         _vehicle = vehicle;
         _vehicleMovement = vehicle.GetComponent<VehicleMovement>();
+    }
+
+    public override void Initialise(AgentController agent)
+    {
+
     }
 
     public override void OnArrived(AgentController agent)

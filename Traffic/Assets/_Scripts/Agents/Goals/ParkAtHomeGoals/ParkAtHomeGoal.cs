@@ -2,8 +2,13 @@ using UnityEngine;
 
 public class ParkAtHomeGoal : Goal
 {
-    public ParkAtHomeGoal(WaypointNode target, string name) : base(target, name: name, requiresMovement: true)
+    public ParkAtHomeGoal(WaypointNode target, string name)
     {
+    }
+
+    public override void Initialise(AgentController agent)
+    {
+
     }
 
     public override void OnArrived(AgentController agent)

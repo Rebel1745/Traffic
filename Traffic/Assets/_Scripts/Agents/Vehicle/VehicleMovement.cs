@@ -149,7 +149,7 @@ public class VehicleMovement : MonoBehaviour, IMovable
         }
     }
 
-    public void Stop()
+    public void Stop(bool forceStop = false)
     {
         // if we have just parked, flip the car
         if (_currentPath.Last().Type == WaypointType.VehicleParking)

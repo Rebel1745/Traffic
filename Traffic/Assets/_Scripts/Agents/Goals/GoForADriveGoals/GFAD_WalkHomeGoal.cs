@@ -2,8 +2,13 @@ using UnityEngine;
 
 public class GFAD_WalkHomeGoal : Goal
 {
-    public GFAD_WalkHomeGoal(WaypointNode target, string name) : base(target, name, requiresMovement: true)
+    public GFAD_WalkHomeGoal(WaypointNode target, string name)
     {
+    }
+
+    public override void Initialise(AgentController agent)
+    {
+
     }
 
     public override void OnArrived(AgentController agent)

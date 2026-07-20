@@ -5,10 +5,15 @@ public class GFAD_EnterVehicleGoal : Goal
     private AgentController _vehicle;
     private WaypointNode _target;
 
-    public GFAD_EnterVehicleGoal(WaypointNode target, AgentController vehicle, string name) : base(target, name, requiresMovement: true)
+    public GFAD_EnterVehicleGoal(WaypointNode target, AgentController vehicle, string name)
     {
         _vehicle = vehicle;
         _target = target;
+    }
+
+    public override void Initialise(AgentController agent)
+    {
+
     }
 
     public override void OnArrived(AgentController agent)

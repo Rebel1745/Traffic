@@ -74,11 +74,14 @@ public class PedestrianMovement : MonoBehaviour, IMovable
         _isMoving = true;
     }
 
-    public void Stop()
+    public void Stop(bool forceStop = false)
     {
         _isMoving = false;
         transform.rotation = Quaternion.LookRotation(Vector3.back);
-        _animController.SetAnimation(PedestrianAnimationType.Wave);
+
+        if (!forceStop)
+            _animController.SetAnimation(PedestrianAnimationType.Wave);
+
         OnArrivedAtDestination?.Invoke();
     }
 
@@ -91,9 +94,10 @@ public class PedestrianMovement : MonoBehaviour, IMovable
         }
         _animController.SetAnimation(PedestrianAnimationType.Walk);
 
-        _currentWaypoint = _currentPath[_currentWaypointIndex];
+        WaypointNode nextWaypoint = _currentPath[_currentWaypointIndex];
+
         float targetHeight = _isCrossing ? _roadHeight : _pavementHeight;
-        Vector3 targetPos = Utils.GetVectorWithSetHeight(_currentWaypoint.Position, targetHeight);
+        Vector3 targetPos = Utils.GetVectorWithSetHeight(nextWaypoint.Position, targetHeight);
 
         // Rotation
         Vector3 direction = (targetPos - transform.position).normalized;
@@ -105,12 +109,12 @@ public class PedestrianMovement : MonoBehaviour, IMovable
 
         // Traffic Light Logic (Simplified for brevity - you can paste your full logic here)
         _currentSpeed = _moveSpeed; // Default
-        if (IsTrafficLightRed(_currentWaypoint))
+        if (IsTrafficLightRed(nextWaypoint))
         {
             _animController.SetAnimation(PedestrianAnimationType.Idle);
             _currentSpeed = 0f;
         }
-        else if (_isCrossing && IsTrafficLightRed(_currentWaypoint))
+        else if (_isCrossing && IsTrafficLightRed(nextWaypoint))
         {
             _animController.SetAnimation(PedestrianAnimationType.Run);
             _currentSpeed = _moveSpeed * 2f;
@@ -128,12 +132,14 @@ public class PedestrianMovement : MonoBehaviour, IMovable
         float dist = Utils.GetDistanceWithSetHeight(transform.position, targetPos, 0);
         if (dist < _waypointReachThreshold)
         {
-            HandleWaypointReached(_currentWaypoint);
+            HandleWaypointReached(nextWaypoint);
         }
     }
 
     private void HandleWaypointReached(WaypointNode node)
     {
+        _currentWaypoint = _currentPath[_currentWaypointIndex];
+
         // Logic for crossing detection
         if (node.Type == WaypointType.PedestrianRoadCrossing &&
             _currentWaypointIndex < _currentPath.Count - 1 &&

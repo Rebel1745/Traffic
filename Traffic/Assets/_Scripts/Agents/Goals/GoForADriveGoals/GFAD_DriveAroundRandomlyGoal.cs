@@ -7,11 +7,16 @@ public class GFAD_DriveAroundRandomlyGoal : Goal
     private System.Action _onCarArrived;
     private WaypointNode _target;
 
-    public GFAD_DriveAroundRandomlyGoal(WaypointNode target, AgentController vehicle, string name) : base(target, name, requiresMovement: true)
+    public GFAD_DriveAroundRandomlyGoal(WaypointNode target, AgentController vehicle, string name)
     {
         _target = target;
         _vehicle = vehicle;
         _vehicleMovement = vehicle.GetComponent<VehicleMovement>();
+    }
+
+    public override void Initialise(AgentController agent)
+    {
+
     }
 
     public override void OnArrived(AgentController agent)
@@ -36,7 +41,7 @@ public class GFAD_DriveAroundRandomlyGoal : Goal
         string name = "Drive to random node at " + randomNode.Position;
 
         if (randomNode != null)
-            _vehicle.AddGoal(new DriveToRandomGoal(randomNode, name));
+            _vehicle.AddGoal(new DriveToWaypointGoal(randomNode, name));
         else Debug.LogWarning("No random location found");
     }
 }
