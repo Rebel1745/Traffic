@@ -182,23 +182,74 @@ public class PedestrianManager : MonoBehaviour
         return homeNode;
     }
 
+    // public void GoOnADriveAndComeHome(AgentController agent)
+    // {
+    //     // first, do we have a car?
+    //     EntityId vehicleId = GetPersonsVehicle(agent.Id);
+
+    //     if (!vehicleId.IsValid) Debug.LogError("Owned vehicle not found");
+
+    //     AgentController ac = VehicleManager.Instance.GetVehicle(vehicleId);
+
+    //     if (ac == null) Debug.LogError("No agent found for vehicle");
+
+    //     VehicleMovement vm = ac.GetComponent<VehicleMovement>();
+
+    //     // what is the cars home parking spot?
+    //     EntityId homeSpotId = VehicleManager.Instance.GetVehiclesHomeSpotId(vehicleId);
+
+    //     if (!homeSpotId.IsValid) Debug.LogError("HomeSpot not found");
+
+    //     // is the car in its spot?
+    //     EntityId currentSpotId = VehicleManager.Instance.GetVehiclesCurrentSpotId(vehicleId);
+
+    //     if (!currentSpotId.IsValid) Debug.LogError("CurrentSpot not found");
+
+    //     if (!homeSpotId.Equals(currentSpotId)) Debug.LogError("HomeSpot is not the same as CurrentSpot");
+
+    //     // what is the waypoint that connects to the cars spot?
+    //     EntityId alightId = GetAlightWaypointId(homeSpotId);
+
+    //     if (!alightId.IsValid) Debug.LogError("Alight waypoint not valid");
+
+    //     WaypointNode alightWaypoint = PedestrianWaypointManager.Instance.GetWaypointFromId(alightId);
+
+    //     string goalName = "Walking to the alight waypoint";
+
+    //     if (alightWaypoint != null)
+    //         agent.AddGoal(new GFAD_WalkToAlightGoal(alightWaypoint, goalName));
+    //     else Debug.LogWarning("Alight waypoint not found");
+    // }
+
     public void GoOnADriveAndComeHome(AgentController agent)
     {
+        // get home building
+        EntityId buildingId = GetHomeBuilding(agent.Id);
+        if (!buildingId.IsValid) Debug.LogError("Home building not found");
+
+        BuildingBase bb = BuildingManager.Instance.GetBuilding(buildingId);
+
+        WaypointNode frontDoorWaypoint = null;
+
+        if (bb is BuildingHouse house)
+            frontDoorWaypoint = house.DoorWaypoint;
+        else Debug.LogError("Building is not a house");
+
         // first, do we have a car?
         EntityId vehicleId = GetPersonsVehicle(agent.Id);
 
         if (!vehicleId.IsValid) Debug.LogError("Owned vehicle not found");
 
-        AgentController ac = VehicleManager.Instance.GetVehicle(vehicleId);
+        AgentController vac = VehicleManager.Instance.GetVehicle(vehicleId);
 
-        if (ac == null) Debug.LogError("No agent found for vehicle");
-
-        VehicleMovement vm = ac.GetComponent<VehicleMovement>();
+        if (vac == null) Debug.LogError("No agent found for vehicle");
 
         // what is the cars home parking spot?
         EntityId homeSpotId = VehicleManager.Instance.GetVehiclesHomeSpotId(vehicleId);
 
         if (!homeSpotId.IsValid) Debug.LogError("HomeSpot not found");
+
+        WaypointNode homeNode = RoadWaypointManager.Instance.GetWaypointFromId(homeSpotId);
 
         // is the car in its spot?
         EntityId currentSpotId = VehicleManager.Instance.GetVehiclesCurrentSpotId(vehicleId);
@@ -214,11 +265,19 @@ public class PedestrianManager : MonoBehaviour
 
         WaypointNode alightWaypoint = PedestrianWaypointManager.Instance.GetWaypointFromId(alightId);
 
-        string goalName = "Walking to the alight waypoint";
+        if (alightWaypoint == null)
+        {
+            Debug.LogWarning("Alight waypoint not found");
+            return;
+        }
 
-        if (alightWaypoint != null)
-            agent.AddGoal(new GFAD_WalkToAlightGoal(alightWaypoint, goalName));
-        else Debug.LogWarning("Alight waypoint not found");
+        agent.AddGoal(new WalkToWaypointGoal(alightWaypoint, "Walking to the alight waypoint"));
+        agent.AddGoal(new EnterVehicleGoal(alightWaypoint, vac, "Entering vehicle"));
+        agent.AddGoal(new DriveToWaypointGoal(vac, VehicleManager.Instance.GetRandomVehicleWaypoint(WaypointType.Entry), "Driving to random waypoint"));
+        agent.AddGoal(new WaitGoal(2f));
+        agent.AddGoal(new DriveToWaypointGoal(vac, homeNode, "Driving home"));
+        agent.AddGoal(new ExitVehicleGoal(vac, alightWaypoint, "Exiting vehicle"));
+        agent.AddGoal(new WalkToWaypointGoal(frontDoorWaypoint, "Walking to front door"));
     }
 
     public EntityId GetPersonsVehicle(EntityId personId)
@@ -226,6 +285,9 @@ public class PedestrianManager : MonoBehaviour
 
     public EntityId GetAlightWaypointId(EntityId homeParkingSpotId)
         => RelationshipManager.Instance.GetAlight(homeParkingSpotId).FirstOrDefault();
+
+    public EntityId GetHomeBuilding(EntityId personId)
+        => RelationshipManager.Instance.GetHomeBuildings(personId).FirstOrDefault();
 
     public void ReParentPedestrian(AgentController ac)
     {

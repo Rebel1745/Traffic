@@ -44,7 +44,7 @@ public class AgentController : MonoBehaviour, ISelectableObject
         _mover.Initialise(startWaypoint);
     }
 
-    private void OnMovementFinished()
+    public void OnMovementFinished()
     {
         if (_currentGoal == null) return;
 
@@ -119,40 +119,6 @@ public class AgentController : MonoBehaviour, ISelectableObject
         _goalQueue.AddFirst(goal);
         StartGoal(goal);
     }
-
-    // private void StartGoal(Goal goal)
-    // {
-    //     _currentGoal = goal;
-    //     _currentNode = _goalQueue.First;
-
-    //     List<WaypointNode> path = null;
-
-    //     // Calculate path from current position to goal target
-    //     if (_mover.CurrentWaypoint.NetworkType == goal.Target.NetworkType)
-    //         path = AStarPathfinder.FindPath(_mover.CurrentWaypoint, goal.Target);
-    //     else
-    //     {
-    //         // if the goal isn't on the same network as the current waypoint (e.g. moving from pedestrian into vehicle waypoints)
-    //         if (_mover.CurrentWaypoint != goal.Target)
-    //         {
-    //             path = new()
-    //             {
-    //                 _mover.CurrentWaypoint,
-    //                 goal.Target
-    //             };
-    //         }
-    //     }
-
-    //     if (path != null && path.Count > 0)
-    //     {
-    //         _mover.SetPath(path);
-    //     }
-    //     else
-    //     {
-    //         Debug.LogWarning($"[{gameObject.name}] No path found for goal: {goal.GoalName}");
-    //         // Handle failure (retry, pick new goal, etc.)
-    //     }
-    // }
 
     private void StartGoal(Goal goal)
     {

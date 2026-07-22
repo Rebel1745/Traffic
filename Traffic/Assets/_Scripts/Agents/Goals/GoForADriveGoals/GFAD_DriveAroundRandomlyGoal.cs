@@ -41,7 +41,7 @@ public class GFAD_DriveAroundRandomlyGoal : Goal
         string name = "Drive to random node at " + randomNode.Position;
 
         if (randomNode != null)
-            _vehicle.AddGoal(new DriveToWaypointGoal(randomNode, name));
+            _vehicle.AddGoal(new DriveToWaypointGoal(_vehicle, randomNode, name));
         else Debug.LogWarning("No random location found");
     }
 }
