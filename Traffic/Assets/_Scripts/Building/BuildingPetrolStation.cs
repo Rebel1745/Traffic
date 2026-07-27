@@ -3,64 +3,46 @@ using UnityEngine;
 
 public class BuildingPetrolStation : BuildingBase
 {
-    // base class references
-    protected override int MaximumOccupancy => 0;
-    protected override int CurrentOccupancy => 0;
-
-    private int _maximumVehicleOccupancy = 0;
-    protected override int MaximumVehicleOccupancy => _maximumVehicleOccupancy;
-    private int _currentVehicleOccupancy = 0;
-    protected override int CurrentVehicleOccupancy => _currentVehicleOccupancy;
-
     [Header("Waypoints")]
     [SerializeField] private Transform _cellCheckEntry;
     [SerializeField] private Transform _propertyEntry;
+    private WaypointNode _propertyEntryNode;
+    public WaypointNode PropertyEntryNode => _propertyEntryNode;
     [SerializeField] private PumpDetails[] _pumps;
+    private WaypointNode[] _pumpNodes;
     [SerializeField] private Transform _propertyExit;
     [SerializeField] private Transform _cellCheckExit;
 
-    public override AgentController AddPersonToBuilding()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public override AgentController AddVehicleToBuilding()
-    {
-        throw new System.NotImplementedException();
-    }
+    private int _nextPumpIndex = 0;
 
     public override void InitialiseBuilding(EntityId entityId, GridCell cell)
     {
         Id = entityId;
         _cell = cell;
 
-        _maximumVehicleOccupancy = _pumps.Length;
-
         InitialiseVehicleWaypoints();
     }
 
     private void InitialiseVehicleWaypoints()
     {
-        RoadWaypointManager.Instance.AddPetrolStationVehicleWaypoints(_cell, _propertyEntry, _pumps, _propertyExit, _cellCheckEntry, _cellCheckExit);
+        RoadWaypointManager.Instance.AddPetrolStationVehicleWaypoints(
+            _cell,
+            _propertyEntry,
+            _pumps,
+            _propertyExit,
+            _cellCheckEntry,
+            _cellCheckExit,
+            out _propertyEntryNode,
+            out _pumpNodes
+        );
     }
 
-    public override void PopulateBuilding()
+    public WaypointNode GetNextAvailablePump()
     {
-        throw new System.NotImplementedException();
-    }
+        int nextPump = _nextPumpIndex;
 
-    protected override int GetGridCols()
-    {
-        return 0;
-    }
+        _nextPumpIndex = (_nextPumpIndex + 1) % _pumpNodes.Length;
 
-    protected override int GetGridRows()
-    {
-        return 0;
-    }
-
-    protected override float GetGridSize()
-    {
-        return 0;
+        return _pumpNodes[nextPump];
     }
 }

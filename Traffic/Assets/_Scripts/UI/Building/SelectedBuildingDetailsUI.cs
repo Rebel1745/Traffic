@@ -64,11 +64,13 @@ public class SelectedBuildingDetailsUI : MonoBehaviour
 
     private void OnAddPersonToBuilding()
     {
-        _buildingBase.AddPersonToBuilding();
+        if (_buildingBase is BuildingHouse house)
+            house.AddPersonToBuilding();
     }
 
     private void OnAddVehicleToBuilding()
     {
-        _buildingBase.AddVehicleToBuilding();
+        if (_buildingBase is BuildingHouse house)
+            house.AddVehicleToBuilding();
     }
 }

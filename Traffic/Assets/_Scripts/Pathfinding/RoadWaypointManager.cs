@@ -878,7 +878,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork//, ISaveable
         }
     }
 
-    public void AddPetrolStationVehicleWaypoints(GridCell cell, Transform entry, PumpDetails[] pumps, Transform exit, Transform cellCheckEntry, Transform cellCheckExit)
+    public void AddPetrolStationVehicleWaypoints(GridCell cell, Transform entry, PumpDetails[] pumps, Transform exit, Transform cellCheckEntry, Transform cellCheckExit, out WaypointNode propertyEntry, out WaypointNode[] pumpNodes)
     {
         // Store waypoints for this cell
         if (!_cellWaypoints.ContainsKey(cell))
@@ -887,13 +887,15 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork//, ISaveable
         }
 
         // create waypoints for the entry and exit points of the petrol station
-        WaypointNode propertyEntry = new WaypointNode(entry.position, cell, WaypointType.VehiclePropertyEntry, WaypointNetworkType.Vehicle);
+        propertyEntry = new WaypointNode(entry.position, cell, WaypointType.VehiclePropertyEntry, WaypointNetworkType.Vehicle);
         WaypointNode propertyExit = new WaypointNode(exit.position, cell, WaypointType.VehiclePropertyExit, WaypointNetworkType.Vehicle);
 
         _cellWaypoints[cell].Add(propertyEntry);
         _allWaypoints.Add(propertyEntry);
         _cellWaypoints[cell].Add(propertyExit);
         _allWaypoints.Add(propertyExit);
+
+        List<WaypointNode> pumpList = new();
 
         foreach (PumpDetails p in pumps)
         {
@@ -910,6 +912,8 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork//, ISaveable
             _cellWaypoints[cell].Add(pumpExit);
             _allWaypoints.Add(pumpExit);
 
+            pumpList.Add(pump);
+
             // connect property entry to pump entry
             propertyEntry.Connections.Add(new WaypointConnection(pumpEntry, 0f));
             // connect pump entry to pump
@@ -919,6 +923,8 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork//, ISaveable
             // connect pump exit to property exit
             pumpExit.Connections.Add(new WaypointConnection(propertyExit, 0f));
         }
+
+        pumpNodes = pumpList.ToArray();
 
         // now we need to connect the road to the property entry
         List<WaypointNode> closestVehicleWaypoints = FindClosestVehicleNodesInCellFromPosition(cellCheckEntry.position, propertyEntry.Position, 3, WaypointType.Entry);

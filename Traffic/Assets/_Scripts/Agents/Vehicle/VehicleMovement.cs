@@ -151,8 +151,10 @@ public class VehicleMovement : MonoBehaviour, IMovable
 
     public void Stop(bool forceStop = false)
     {
+        _currentWaypoint = _currentPath.Last();
+
         // if we have just parked, flip the car
-        if (_currentPath.Last().Type == WaypointType.VehicleParking)
+        if (_currentWaypoint.Type == WaypointType.VehicleParking)
             transform.rotation = Quaternion.LookRotation(Vector3.back);
 
         _isMoving = false;

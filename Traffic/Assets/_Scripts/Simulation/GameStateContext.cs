@@ -54,5 +54,6 @@ public enum BuildingSubState
 {
     None,
     House,
-    PetrolStation
+    PetrolStation,
+    CarPark
 }

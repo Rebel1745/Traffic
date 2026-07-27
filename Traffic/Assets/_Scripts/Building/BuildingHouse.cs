@@ -34,14 +34,14 @@ public class BuildingHouse : BuildingBase
     private WaypointNode[] _parkingSpotWaypoints;
     private WaypointNode _vehicleEntryExitPropertyWaypoint;
 
-    protected override int MaximumOccupancy => _maximumOccupancy;
-    protected override int MaximumVehicleOccupancy => _maximumVehicleOccupancy;
-    protected override int CurrentOccupancy => _currentOccupancy;
-    protected override int CurrentVehicleOccupancy => _currentVehicleOccupancy;
+    private int MaximumOccupancy => _maximumOccupancy;
+    private int MaximumVehicleOccupancy => _maximumVehicleOccupancy;
+    private int CurrentOccupancy => _currentOccupancy;
+    private int CurrentVehicleOccupancy => _currentVehicleOccupancy;
 
-    protected override int GetGridRows() => _gridRows;
-    protected override int GetGridCols() => _gridCols;
-    protected override float GetGridSize() => _gridSize;
+    private int GetGridRows() => _gridRows;
+    private int GetGridCols() => _gridCols;
+    private float GetGridSize() => _gridSize;
 
     public override void InitialiseBuilding(EntityId entityId, GridCell cell)
     {
@@ -106,7 +106,7 @@ public class BuildingHouse : BuildingBase
         }
     }
 
-    public override void PopulateBuilding()
+    public void PopulateBuilding()
     {
         if (_currentOccupancy >= MaximumOccupancy) return;
 
@@ -127,7 +127,7 @@ public class BuildingHouse : BuildingBase
         }
     }
 
-    public override AgentController AddPersonToBuilding()
+    public AgentController AddPersonToBuilding()
     {
         if (_currentOccupancy >= MaximumOccupancy) return null;
 
@@ -144,7 +144,7 @@ public class BuildingHouse : BuildingBase
         return person;
     }
 
-    public override AgentController AddVehicleToBuilding()
+    public AgentController AddVehicleToBuilding()
     {
         if (_currentVehicleOccupancy >= MaximumVehicleOccupancy) return null;
 
@@ -171,5 +171,19 @@ public class BuildingHouse : BuildingBase
 
         _currentVehicleOccupancy++;
         return vehicle;
+    }
+
+    private Vector3 GetSpawnPositionForPerson(Vector3 origin)
+    {
+        int colIndex = CurrentOccupancy % GetGridCols();
+        int rowIndex = CurrentOccupancy / GetGridCols();
+
+        float totalWidth = GetGridCols() * GetGridSize();
+        float totalDepth = GetGridRows() * GetGridSize();
+
+        float xOffset = (colIndex * GetGridSize()) - (totalWidth / 2f) + (GetGridSize() / 2f);
+        float zOffset = (rowIndex * GetGridSize()) - (totalDepth / 2f) + (GetGridSize() / 2f);
+
+        return new Vector3(origin.x + xOffset, origin.y, origin.z - zOffset);
     }
 }

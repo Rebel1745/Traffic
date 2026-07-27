@@ -1,5 +1,6 @@
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
 
 public class BuildingManager : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class BuildingManager : MonoBehaviour
     [Header("Building Prefabs")]
     [SerializeField] private GameObject _housePrefab;
     [SerializeField] private GameObject _petrolStationPrefab;
+    [SerializeField] private GameObject _carParkPrefab;
 
     private Dictionary<EntityId, BuildingBase> _allBuildings = new();
 
@@ -65,11 +67,42 @@ public class BuildingManager : MonoBehaviour
         {
             BuildingSubState.House => _housePrefab,
             BuildingSubState.PetrolStation => _petrolStationPrefab,
+            BuildingSubState.CarPark => _carParkPrefab,
             _ => _housePrefab
         };
 
         BuildingBase bb = prefab.GetComponent<BuildingBase>();
         xCells = bb.BuildingXCells;
         zCells = bb.BuildingZCells;
+    }
+
+    public List<EntityId> GetBuildingsByType(BuildingType type)
+    {
+        return _allBuildings.Values
+        .Where(building => building.BuildingType == type)
+        .Select(building => building.Id)
+        .ToList();
+    }
+
+    public EntityId GetClosestBuildingToPosition(List<EntityId> buildings, Vector3 position)
+    {
+        EntityId closestId = buildings[0];
+        float closestDistance = Mathf.Infinity;
+        float currentDistance = 0f;
+        BuildingBase building;
+
+        foreach (EntityId id in buildings)
+        {
+            building = GetBuilding(id);
+            currentDistance = Utils.GetDistanceWithSetHeight(building.transform.position, position, 0f);
+
+            if (currentDistance < closestDistance)
+            {
+                closestId = id;
+                closestDistance = currentDistance;
+            }
+        }
+
+        return closestId;
     }
 }
