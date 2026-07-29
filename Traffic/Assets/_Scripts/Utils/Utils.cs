@@ -14,4 +14,10 @@ public static class Utils
 
         return Vector3.Distance(newV1, newV2);
     }
+
+    // returns a number that is rounded to the nearest 90 (degrees), then 180 added to it (flips the direction), in the range 0-359
+    public static float SnapToOppositeEulerAngle(float currentRotation)
+    {
+        return (Mathf.Round(currentRotation / 90f) * 90f + 180f) % 360f;
+    }
 }

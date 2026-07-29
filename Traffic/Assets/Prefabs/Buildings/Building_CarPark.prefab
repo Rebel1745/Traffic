@@ -185,7 +185,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6180477254699054889}
   m_Layer: 10
-  m_Name: PS7
+  m_Name: PS9
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -867,6 +867,33 @@ MonoBehaviour:
   _isSelectable: 0
   _cameraFocusOffset: {x: 0, y: 0, z: 0}
   _cameraRotation: {x: 0, y: 0, z: 0}
+  _cellCheckEntry: {fileID: 411804142949277449}
+  _entryWaypointPosition: {fileID: 1032158137776705211}
+  _entryRouteWaypointPositions:
+  - {fileID: 8593450512033011786}
+  - {fileID: 2067673396635069353}
+  - {fileID: 1369531330183529182}
+  - {fileID: 985814556152341110}
+  - {fileID: 4443874918824254020}
+  - {fileID: 7828243644791786724}
+  _topParkingSpotWaypointPositions:
+  - {fileID: 3868994222868379314}
+  - {fileID: 8979260820216931163}
+  - {fileID: 7141947993785984273}
+  - {fileID: 14114963837408746}
+  - {fileID: 4308555955325924013}
+  - {fileID: 8918815291201935950}
+  _exitRouteWaypointPositions:
+  - {fileID: 6123468379881103187}
+  - {fileID: 4837512118869275435}
+  - {fileID: 3718211767854598642}
+  - {fileID: 3495608033292707966}
+  _bottomParkingSpotWaypointPositions:
+  - {fileID: 6180477254699054889}
+  - {fileID: 1912126170911483772}
+  - {fileID: 893684750797669401}
+  _exitWaypointPosition: {fileID: 4426809155598252588}
+  _cellCheckExit: {fileID: 354647648520397851}
 --- !u!1 &3379561189974289595
 GameObject:
   m_ObjectHideFlags: 0
@@ -1281,9 +1308,9 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 6180477254699054889}
-  - {fileID: 1912126170911483772}
   - {fileID: 893684750797669401}
+  - {fileID: 1912126170911483772}
+  - {fileID: 6180477254699054889}
   m_Father: {fileID: 5953593398101125064}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5373422465844465210
@@ -1663,7 +1690,7 @@ GameObject:
   m_Component:
   - component: {fileID: 893684750797669401}
   m_Layer: 10
-  m_Name: PS9
+  m_Name: PS7
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

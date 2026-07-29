@@ -122,6 +122,19 @@ public class VehicleManager : MonoBehaviour
         agent.InterruptAndAddGoal(new DriveToWaypointGoal(agent, parkingSpot, name));
     }
 
+    public void GoToRandomCarParkingSpace(AgentController agent)
+    {
+        List<EntityId> carParks = BuildingManager.Instance.GetBuildingsByType(BuildingType.CarPark);
+
+        if (carParks.Count == 0) Debug.LogError("No car parks found!");
+
+        BuildingCarPark carPark = BuildingManager.Instance.GetBuilding(carParks.First()) as BuildingCarPark;
+
+        WaypointNode parkingSpot = carPark.GetEmptyParkingSpot();
+
+        agent.AddGoal(new DriveToWaypointGoal(agent, parkingSpot, "Driving to random parking spot"));
+    }
+
     public WaypointNode FindValidTarget(WaypointNode startWaypoint, WaypointType type = WaypointType.None, int maxAttempts = 10)
     {
         // Try to find a valid target

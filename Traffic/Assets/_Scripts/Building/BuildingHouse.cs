@@ -17,8 +17,8 @@ public class BuildingHouse : BuildingBase
     [SerializeField] private Transform _vehicleCellCheckWaypointPosition;
 
     [Header("Occupancy Settings")]
-    [SerializeField] private int _gridRows = 2;
-    [SerializeField] private int _gridCols = 2;
+    [SerializeField] private int _gridRows = 2; // used in the layout of people when they are added to the house
+    [SerializeField] private int _gridCols = 2; // it has nothing to do with the GridCells that make up the world
     [SerializeField] private float _gridSize = 1.0f;
     [SerializeField] private int _maximumOccupancy = 4;
     [SerializeField] private int _maximumVehicleOccupancy = 1;

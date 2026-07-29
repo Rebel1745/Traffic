@@ -19,6 +19,7 @@ public class SelectedVehicleDetailsUI : MonoBehaviour
     [Header("Action Buttons")]
     [SerializeField] private Button _goToRandomWaypointButton;
     [SerializeField] private Button _goHomeButton;
+    [SerializeField] private Button _goToRadomCarParkButton;
 
     public void LoadVehicle(AgentController agent, VehicleData vehicle)
     {
@@ -36,6 +37,8 @@ public class SelectedVehicleDetailsUI : MonoBehaviour
         _goToRandomWaypointButton.onClick.AddListener(OnGoToRandomWaypointClicked);
         _goHomeButton.onClick.RemoveAllListeners();
         _goHomeButton.onClick.AddListener(OnGoHomeClicked);
+        _goToRadomCarParkButton.onClick.RemoveAllListeners();
+        _goToRadomCarParkButton.onClick.AddListener(OnGoToRandomParkingSpotClicked);
     }
 
     private void OnGoToRandomWaypointClicked()
@@ -46,6 +49,11 @@ public class SelectedVehicleDetailsUI : MonoBehaviour
     private void OnGoHomeClicked()
     {
         VehicleManager.Instance.GoHome(_agent);
+    }
+
+    private void OnGoToRandomParkingSpotClicked()
+    {
+        VehicleManager.Instance.GoToRandomCarParkingSpace(_agent);
     }
 
     public void OnEditVehicleNameClicked()

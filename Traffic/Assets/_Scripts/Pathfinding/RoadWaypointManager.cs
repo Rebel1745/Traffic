@@ -878,7 +878,16 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork//, ISaveable
         }
     }
 
-    public void AddPetrolStationVehicleWaypoints(GridCell cell, Transform entry, PumpDetails[] pumps, Transform exit, Transform cellCheckEntry, Transform cellCheckExit, out WaypointNode propertyEntry, out WaypointNode[] pumpNodes)
+    public void AddPetrolStationVehicleWaypoints(
+        GridCell cell,
+        Transform entry,
+        PumpDetails[] pumps,
+        Transform exit,
+        Transform cellCheckEntry,
+        Transform cellCheckExit,
+        out WaypointNode propertyEntry,
+        out WaypointNode[] pumpNodes
+    )
     {
         // Store waypoints for this cell
         if (!_cellWaypoints.ContainsKey(cell))
@@ -938,6 +947,137 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork//, ISaveable
         foreach (WaypointNode node in closestVehicleWaypoints)
         {
             propertyExit.Connections.Add(new WaypointConnection(node, 100f));
+        }
+    }
+
+    public void AddCarParkVehicleWaypoints(
+            GridCell cell,
+            Transform cellCheckEntry,
+            Transform entry,
+            Transform[] entryRoutes,
+            Transform[] topParkingSpots,
+            Transform[] exitRoutes,
+            Transform[] bottomParkingSpots,
+            Transform exit,
+            Transform cellCheckExit,
+            out WaypointNode entryWaypoint,
+            out WaypointNode[] entryRouteWaypoints,
+            out WaypointNode[] topParkingSpotWaypoints,
+            out WaypointNode[] exitRouteWaypoints,
+            out WaypointNode[] bottomParkingSpotWaypoints,
+            out WaypointNode exitWaypoint
+        )
+    {
+        // Store waypoints for this cell
+        if (!_cellWaypoints.ContainsKey(cell))
+        {
+            _cellWaypoints[cell] = new List<WaypointNode>();
+        }
+
+        // easy stuff first, start with the entry and exit waypoints
+        entryWaypoint = new WaypointNode(entry.position, cell, WaypointType.VehiclePropertyEntry, WaypointNetworkType.Vehicle);
+        exitWaypoint = new WaypointNode(exit.position, cell, WaypointType.VehiclePropertyExit, WaypointNetworkType.Vehicle);
+
+        _cellWaypoints[cell].Add(entryWaypoint);
+        _allWaypoints.Add(entryWaypoint);
+        _cellWaypoints[cell].Add(exitWaypoint);
+        _allWaypoints.Add(exitWaypoint);
+
+        List<WaypointNode> entryRouteList = new(), topParkingSpotList = new(), exitRouteList = new(), bottomParkingSpotList = new();
+        WaypointNode currentNode, previousNode;
+
+        // connect the entry node to the entry route
+        previousNode = entryWaypoint;
+
+        for (int i = 0; i < entryRoutes.Length; i++)
+        {
+            // create the node
+            currentNode = new WaypointNode(entryRoutes[i].position, cell, WaypointType.Midpoint, WaypointNetworkType.Vehicle);
+
+            // add the node to the lists
+            _cellWaypoints[cell].Add(currentNode);
+            _allWaypoints.Add(currentNode);
+            entryRouteList.Add(currentNode);
+
+            // connect the previous node to the current node
+            previousNode.Connections.Add(new WaypointConnection(currentNode, 0.1f));
+
+            // update the previous node
+            previousNode = currentNode;
+        }
+
+        entryRouteWaypoints = entryRouteList.ToArray();
+
+        // connect the entry route to the exit route
+        for (int i = 0; i < exitRoutes.Length; i++)
+        {
+            // create the node
+            currentNode = new WaypointNode(exitRoutes[i].position, cell, WaypointType.Midpoint, WaypointNetworkType.Vehicle);
+
+            // add the node to the lists
+            _cellWaypoints[cell].Add(currentNode);
+            _allWaypoints.Add(currentNode);
+            exitRouteList.Add(currentNode);
+
+            // connect the previous node to the current node
+            previousNode.Connections.Add(new WaypointConnection(currentNode, 0.1f));
+
+            // update the previous node
+            previousNode = currentNode;
+        }
+
+        exitRouteWaypoints = exitRouteList.ToArray();
+
+        // link the final waypoint in the exit route, to the exit carpark waypoint
+        previousNode.Connections.Add(new WaypointConnection(exitWaypoint, 0.1f));
+
+        // create the top parking spaces and connect them the corresponding route waypoint (each way)
+        for (int i = 0; i < topParkingSpots.Length; i++)
+        {
+            // create the node
+            currentNode = new WaypointNode(topParkingSpots[i].position, cell, WaypointType.VehicleParking, WaypointNetworkType.Vehicle);
+
+            // add the node to the lists
+            _cellWaypoints[cell].Add(currentNode);
+            _allWaypoints.Add(currentNode);
+            topParkingSpotList.Add(currentNode);
+
+            // connect the parking space to the entry route
+            currentNode.Connections.Add(new WaypointConnection(entryRouteWaypoints[i], 0.1f));
+            entryRouteWaypoints[i].Connections.Add(new WaypointConnection(currentNode, 0.1f));
+        }
+
+        topParkingSpotWaypoints = topParkingSpotList.ToArray();
+
+        // create the bottom parking spaces and connect them the corresponding route waypoint (each way)
+        for (int i = 0; i < bottomParkingSpots.Length; i++)
+        {
+            // create the node
+            currentNode = new WaypointNode(bottomParkingSpots[i].position, cell, WaypointType.VehicleParking, WaypointNetworkType.Vehicle);
+
+            // add the node to the lists
+            _cellWaypoints[cell].Add(currentNode);
+            _allWaypoints.Add(currentNode);
+            bottomParkingSpotList.Add(currentNode);
+
+            // connect the parking space to the exit route
+            currentNode.Connections.Add(new WaypointConnection(exitRouteWaypoints[i], 0.1f));
+            exitRouteWaypoints[i].Connections.Add(new WaypointConnection(currentNode, 0.1f));
+        }
+        bottomParkingSpotWaypoints = bottomParkingSpotList.ToArray();
+
+        // now we need to connect the road to the property entry
+        List<WaypointNode> closestVehicleWaypoints = FindClosestVehicleNodesInCellFromPosition(cellCheckEntry.position, entryWaypoint.Position, 3, WaypointType.Entry);
+        foreach (WaypointNode node in closestVehicleWaypoints)
+        {
+            node.Connections.Add(new WaypointConnection(entryWaypoint, 100f));
+        }
+
+        // now connect the property exit to the road
+        closestVehicleWaypoints = FindClosestVehicleNodesInCellFromPosition(cellCheckExit.position, exitWaypoint.Position, 3, WaypointType.Exit);
+        foreach (WaypointNode node in closestVehicleWaypoints)
+        {
+            exitWaypoint.Connections.Add(new WaypointConnection(node, 100f));
         }
     }
     #endregion

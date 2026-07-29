@@ -155,7 +155,8 @@ public class VehicleMovement : MonoBehaviour, IMovable
 
         // if we have just parked, flip the car
         if (_currentWaypoint.Type == WaypointType.VehicleParking)
-            transform.rotation = Quaternion.LookRotation(Vector3.back);
+            transform.eulerAngles = new Vector3(0, Utils.SnapToOppositeEulerAngle(transform.eulerAngles.y), 0);
+
 
         _isMoving = false;
         OnArrivedAtDestination?.Invoke();
