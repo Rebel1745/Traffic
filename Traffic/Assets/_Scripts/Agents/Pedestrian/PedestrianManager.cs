@@ -236,7 +236,7 @@ public class PedestrianManager : MonoBehaviour
         agent.AddGoal(new EnterVehicleGoal(alightWaypoint, vac, "Entering vehicle"));
         agent.AddGoal(new DriveToWaypointGoal(vac, VehicleManager.Instance.GetRandomVehicleWaypoint(WaypointType.Entry), "Driving to random waypoint"));
         agent.AddGoal(new DriveToWaypointGoal(vac, homeNode, "Driving home"));
-        agent.AddGoal(new ExitVehicleGoal(vac, alightWaypoint, "Exiting vehicle"));
+        agent.AddGoal(new ExitVehicleGoal(vac, "Exiting vehicle"));
         agent.AddGoal(new WalkToWaypointGoal(frontDoorWaypoint, "Walking to front door"));
     }
 
@@ -305,8 +305,78 @@ public class PedestrianManager : MonoBehaviour
         agent.AddGoal(new DriveToAssignedPumpGoal(vac, bp, "Driving to next available pump"));
         agent.AddGoal(new WaitGoal(2f));
         agent.AddGoal(new DriveToWaypointGoal(vac, homeNode, "Driving home"));
-        agent.AddGoal(new ExitVehicleGoal(vac, alightWaypoint, "Exiting vehicle"));
+        agent.AddGoal(new ExitVehicleGoal(vac, "Exiting vehicle"));
         agent.AddGoal(new WalkToWaypointGoal(frontDoorWaypoint, "Walking to front door"));
+    }
+
+    public void DriveToCarParkAndWalkAround(AgentController agent)
+    {
+        // get home building
+        EntityId buildingId = GetHomeBuilding(agent.Id);
+        if (!buildingId.IsValid) Debug.LogError("Home building not found");
+
+        BuildingBase bb = BuildingManager.Instance.GetBuilding(buildingId);
+
+        WaypointNode frontDoorWaypoint = null;
+
+        if (bb is BuildingHouse house)
+            frontDoorWaypoint = house.DoorWaypoint;
+        else Debug.LogError("Building is not a house");
+
+        // first, do we have a car?
+        EntityId vehicleId = GetPersonsVehicle(agent.Id);
+
+        if (!vehicleId.IsValid) Debug.LogError("Owned vehicle not found");
+
+        AgentController vac = VehicleManager.Instance.GetVehicle(vehicleId);
+
+        if (vac == null) Debug.LogError("No agent found for vehicle");
+
+        // what is the cars home parking spot?
+        EntityId homeSpotId = VehicleManager.Instance.GetVehiclesHomeSpotId(vehicleId);
+
+        if (!homeSpotId.IsValid) Debug.LogError("HomeSpot not found");
+
+        WaypointNode homeNode = RoadWaypointManager.Instance.GetWaypointFromId(homeSpotId);
+
+        // is the car in its spot?
+        EntityId currentSpotId = VehicleManager.Instance.GetVehiclesCurrentSpotId(vehicleId);
+
+        if (!currentSpotId.IsValid) Debug.LogError("CurrentSpot not found");
+
+        if (!homeSpotId.Equals(currentSpotId)) Debug.LogError("HomeSpot is not the same as CurrentSpot");
+
+        // what is the waypoint that connects to the cars spot?
+        EntityId alightId = GetAlightWaypointId(homeSpotId);
+
+        if (!alightId.IsValid) Debug.LogError("Alight waypoint not valid");
+
+        WaypointNode alightWaypoint = PedestrianWaypointManager.Instance.GetWaypointFromId(alightId);
+
+        if (alightWaypoint == null)
+        {
+            Debug.LogWarning("Alight waypoint not found");
+            return;
+        }
+
+        List<EntityId> carParks = BuildingManager.Instance.GetBuildingsByType(BuildingType.CarPark);
+
+        if (carParks.Count == 0) Debug.LogError("No car parks found");
+
+        EntityId closestCarPark = BuildingManager.Instance.GetClosestBuildingToPosition(carParks, agent.transform.position);
+        BuildingCarPark cp = BuildingManager.Instance.GetBuilding(closestCarPark) as BuildingCarPark;
+
+        if (cp == null) Debug.LogError("The building does not have the petrol station script on it");
+
+        WaypointNode randomWaypoint = GetRandomWaypoint(agent, WaypointType.PedestrianWalkway);
+
+        agent.AddGoal(new WalkToWaypointGoal(alightWaypoint, "Walking to the alight waypoint"));
+        agent.AddGoal(new EnterVehicleGoal(alightWaypoint, vac, "Entering vehicle"));
+        agent.AddGoal(new DriveToWaypointGoal(vac, cp.PropertyEntryNode, "Driving to petrol station entrance"));
+        agent.AddGoal(new DriveToCarParkGoal(vac, cp, "Driving to car park"));
+        agent.AddGoal(new WaitGoal(2f));
+        agent.AddGoal(new ExitVehicleGoal(vac, "Exiting vehicle"));
+        agent.AddGoal(new WalkToWaypointGoal(randomWaypoint, "Walking to random place"));
     }
 
     public EntityId GetPersonsVehicle(EntityId personId)

@@ -22,6 +22,7 @@ public class SelectedPedestrianDetailsUI : MonoBehaviour
     [SerializeField] private Button _goHomeButton;
     [SerializeField] private Button _goOnADriveThenComeHomeButton;
     [SerializeField] private Button _getPetrolThenComeHomeButton;
+    [SerializeField] private Button _goToCarParkButton;
 
     public void LoadPedestrian(AgentController agent, PedestrianData pedestrian)
     {
@@ -37,12 +38,18 @@ public class SelectedPedestrianDetailsUI : MonoBehaviour
 
         _goToRandomWaypointButton.onClick.RemoveAllListeners();
         _goToRandomWaypointButton.onClick.AddListener(OnGoToRandomWaypointClicked);
+
         _goHomeButton.onClick.RemoveAllListeners();
         _goHomeButton.onClick.AddListener(OnGoHomeClicked);
+
         _goOnADriveThenComeHomeButton.onClick.RemoveAllListeners();
         _goOnADriveThenComeHomeButton.onClick.AddListener(OnGoOnADriveAndComeHomeClicked);
+
         _getPetrolThenComeHomeButton.onClick.RemoveAllListeners();
         _getPetrolThenComeHomeButton.onClick.AddListener(OnGetPetrolAndComeHomeClicked);
+
+        _goToCarParkButton.onClick.RemoveAllListeners();
+        _goToCarParkButton.onClick.AddListener(OnGoToCarParkClicked);
     }
 
     private void OnGoToRandomWaypointClicked()
@@ -63,6 +70,11 @@ public class SelectedPedestrianDetailsUI : MonoBehaviour
     private void OnGetPetrolAndComeHomeClicked()
     {
         PedestrianManager.Instance.DriveToPetrolStationAndHome(_agent);
+    }
+
+    private void OnGoToCarParkClicked()
+    {
+        PedestrianManager.Instance.DriveToCarParkAndWalkAround(_agent);
     }
 
     public void OnEditPedestrianNameClicked()

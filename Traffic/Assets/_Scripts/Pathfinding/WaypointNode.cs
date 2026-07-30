@@ -49,7 +49,9 @@ public enum WaypointType
     InsideBuilding,
     BuildingDoor,
     PropertyWalkway,
-    PropertyEntryExit, // the entry/exit point of a property (maybe not needed)
+    PropertyEntryExit, // the combined entry/exit point of a property
+    PropertyEntry, // the entry point of a property
+    PropertyExit, // the exit point of a property
     VehicleParking,
     VehicleEntryExit, // where a person gets in/out a vehicle in a garage
     VehiclePropertyEntryExit, // if the entry and exit point is the same

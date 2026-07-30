@@ -821,6 +821,135 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
             ConnectPavementNodes(entryExitPropertyWaypoint, node);
         }
     }
+
+    public void AddCarParkPedestrianWaypoints(
+        GridCell cell,
+        Transform entryPosition,
+        Transform[] topAlightPositions,
+        Transform[] topRoutePositions,
+        Transform[] bottomAlightPositions,
+        Transform[] bottomRoutePositions,
+        Transform exitPosition,
+        out WaypointNode entry,
+        out WaypointNode[] topAlight,
+        out WaypointNode[] topRoute,
+        out WaypointNode[] bottomAlight,
+        out WaypointNode[] bottomRoute,
+        out WaypointNode exit
+    )
+    {
+        // Store waypoints for this cell
+        if (!_cellWaypoints.ContainsKey(cell))
+        {
+            _cellWaypoints[cell] = new List<WaypointNode>();
+        }
+
+        // start with the entry and exit waypoints
+        entry = new WaypointNode(entryPosition.position, cell, WaypointType.PropertyEntry, WaypointNetworkType.Pedestrian);
+        exit = new WaypointNode(exitPosition.position, cell, WaypointType.PropertyExit, WaypointNetworkType.Pedestrian);
+
+        _cellWaypoints[cell].Add(entry);
+        _allWaypoints.Add(entry);
+        _cellWaypoints[cell].Add(exit);
+        _allWaypoints.Add(exit);
+
+        List<WaypointNode> topRouteList = new(), topAlightList = new(), bottomRouteList = new(), bottomAlightList = new();
+        WaypointNode currentNode, previousNode;
+
+        // create the alight waypoints
+        for (int i = 0; i < topAlightPositions.Length; i++)
+        {
+            currentNode = new WaypointNode(topAlightPositions[i].position, cell, WaypointType.VehicleEntryExit, WaypointNetworkType.Pedestrian);
+            _cellWaypoints[cell].Add(currentNode);
+            _allWaypoints.Add(currentNode);
+            topAlightList.Add(currentNode);
+        }
+
+        topAlight = topAlightList.ToArray();
+
+        for (int i = 0; i < bottomAlightPositions.Length; i++)
+        {
+            currentNode = new WaypointNode(bottomAlightPositions[i].position, cell, WaypointType.VehicleEntryExit, WaypointNetworkType.Pedestrian);
+            _cellWaypoints[cell].Add(currentNode);
+            _allWaypoints.Add(currentNode);
+            bottomAlightList.Add(currentNode);
+        }
+
+        bottomAlight = bottomAlightList.ToArray();
+
+        currentNode = topAlightList.First();
+
+        // connect the entry node to the first alight node
+        ConnectPavementNodes(entry, currentNode, 0.1f);
+
+        previousNode = currentNode;
+
+        // create the top route, and connect starting at the entrance
+        for (int i = 0; i < topRoutePositions.Length; i++)
+        {
+            currentNode = new WaypointNode(topRoutePositions[i].position, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
+            _cellWaypoints[cell].Add(currentNode);
+            _allWaypoints.Add(currentNode);
+            topRouteList.Add(currentNode);
+
+            ConnectPavementNodes(previousNode, currentNode, 0.1f);
+            previousNode = currentNode;
+        }
+
+        topRoute = topRouteList.ToArray();
+
+        // connect the last waypoint in the top route (previousNode) to the first bottom alight waypoint
+        currentNode = bottomAlightList.First();
+        ConnectPavementNodes(currentNode, previousNode, 0.1f);
+        previousNode = currentNode;
+
+        // connect the bottom route. 
+        for (int i = 0; i < bottomRoutePositions.Length; i++)
+        {
+            currentNode = new WaypointNode(bottomRoutePositions[i].position, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
+            _cellWaypoints[cell].Add(currentNode);
+            _allWaypoints.Add(currentNode);
+            bottomRouteList.Add(currentNode);
+
+            ConnectPavementNodes(previousNode, currentNode, 0.1f);
+            previousNode = currentNode;
+        }
+
+        bottomRoute = bottomRouteList.ToArray();
+
+        // connect the top route positions to the corresponding alight positions (ignoring the first alight position as that has already been handled)
+        for (int i = 1; i < topAlight.Length; i++)
+        {
+            ConnectPavementNodes(topAlight[i], topRoute[i], 0.1f);
+        }
+
+        // now do the same for the bottom
+        for (int i = 0; i < bottomAlight.Length; i++)
+        {
+            ConnectPavementNodes(bottomAlight[i], bottomRoute[i], 0.1f);
+        }
+
+        // connect the last node in the bottom route (previousNode) to the exit
+        ConnectPavementNodes(previousNode, exit, 0.1f);
+
+        // find the closest pedestrian walkway node to the entry node position to allow the person to walk from the property into the world
+        List<WaypointNode> closestPedestrianWaypoints = FindClosestPedestrianNodesInNeighbourCellsFromPosition(cell, entry.Position, 2);
+
+        // connect the property entry/exit node to the pedestrian walkway on the pavement
+        foreach (WaypointNode node in closestPedestrianWaypoints)
+        {
+            ConnectPavementNodes(entry, node);
+        }
+
+        // do the same for the exit waypoint
+        closestPedestrianWaypoints = FindClosestPedestrianNodesInNeighbourCellsFromPosition(cell, exit.Position, 2);
+
+        // connect the property entry/exit node to the pedestrian walkway on the pavement
+        foreach (WaypointNode node in closestPedestrianWaypoints)
+        {
+            ConnectPavementNodes(exit, node);
+        }
+    }
     #endregion
 
     private List<WaypointNode> FindClosestPedestrianNodesInNeighbourCellsFromPosition(GridCell cell, Vector3 position, int count)
@@ -978,28 +1107,28 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
     //     Debug.Log($"[WaypointManager] Loaded {_allWaypoints.Count} pedestrian waypoint nodes.");
     // }
 
-    // private void OnDrawGizmos()
-    // {
-    //     if (_allWaypoints.Count <= 0) return;
+    private void OnDrawGizmos()
+    {
+        if (_allWaypoints.Count <= 0) return;
 
-    //     // Draw waypoints
-    //     foreach (WaypointNode node in _allWaypoints)
-    //     {
-    //         //if (node.Type != WaypointType.PedestrianRoadCrossing) continue;
-    //         Gizmos.color = Color.red;
-    //         Gizmos.DrawSphere(Utils.GetVectorWithSetHeight(node.Position, 0.5f), 0.2f);
-    //     }
+        // Draw waypoints
+        foreach (WaypointNode node in _allWaypoints)
+        {
+            //if (node.Type != WaypointType.PedestrianRoadCrossing) continue;
+            Gizmos.color = Color.red;
+            Gizmos.DrawSphere(Utils.GetVectorWithSetHeight(node.Position, 0.5f), 0.2f);
+        }
 
-    //     Gizmos.color = Color.green;
-    //     foreach (var kvp in _cellWaypoints)
-    //     {
-    //         foreach (var node in kvp.Value)
-    //         {
-    //             foreach (var connection in node.Connections)
-    //             {
-    //                 Gizmos.DrawLine(Utils.GetVectorWithSetHeight(node.Position, 0.5f), Utils.GetVectorWithSetHeight(connection.TargetWaypoint.Position, 0.5f));
-    //             }
-    //         }
-    //     }
-    // }
+        Gizmos.color = Color.green;
+        foreach (var kvp in _cellWaypoints)
+        {
+            foreach (var node in kvp.Value)
+            {
+                foreach (var connection in node.Connections)
+                {
+                    Gizmos.DrawLine(Utils.GetVectorWithSetHeight(node.Position, 0.5f), Utils.GetVectorWithSetHeight(connection.TargetWaypoint.Position, 0.5f));
+                }
+            }
+        }
+    }
 }
