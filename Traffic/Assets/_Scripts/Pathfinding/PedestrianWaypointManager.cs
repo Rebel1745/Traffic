@@ -887,7 +887,7 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
         // create the top route, and connect starting at the entrance
         for (int i = 0; i < topRoutePositions.Length; i++)
         {
-            currentNode = new WaypointNode(topRoutePositions[i].position, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
+            currentNode = new WaypointNode(topRoutePositions[i].position, cell, WaypointType.PropertyWalkway, WaypointNetworkType.Pedestrian);
             _cellWaypoints[cell].Add(currentNode);
             _allWaypoints.Add(currentNode);
             topRouteList.Add(currentNode);
@@ -906,7 +906,7 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
         // connect the bottom route. 
         for (int i = 0; i < bottomRoutePositions.Length; i++)
         {
-            currentNode = new WaypointNode(bottomRoutePositions[i].position, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
+            currentNode = new WaypointNode(bottomRoutePositions[i].position, cell, WaypointType.PropertyWalkway, WaypointNetworkType.Pedestrian);
             _cellWaypoints[cell].Add(currentNode);
             _allWaypoints.Add(currentNode);
             bottomRouteList.Add(currentNode);

@@ -5,16 +5,19 @@ using UnityEngine;
 public class ExitVehicleGoal : Goal
 {
     private VehicleMovement _vm;
+    private PedestrianMovement _pm;
 
-    public ExitVehicleGoal(AgentController vehicle, string goalName)
+    public ExitVehicleGoal(string goalName = "Exiting")
     {
         GoalName = goalName;
-
-        _vm = vehicle.GetComponent<VehicleMovement>();
     }
 
     public override void Initialise(AgentController agent)
     {
+        _pm = agent.GetComponent<PedestrianMovement>();
+
+        _vm = _pm.CurrentVehicle.GetComponent<VehicleMovement>();
+
         PedestrianManager.Instance.ReParentPedestrian(agent);
         agent.ShowHideAgent(true);
 
@@ -38,5 +41,6 @@ public class ExitVehicleGoal : Goal
 
     public override void OnArrived(AgentController agent)
     {
+        _pm.SetCurrentVehicle(null);
     }
 }

@@ -57,7 +57,6 @@ public class ObjectSelectionManager : MonoBehaviour
             }
             else
             {
-                Debug.Log("Missed Object");
                 // Clicked something that isn't selectable, clear selection
                 ClearSelection();
             }

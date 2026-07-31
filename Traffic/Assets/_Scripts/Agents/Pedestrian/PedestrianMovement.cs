@@ -21,6 +21,8 @@ public class PedestrianMovement : MonoBehaviour, IMovable
     private bool _isMoving = false;
     private bool _isCrossing = false;
     private float _currentSpeed = 0f;
+    private AgentController _currentVehicle; // the vehicle the pedestrian is currently in
+    public AgentController CurrentVehicle => _currentVehicle;
 
     private WaypointNode _currentWaypoint;
     public WaypointNode CurrentWaypoint => _currentWaypoint;
@@ -169,5 +171,10 @@ public class PedestrianMovement : MonoBehaviour, IMovable
             return node.LaneNodeForTrafficLight.AssignedLight.IsCrossingRed;
         }
         return false;
+    }
+
+    public void SetCurrentVehicle(AgentController vehicle)
+    {
+        _currentVehicle = vehicle;
     }
 }

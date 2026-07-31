@@ -122,10 +122,10 @@ public class AgentController : MonoBehaviour, ISelectableObject
 
     private void StartGoal(Goal goal)
     {
-        goal.Initialise(this);
-
         _currentGoal = goal;
         _currentNode = _goalQueue.First;
+
+        goal.Initialise(this);
     }
 
     // Optional: Keep your selection/UI logic here if needed for both types

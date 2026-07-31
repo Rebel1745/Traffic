@@ -1,25 +1,25 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DriveToCarParkGoal : Goal
+public class ParkCarGoal : Goal
 {
     private AgentController _vehicle;
     private VehicleMovement _vm;
     private AgentController _agent;
     private BuildingCarPark _carPark;
 
-    public DriveToCarParkGoal(AgentController vehicle, BuildingCarPark carPark, string goalName)
+    public ParkCarGoal(BuildingCarPark carPark, string goalName = "Parking car")
     {
         GoalName = goalName;
-        _vehicle = vehicle;
         _carPark = carPark;
-
-        _vm = _vehicle.GetComponent<VehicleMovement>();
     }
 
     public override void Initialise(AgentController agent)
     {
         _agent = agent;
+        _vehicle = agent.GetComponent<PedestrianMovement>().CurrentVehicle;
+
+        _vm = _vehicle.GetComponent<VehicleMovement>();
 
         WaypointNode parkingSpot = _carPark.GetEmptyParkingSpot();
 

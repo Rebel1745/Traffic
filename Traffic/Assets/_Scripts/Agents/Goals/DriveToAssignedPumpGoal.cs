@@ -8,18 +8,18 @@ public class DriveToAssignedPumpGoal : Goal
     private AgentController _agent;
     private BuildingPetrolStation _petrolStation;
 
-    public DriveToAssignedPumpGoal(AgentController vehicle, BuildingPetrolStation petrolStation, string goalName)
+    public DriveToAssignedPumpGoal(BuildingPetrolStation petrolStation, string goalName)
     {
         GoalName = goalName;
-        _vehicle = vehicle;
         _petrolStation = petrolStation;
-
-        _vm = _vehicle.GetComponent<VehicleMovement>();
     }
 
     public override void Initialise(AgentController agent)
     {
         _agent = agent;
+        _vehicle = agent.GetComponent<PedestrianMovement>().CurrentVehicle;
+
+        _vm = _vehicle.GetComponent<VehicleMovement>();
 
         WaypointNode availablePump = _petrolStation.GetNextAvailablePump();
 

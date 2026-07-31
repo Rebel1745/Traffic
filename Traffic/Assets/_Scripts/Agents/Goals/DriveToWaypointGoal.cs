@@ -8,18 +8,19 @@ public class DriveToWaypointGoal : Goal
     private WaypointNode _target;
     private AgentController _agent;
 
-    public DriveToWaypointGoal(AgentController vehicle, WaypointNode target, string goalName)
+    public DriveToWaypointGoal(WaypointNode target, string goalName)
     {
         GoalName = goalName;
-        _vehicle = vehicle;
         _target = target;
-
-        _vm = _vehicle.GetComponent<VehicleMovement>();
     }
 
     public override void Initialise(AgentController agent)
     {
         _agent = agent;
+        _vehicle = agent.GetComponent<PedestrianMovement>().CurrentVehicle;
+
+        _vm = _vehicle.GetComponent<VehicleMovement>();
+
         _vm.OnArrivedAtDestination += OnVehicleArrived;
 
         List<WaypointNode> path = AStarPathfinder.FindPath(_vehicle.Mover.CurrentWaypoint, _target);

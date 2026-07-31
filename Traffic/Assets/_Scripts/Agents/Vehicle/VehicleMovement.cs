@@ -20,6 +20,7 @@ public class VehicleMovement : MonoBehaviour, IMovable
     private int _nextWaypointWithTrafficLightIndex = -1;
     private WaypointNode _nextWaypointWithTrafficLight = null;
     private bool _isMoving = false;
+    public bool IsMoving => _isMoving;
     private float _roadHeight = 0f;
 
     private WaypointNode _currentWaypoint;

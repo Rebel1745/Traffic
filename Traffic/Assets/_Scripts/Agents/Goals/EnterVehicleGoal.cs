@@ -3,23 +3,25 @@ using UnityEngine;
 
 public class EnterVehicleGoal : Goal
 {
-    private WaypointNode _currentNode;
     private AgentController _vehicle;
+    private PedestrianMovement _pm;
 
-    public EnterVehicleGoal(WaypointNode currentNode, AgentController vehicle, string goalName)
+    public EnterVehicleGoal(AgentController vehicle, string goalName)
     {
         GoalName = goalName;
-        _currentNode = currentNode;
         _vehicle = vehicle;
     }
 
     public override void Initialise(AgentController agent)
     {
         VehicleMovement vm = _vehicle.GetComponent<VehicleMovement>();
+        _pm = agent.GetComponent<PedestrianMovement>();
+
+        WaypointNode currentNode = _pm.CurrentWaypoint;
 
         List<WaypointNode> path = new()
         {
-            _currentNode, vm.CurrentWaypoint
+            currentNode, vm.CurrentWaypoint
         };
 
         agent.Mover.SetPath(path);
@@ -29,5 +31,6 @@ public class EnterVehicleGoal : Goal
     {
         agent.transform.parent = _vehicle.transform;
         agent.ShowHideAgent(false);
+        _pm.SetCurrentVehicle(_vehicle);
     }
 }
