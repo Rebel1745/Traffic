@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -21,7 +22,9 @@ public class BuildingCarPark : BuildingBase
     private WaypointNode[] _exitRouteWaypoints;
     private WaypointNode[] _bottomParkingSpotWaypoints;
     private WaypointNode _exitWaypoint;
+    public WaypointNode PropertyExitNode => _exitWaypoint;
     private List<WaypointNode> _allParkingSpotWaypointList;
+    private Dictionary<WaypointNode, bool> _parkingSpotOccupation;
 
     [Header("Pedestrian Waypoints")]
     [SerializeField] private Transform _pedestrianEntryPosition;
@@ -61,7 +64,7 @@ public class BuildingCarPark : BuildingBase
         InitialiseVehicleWaypoints();
         InitialisePedestrianWaypoints();
 
-        SetupVehicleRelationships();
+        SetupRelationships();
     }
 
     private void InitialiseVehicleWaypoints()
@@ -84,9 +87,7 @@ public class BuildingCarPark : BuildingBase
             out _exitWaypoint
         );
 
-        _allParkingSpotWaypointList = new();
-        _allParkingSpotWaypointList.AddRange(_topParkingSpotWaypoints);
-        _allParkingSpotWaypointList.AddRange(_bottomParkingSpotWaypoints);
+        SetupParkingSpots();
     }
 
     private void InitialisePedestrianWaypoints()
@@ -112,8 +113,9 @@ public class BuildingCarPark : BuildingBase
         _allAlightWaypoints.AddRange(_bottomAlightWaypoints);
     }
 
-    private void SetupVehicleRelationships()
+    private void SetupRelationships()
     {
+        // add the relationship between the parking spot and the alight waypoint (i.e. where the person ends up when entering/exiting the vehicle)
         for (int i = 0; i < _allParkingSpotWaypointList.Count - 1; i++)
         {
             RelationshipManager.Instance.AddRelationship(
@@ -122,11 +124,59 @@ public class BuildingCarPark : BuildingBase
                 _allAlightWaypoints[i].Id
             );
         }
+
+        // add the relationship between the parking spot and the building it is parking for
+        for (int i = 0; i < _allParkingSpotWaypointList.Count - 1; i++)
+        {
+            RelationshipManager.Instance.AddRelationship(
+                RelationshipType.BuildingParkingSpot,
+                Id,
+                _allParkingSpotWaypointList[i].Id
+            );
+        }
     }
 
-    // TODO: figure out how to deal with empty and taken spaces
-    public WaypointNode GetEmptyParkingSpot()
+    private void SetupParkingSpots()
     {
-        return _allParkingSpotWaypointList[Random.Range(0, _allParkingSpotWaypointList.Count - 1)];
+        _allParkingSpotWaypointList = new();
+        _allParkingSpotWaypointList.AddRange(_topParkingSpotWaypoints);
+        _allParkingSpotWaypointList.AddRange(_bottomParkingSpotWaypoints);
+
+        _parkingSpotOccupation = new Dictionary<WaypointNode, bool>();
+
+        // set all parking spots as unoccupied
+        foreach (WaypointNode node in _topParkingSpotWaypoints)
+        {
+            _parkingSpotOccupation.Add(node, false);
+        }
+        foreach (WaypointNode node in _bottomParkingSpotWaypoints)
+        {
+            _parkingSpotOccupation.Add(node, false);
+        }
+    }
+
+    public WaypointNode GetRandomEmptyParkingSpot()
+    {
+        List<WaypointNode> unoccupiedSpots = _parkingSpotOccupation
+        .Where(kvp => !kvp.Value)
+        .Select(kvp => kvp.Key)
+        .ToList();
+
+        return unoccupiedSpots[Random.Range(0, unoccupiedSpots.Count - 1)];
+    }
+
+    public WaypointNode GetFirstEmptyParkingSpot()
+    {
+        List<WaypointNode> unoccupiedSpots = _parkingSpotOccupation
+        .Where(kvp => !kvp.Value)
+        .Select(kvp => kvp.Key)
+        .ToList();
+
+        return unoccupiedSpots.First();
+    }
+
+    public void SetParkingSpotOccupation(WaypointNode spot, bool isOccupied)
+    {
+        _parkingSpotOccupation[spot] = isOccupied;
     }
 }

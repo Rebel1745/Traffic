@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ParkCarGoal : Goal
+public class ParkInCarParkGoal : Goal
 {
     private AgentController _vehicle;
     private VehicleMovement _vm;
     private AgentController _agent;
     private BuildingCarPark _carPark;
 
-    public ParkCarGoal(BuildingCarPark carPark, string goalName = "Parking car")
+    public ParkInCarParkGoal(BuildingCarPark carPark, string goalName = "Parking car")
     {
         GoalName = goalName;
         _carPark = carPark;
@@ -21,7 +21,11 @@ public class ParkCarGoal : Goal
 
         _vm = _vehicle.GetComponent<VehicleMovement>();
 
-        WaypointNode parkingSpot = _carPark.GetEmptyParkingSpot();
+        // get a parking spot, random for now
+        WaypointNode parkingSpot = _carPark.GetRandomEmptyParkingSpot();
+
+        // set that spot as occupied so no other vehicles can take it
+        _carPark.SetParkingSpotOccupation(parkingSpot, true);
 
         _vm.OnArrivedAtDestination += OnVehicleArrived;
 

@@ -59,7 +59,7 @@ public class BuildingHouse : BuildingBase
         InitialisePedestrianWaypoints();
         InitialiseVehicleWaypoints();
 
-        SetupVehicleRelationships();
+        SetupRelationships();
 
         PopulateBuilding();
     }
@@ -94,14 +94,25 @@ public class BuildingHouse : BuildingBase
         );
     }
 
-    private void SetupVehicleRelationships()
+    private void SetupRelationships()
     {
+        // add the relationship between the parking spot and the alight waypoint (i.e. where the person ends up when entering/exiting the vehicle)
         for (int i = 0; i < _entryExitVehicleWaypoints.Length; i++)
         {
             RelationshipManager.Instance.AddRelationship(
                 RelationshipType.AlightsAt,
                 _parkingSpotWaypoints[i].Id,
                 _entryExitVehicleWaypoints[i].Id
+            );
+        }
+
+        // add the relationship between the parking spot and the building it is parking for
+        for (int i = 0; i < _parkingSpotWaypoints.Length; i++)
+        {
+            RelationshipManager.Instance.AddRelationship(
+                RelationshipType.BuildingParkingSpot,
+                Id,
+                _parkingSpotWaypoints[i].Id
             );
         }
     }
@@ -163,11 +174,11 @@ public class BuildingHouse : BuildingBase
             parkingSpot.Id
         );
 
-        RelationshipManager.Instance.AddRelationship(
-            RelationshipType.CurrentParkingSpot,
-            vehicle.Id,
-            parkingSpot.Id
-        );
+        // RelationshipManager.Instance.AddRelationship(
+        //     RelationshipType.CurrentParkingSpot,
+        //     vehicle.Id,
+        //     parkingSpot.Id
+        // );
 
         _currentVehicleOccupancy++;
         return vehicle;

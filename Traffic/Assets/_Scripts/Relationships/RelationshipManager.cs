@@ -115,22 +115,22 @@ public class RelationshipManager : MonoBehaviour
     }
 
     // Forward: Building -> People
-    public List<EntityId> GetResidents(EntityId buildingId)
+    public List<EntityId> GetResidentsForBuilding(EntityId buildingId)
         => GetTargets(RelationshipType.Resident, buildingId, reverse: false);
 
     // Reverse: Person -> Building
-    public List<EntityId> GetHomeBuildings(EntityId personId)
+    public List<EntityId> GetHomeBuildingsForPerson(EntityId personId)
         => GetTargets(RelationshipType.Resident, personId, reverse: true);
 
-    public List<EntityId> GetHomeParkingSpot(EntityId vehicleId)
+    public List<EntityId> GetHomeParkingSpotForVehicle(EntityId vehicleId)
         => GetTargets(RelationshipType.HomeParkingSpot, vehicleId, reverse: false);
 
-    public List<EntityId> GetVehicles(EntityId personId)
+    public List<EntityId> GetVehiclesForPerson(EntityId personId)
         => GetTargets(RelationshipType.Driver, personId, reverse: false);
 
-    public List<EntityId> GetCurrentParkingSpot(EntityId vehicleId)
-        => GetTargets(RelationshipType.HomeParkingSpot, vehicleId, reverse: false);
+    public List<EntityId> GetAlightForParkingSpot(EntityId parkingSpotId)
+        => GetTargets(RelationshipType.AlightsAt, parkingSpotId, reverse: false);
 
-    public List<EntityId> GetAlight(EntityId waypointId)
-        => GetTargets(RelationshipType.AlightsAt, waypointId, reverse: false);
+    public List<EntityId> GetBuildingFromParkingSpot(EntityId parkingSpotId)
+        => GetTargets(RelationshipType.BuildingParkingSpot, parkingSpotId, reverse: true);
 }

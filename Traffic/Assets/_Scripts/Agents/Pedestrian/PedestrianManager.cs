@@ -159,7 +159,7 @@ public class PedestrianManager : MonoBehaviour
     public WaypointNode GetHomeWaypoint(AgentController agent)
     {
         PedestrianMovement pm = agent.GetComponent<PedestrianMovement>();
-        EntityId buildingId = RelationshipManager.Instance.GetHomeBuildings(agent.Id).FirstOrDefault();
+        EntityId buildingId = RelationshipManager.Instance.GetHomeBuildingsForPerson(agent.Id).FirstOrDefault();
 
         if (!buildingId.IsValid) Debug.LogError("Home building not found");
 
@@ -224,25 +224,26 @@ public class PedestrianManager : MonoBehaviour
 
         agent.AddGoal(new WalkToAndEnterVehicleGoal());
         agent.AddGoal(new DriveToWaypointGoal(cp.PropertyEntryNode, "Driving to petrol station entrance"));
-        agent.AddGoal(new ParkCarGoal(cp));
+        agent.AddGoal(new ParkInCarParkGoal(cp));
         agent.AddGoal(new WaitGoal(2f));
         agent.AddGoal(new ExitVehicleGoal());
         agent.AddGoal(new WalkToWaypointGoal(GetRandomPedestrianWaypoint(WaypointType.PedestrianWalkway), "Walking to random place"));
         agent.AddGoal(new WaitGoal(2f));
         agent.AddGoal(new WalkToAndEnterVehicleGoal());
+        agent.AddGoal(new ExitCarParkGoal());
         agent.AddGoal(new DriveHomeGoal());
         agent.AddGoal(new ExitVehicleGoal());
         agent.AddGoal(new WalkToFrontDoorGoal());
     }
 
     public EntityId GetPersonsVehicle(EntityId personId)
-        => RelationshipManager.Instance.GetVehicles(personId).FirstOrDefault();
+        => RelationshipManager.Instance.GetVehiclesForPerson(personId).FirstOrDefault();
 
     public EntityId GetAlightWaypointId(EntityId waypointId)
-        => RelationshipManager.Instance.GetAlight(waypointId).FirstOrDefault();
+        => RelationshipManager.Instance.GetAlightForParkingSpot(waypointId).FirstOrDefault();
 
     public EntityId GetHomeBuilding(EntityId personId)
-        => RelationshipManager.Instance.GetHomeBuildings(personId).FirstOrDefault();
+        => RelationshipManager.Instance.GetHomeBuildingsForPerson(personId).FirstOrDefault();
 
     public void ReParentPedestrian(AgentController ac)
     {

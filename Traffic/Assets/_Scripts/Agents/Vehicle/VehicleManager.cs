@@ -107,7 +107,7 @@ public class VehicleManager : MonoBehaviour
     public void GoHome(AgentController agent)
     {
         VehicleMovement vm = agent.GetComponent<VehicleMovement>();
-        EntityId waypointId = RelationshipManager.Instance.GetHomeParkingSpot(agent.Id).First();
+        EntityId waypointId = RelationshipManager.Instance.GetHomeParkingSpotForVehicle(agent.Id).First();
 
         if (!waypointId.IsValid) Debug.LogError("Home building not found");
 
@@ -130,7 +130,7 @@ public class VehicleManager : MonoBehaviour
 
         BuildingCarPark carPark = BuildingManager.Instance.GetBuilding(carParks.First()) as BuildingCarPark;
 
-        WaypointNode parkingSpot = carPark.GetEmptyParkingSpot();
+        WaypointNode parkingSpot = carPark.GetRandomEmptyParkingSpot();
 
         agent.AddGoal(new DriveToWaypointGoal(parkingSpot, "Driving to random parking spot"));
     }
@@ -175,8 +175,5 @@ public class VehicleManager : MonoBehaviour
         => _allVehicles[entityId];
 
     public EntityId GetVehiclesHomeSpotId(EntityId vehicleId)
-        => RelationshipManager.Instance.GetHomeParkingSpot(vehicleId).FirstOrDefault();
-
-    public EntityId GetVehiclesCurrentSpotId(EntityId vehicleId)
-        => RelationshipManager.Instance.GetCurrentParkingSpot(vehicleId).FirstOrDefault();
+        => RelationshipManager.Instance.GetHomeParkingSpotForVehicle(vehicleId).FirstOrDefault();
 }
