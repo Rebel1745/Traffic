@@ -881,7 +881,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork//, ISaveable
     public void AddPetrolStationVehicleWaypoints(
         GridCell cell,
         Transform entry,
-        PumpDetails[] pumps,
+        VehiclePumpDetails[] pumps,
         Transform exit,
         Transform cellCheckEntry,
         Transform cellCheckExit,
@@ -906,7 +906,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork//, ISaveable
 
         List<WaypointNode> pumpList = new();
 
-        foreach (PumpDetails p in pumps)
+        foreach (VehiclePumpDetails p in pumps)
         {
             // create waypoints for each pump
             WaypointNode pumpEntry = new WaypointNode(p.PumpEntry.position, cell, WaypointType.Midpoint, WaypointNetworkType.Vehicle);

@@ -21,7 +21,7 @@ public class DriveToAssignedPumpGoal : Goal
 
         _vm = _vehicle.GetComponent<VehicleMovement>();
 
-        WaypointNode availablePump = _petrolStation.GetNextAvailablePump();
+        _petrolStation.GetNextAvailablePump(out WaypointNode availablePump, out WaypointNode alightWaypoint, out WaypointNode fillUpWaypoint);
 
         _vm.OnArrivedAtDestination += OnVehicleArrived;
 
@@ -37,6 +37,14 @@ public class DriveToAssignedPumpGoal : Goal
             // Handle failure (retry, pick new goal, etc.)
         }
 
+        // we are now diving towards the pump, lets create the goals that will let us fill up the car and pay for it (in reverse order)
+        agent.AddGoalAfterCurrent(new EnterVehicleGoal(_vehicle));
+        agent.AddGoalAfterCurrent(new WalkToWaypointGoal(alightWaypoint, "Walking back to the car"));
+        agent.AddGoalAfterCurrent(new WaitGoal(2f));
+        agent.AddGoalAfterCurrent(new WalkToWaypointGoal(_petrolStation.InsideBuildingWaypoint, "Going inside the petrol station"));
+        agent.AddGoalAfterCurrent(new WaitGoal(2f));
+        agent.AddGoalAfterCurrent(new WalkToWaypointGoal(fillUpWaypoint, "Walking to the fill up waypoint node"));
+        agent.AddGoalAfterCurrent(new ExitVehicleGoal());
     }
 
     public override void OnArrived(AgentController agent)
@@ -46,7 +54,8 @@ public class DriveToAssignedPumpGoal : Goal
 
     private void OnVehicleArrived()
     {
-        //OnArrived(_vehicle);
+        _vehicle.transform.eulerAngles = new Vector3(0, Utils.SnapToClosestCardinalDirection(_vehicle.transform.eulerAngles.y), 0);
+
         if (_agent != _vehicle) _agent.OnMovementFinished();
     }
 }

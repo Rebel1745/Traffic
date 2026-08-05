@@ -6,7 +6,7 @@ public class EnterVehicleGoal : Goal
     private AgentController _vehicle;
     private PedestrianMovement _pm;
 
-    public EnterVehicleGoal(AgentController vehicle, string goalName)
+    public EnterVehicleGoal(AgentController vehicle, string goalName = "Entering vehicle")
     {
         GoalName = goalName;
         _vehicle = vehicle;

@@ -28,7 +28,7 @@ public class BuildingManager : MonoBehaviour
         float cellSize = GridManager.Instance.CellSize;
         float pavementHeight = RoadMeshRenderer.Instance.GetPavementHeight();
 
-        GameObject building = new GameObject("Building (" + firstCell.x + ", " + firstCell.z + ")");
+        GameObject building = new();
         building.transform.parent = this.transform;
 
         // add th building on top of the foundation
@@ -49,6 +49,8 @@ public class BuildingManager : MonoBehaviour
         building.transform.position = finalPosition;
 
         BuildingBase bc = buildingObj.GetComponent<BuildingBase>();
+
+        building.name = bc.BuildingName + "(" + firstCell.x + ", " + firstCell.z + ")";
 
         EntityId newId = EntityId.New();
         _allBuildings[newId] = bc;

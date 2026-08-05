@@ -950,6 +950,89 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
             ConnectPavementNodes(exit, node);
         }
     }
+
+    public void AddPetrolStationPedestrianWaypoints(
+            GridCell cell,
+            Transform insideBuilding,
+            Transform frontDoor,
+            Transform pointBeforeFrontDoor,
+            PedestrianPumpDetails[] pedestrianPumps,
+            out WaypointNode insideBuildingWaypoint,
+            out WaypointNode[] alightWaypoints,
+            out WaypointNode[] fillUpWaypoints
+        )
+    {
+        // Store waypoints for this cell
+        if (!_cellWaypoints.ContainsKey(cell))
+        {
+            _cellWaypoints[cell] = new List<WaypointNode>();
+        }
+
+        // start with the basic nodes
+        insideBuildingWaypoint = new WaypointNode(insideBuilding.position, cell, WaypointType.InsideBuilding, WaypointNetworkType.Pedestrian);
+        WaypointNode frontDoorNode = new WaypointNode(frontDoor.position, cell, WaypointType.PropertyWalkway, WaypointNetworkType.Pedestrian);
+        WaypointNode pointBeforeFrontDoorNode = new WaypointNode(pointBeforeFrontDoor.position, cell, WaypointType.PropertyWalkway, WaypointNetworkType.Pedestrian);
+
+        // add the nodes
+        _cellWaypoints[cell].Add(insideBuildingWaypoint);
+        _allWaypoints.Add(insideBuildingWaypoint);
+        _cellWaypoints[cell].Add(frontDoorNode);
+        _allWaypoints.Add(frontDoorNode);
+        _cellWaypoints[cell].Add(pointBeforeFrontDoorNode);
+        _allWaypoints.Add(pointBeforeFrontDoorNode);
+
+        // connect the nodes
+        ConnectPavementNodes(insideBuildingWaypoint, frontDoorNode, 0.1f);
+        ConnectPavementNodes(frontDoorNode, pointBeforeFrontDoorNode, 0.1f);
+
+        List<WaypointNode> alightWaypointList = new();
+        List<WaypointNode> fillUpWaypointList = new();
+        WaypointNode currentNode, previousNode;
+
+        // now configure the path from the alight waypoint to the pump
+        for (int i = 0; i < pedestrianPumps.Length; i++)
+        {
+            WaypointNode alightWaypoint = new WaypointNode(pedestrianPumps[i].AlightPosition.position, cell, WaypointType.VehicleEntryExit, WaypointNetworkType.Pedestrian);
+            _cellWaypoints[cell].Add(alightWaypoint);
+            _allWaypoints.Add(alightWaypoint);
+            alightWaypointList.Add(alightWaypoint);
+
+            previousNode = alightWaypoint;
+
+            // go through the path to the pump and connect them to each other
+            for (int j = 0; j < pedestrianPumps[i].PathToPump.Length; j++)
+            {
+                currentNode = new WaypointNode(pedestrianPumps[i].PathToPump[j].position, cell, WaypointType.PropertyWalkway, WaypointNetworkType.Pedestrian);
+                _cellWaypoints[cell].Add(currentNode);
+                _allWaypoints.Add(currentNode);
+
+                ConnectPavementNodes(previousNode, currentNode);
+
+                previousNode = currentNode;
+            }
+
+            // the last path to pump waypoint is the fill up waypoint
+            fillUpWaypointList.Add(previousNode);
+
+            // now go through the path to the shop and connect them to the path to pump
+            for (int k = 0; k < pedestrianPumps[i].PathToShop.Length; k++)
+            {
+                currentNode = new WaypointNode(pedestrianPumps[i].PathToShop[k].position, cell, WaypointType.PropertyWalkway, WaypointNetworkType.Pedestrian);
+                _cellWaypoints[cell].Add(currentNode);
+                _allWaypoints.Add(currentNode);
+
+                ConnectPavementNodes(previousNode, currentNode);
+
+                previousNode = currentNode;
+            }
+
+            // connect the last path to shop waypoint, to the waypoint before the front door
+            ConnectPavementNodes(pointBeforeFrontDoorNode, previousNode);
+        }
+
+        alightWaypoints = alightWaypointList.ToArray();
+        fillUpWaypoints = fillUpWaypointList.ToArray();
+    }
     #endregion
 
     private List<WaypointNode> FindClosestPedestrianNodesInNeighbourCellsFromPosition(GridCell cell, Vector3 position, int count)

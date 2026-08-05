@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [System.Serializable]
-public struct PumpDetails
+public struct VehiclePumpDetails
 {
     public Transform PumpEntry;
     public Transform Pump;

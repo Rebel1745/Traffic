@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class BuildingHouse : BuildingBase
 {
-    [Header("Building Waypoint Positions - Pedestrian")]
+    [Header("Pedestrian Waypoints")]
     [SerializeField] private Transform _insideBuildingWaypointPosition;
     [SerializeField] private Transform _doorWaypointPosition;
     [SerializeField] private Transform _entryExitPropertyWaypointPosition;
@@ -10,7 +10,7 @@ public class BuildingHouse : BuildingBase
     [SerializeField] private Transform[] _parkedToDoorWaypointPositions;
     [SerializeField] private Transform[] _propertyEntryToDoorWaypointPositions;
 
-    [Header("Building Waypoint Positions - Vehicle")]
+    [Header("Vehicle Waypoints")]
     [SerializeField] private Transform[] _parkingSpotWaypointPositions;
     [SerializeField] private Transform _vehicleEntryExitWaypointPosition;
     [SerializeField] private Transform[] _vehicleEntryToParkedWaypointPositions;
