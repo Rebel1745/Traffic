@@ -175,10 +175,6 @@ public class PedestrianManager : MonoBehaviour
 
         if (homeNode == null) Debug.LogError("Inside building node not found");
 
-        List<WaypointNode> newPath = AStarPathfinder.FindPath(pm.CurrentWaypoint, homeNode);
-
-        if (newPath == null || newPath.Count == 0) Debug.LogError("Path to home node not found");
-
         return homeNode;
     }
 
@@ -223,7 +219,7 @@ public class PedestrianManager : MonoBehaviour
         if (cp == null) Debug.LogError("The building does not have the car park script on it");
 
         agent.AddGoal(new WalkToAndEnterVehicleGoal());
-        agent.AddGoal(new DriveToWaypointGoal(cp.PropertyEntryNode, "Driving to petrol station entrance"));
+        agent.AddGoal(new DriveToWaypointGoal(cp.PropertyEntryNode, "Driving to car park entrance"));
         agent.AddGoal(new ParkInCarParkGoal(cp));
         agent.AddGoal(new WaitGoal(2f));
         agent.AddGoal(new ExitVehicleGoal());

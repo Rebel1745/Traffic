@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class WalkToFrontDoorGoal : Goal
 {
+    private WaypointNode _target;
+
     public WalkToFrontDoorGoal(string goalName = "Walk to front door")
     {
         GoalName = goalName;
@@ -9,14 +11,20 @@ public class WalkToFrontDoorGoal : Goal
 
     public override void Initialise(AgentController agent)
     {
-        WaypointNode homeNode = PedestrianManager.Instance.GetHomeWaypoint(agent);
+        _target = PedestrianManager.Instance.GetHomeWaypoint(agent);
 
-        agent.AddGoalAfterCurrent(new WalkToWaypointGoal(homeNode, "Walking to home waypoint"));
+        if (_target == null)
+        {
+            Debug.LogError("Home node is null!");
+            return;
+        }
+
         agent.OnMovementFinished();
     }
 
     public override void OnArrived(AgentController agent)
     {
+        agent.AddGoalAfterCurrent(new WalkToWaypointGoal(_target, "Walking to home waypoint"));
 
     }
 }

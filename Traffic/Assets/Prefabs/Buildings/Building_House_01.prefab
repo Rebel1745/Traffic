@@ -115,7 +115,7 @@ MonoBehaviour:
   - {fileID: 7336757360554075283}
   - {fileID: 1794109714881016473}
   - {fileID: 459489294760044187}
-  _parkedToDoorWaypointPositions:
+  _doorToVehicleWaypointPositions:
   - {fileID: 8078884104543125158}
   _propertyEntryToDoorWaypointPositions: []
   _parkingSpotWaypointPositions:

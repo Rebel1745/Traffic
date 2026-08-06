@@ -840,7 +840,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork//, ISaveable
         // loop through the path from the car to the the node before the door and connect them
         for (int i = 0; i < entryToParkedWaypoints.Length; i++)
         {
-            currentNode = new WaypointNode(entryToParkedWaypoints[i].position, cell, WaypointType.Midpoint, WaypointNetworkType.Vehicle);
+            currentNode = new WaypointNode(entryToParkedWaypoints[i].position, cell, WaypointType.PropertyDriveway, WaypointNetworkType.Vehicle);
 
             // add connections in both directions
             previousNode.Connections.Add(new WaypointConnection(currentNode, 0f));

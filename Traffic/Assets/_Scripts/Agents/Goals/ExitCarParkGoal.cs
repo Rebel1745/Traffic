@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class ExitCarParkGoal : Goal
@@ -47,20 +45,25 @@ public class ExitCarParkGoal : Goal
             Debug.LogError("Car park not found");
         }
 
+        _carPark.SetParkingSpotOccupation(_parkingSpot, false);
+
+        agent.AddGoalAfterCurrent(new DriveToWaypointGoal(_carPark.PropertyExitNode, "Driving to the exit"));
+        agent.OnMovementFinished();
+
         // start moving to the exit
-        vm.OnArrivedAtDestination += OnVehicleArrived;
+        // vm.OnArrivedAtDestination += OnVehicleArrived;
 
-        List<WaypointNode> path = AStarPathfinder.FindPath(_parkingSpot, _carPark.PropertyExitNode);
+        // List<WaypointNode> path = AStarPathfinder.FindPath(_parkingSpot, _carPark.PropertyExitNode);
 
-        if (path != null && path.Count > 0)
-        {
-            vm.SetPath(path);
-        }
-        else
-        {
-            Debug.LogWarning($"[{vm.gameObject.name}] No path found for goal: {GoalName}");
-            // Handle failure (retry, pick new goal, etc.)
-        }
+        // if (path != null && path.Count > 0)
+        // {
+        //     vm.SetPath(path);
+        // }
+        // else
+        // {
+        //     Debug.LogWarning($"[{vm.gameObject.name}] No path found for goal: {GoalName}");
+        //     // Handle failure (retry, pick new goal, etc.)
+        // }
     }
 
     public override void OnArrived(AgentController agent)
@@ -68,10 +71,10 @@ public class ExitCarParkGoal : Goal
 
     }
 
-    private void OnVehicleArrived()
-    {
-        // we have arrived at the exit, we can now set the parking spot as unoccupied
-        _carPark.SetParkingSpotOccupation(_parkingSpot, false);
-        _agent.OnMovementFinished();
-    }
+    // private void OnVehicleArrived()
+    // {
+    //     // we have arrived at the exit, we can now set the parking spot as unoccupied
+    //     _carPark.SetParkingSpotOccupation(_parkingSpot, false);
+    //     _agent.OnMovementFinished();
+    // }
 }

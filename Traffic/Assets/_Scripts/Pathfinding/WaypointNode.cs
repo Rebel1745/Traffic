@@ -49,6 +49,7 @@ public enum WaypointType
     InsideBuilding,
     BuildingDoor,
     PropertyWalkway,
+    PropertyDriveway, // the waypoints that lead a vehicle to its parking space on a property
     PropertyEntryExit, // the combined entry/exit point of a property
     PropertyEntry, // the entry point of a property
     PropertyExit, // the exit point of a property

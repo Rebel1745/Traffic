@@ -1,6 +1,6 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class BuildingCarPark : BuildingBase
@@ -175,8 +175,14 @@ public class BuildingCarPark : BuildingBase
         return unoccupiedSpots.First();
     }
 
+    public IEnumerator SetParkingSpotOccupationAfterDelay(WaypointNode spot, bool isOccupied)
+    {
+        yield return new WaitForSeconds(1f);
+        _parkingSpotOccupation[spot] = isOccupied;
+    }
+
     public void SetParkingSpotOccupation(WaypointNode spot, bool isOccupied)
     {
-        _parkingSpotOccupation[spot] = isOccupied;
+        SetParkingSpotOccupationAfterDelay(spot, isOccupied);
     }
 }

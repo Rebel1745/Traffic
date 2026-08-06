@@ -90,9 +90,12 @@ public class VehicleMovement : MonoBehaviour, IMovable
         // check to make sure a vehicle is not too close in front of this one
         // if it is, stop
         // NOTE: this is not performant for a large number of vehicles, change to something better in the future
-        if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, _stopDistance + _lookAheadDistance, _whatIsVehicle))
+        if (CurrentWaypoint.Type == WaypointType.Entry || CurrentWaypoint.Type == WaypointType.Midpoint)
         {
-            return; // Wait one frame
+            if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, _stopDistance + _lookAheadDistance, _whatIsVehicle))
+            {
+                return; // Wait one frame
+            }
         }
 
         WaypointNode targetWaypoint = _currentPath[_currentWaypointIndex];

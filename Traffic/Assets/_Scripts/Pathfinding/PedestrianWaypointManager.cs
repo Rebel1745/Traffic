@@ -198,8 +198,8 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
             WaypointNode south = new WaypointNode(_southWestFromSouth, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
 
             // Connect north to south
-            ConnectPavementNodes(north, crossingPoint1);
-            ConnectPavementNodes(crossingPoint1, south);
+            ConnectWalkwayNodes(north, crossingPoint1);
+            ConnectWalkwayNodes(crossingPoint1, south);
 
             waypoints.Add(north);
             waypoints.Add(crossingPoint1);
@@ -212,15 +212,15 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
             south = new WaypointNode(_southEastFromSouth, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
 
             // Connect north to south
-            ConnectPavementNodes(north, crossingPoint2);
-            ConnectPavementNodes(crossingPoint2, south);
+            ConnectWalkwayNodes(north, crossingPoint2);
+            ConnectWalkwayNodes(crossingPoint2, south);
 
             waypoints.Add(north);
             waypoints.Add(crossingPoint2);
             waypoints.Add(south);
 
             // connect crossing points
-            ConnectPavementNodes(crossingPoint1, crossingPoint2);
+            ConnectWalkwayNodes(crossingPoint1, crossingPoint2);
 
         }
         else if (_hasEast && _hasWest) // Horizontal road
@@ -232,8 +232,8 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
             WaypointNode east = new WaypointNode(_northEastFromEast, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
 
             // Connect west to east
-            ConnectPavementNodes(west, crossingPoint1);
-            ConnectPavementNodes(crossingPoint1, east);
+            ConnectWalkwayNodes(west, crossingPoint1);
+            ConnectWalkwayNodes(crossingPoint1, east);
 
             waypoints.Add(west);
             waypoints.Add(crossingPoint1);
@@ -246,15 +246,15 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
             east = new WaypointNode(_southEastFromEast, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
 
             // Connect west to east
-            ConnectPavementNodes(west, crossingPoint2);
-            ConnectPavementNodes(crossingPoint2, east);
+            ConnectWalkwayNodes(west, crossingPoint2);
+            ConnectWalkwayNodes(crossingPoint2, east);
 
             waypoints.Add(west);
             waypoints.Add(crossingPoint2);
             waypoints.Add(east);
 
             // connect crossing points
-            ConnectPavementNodes(crossingPoint1, crossingPoint2);
+            ConnectWalkwayNodes(crossingPoint1, crossingPoint2);
         }
 
         return waypoints;
@@ -274,8 +274,8 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
             WaypointNode southEastFromEast = new WaypointNode(_southEastFromEast, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
 
             // connections
-            ConnectPavementNodes(northWestFromNorth, midpointSW);
-            ConnectPavementNodes(midpointSW, southEastFromEast);
+            ConnectWalkwayNodes(northWestFromNorth, midpointSW);
+            ConnectWalkwayNodes(midpointSW, southEastFromEast);
 
             // add waypoints
             waypoints.Add(northWestFromNorth);
@@ -288,8 +288,8 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
             WaypointNode northEastFromEast = new WaypointNode(_northEastFromEast, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
 
             // connections
-            ConnectPavementNodes(northEastFromNorth, midpointNE);
-            ConnectPavementNodes(midpointNE, northEastFromEast);
+            ConnectWalkwayNodes(northEastFromNorth, midpointNE);
+            ConnectWalkwayNodes(midpointNE, northEastFromEast);
 
             // add waypoints
             waypoints.Add(northEastFromNorth);
@@ -304,8 +304,8 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
             WaypointNode southWestFromWest = new WaypointNode(_southWestFromWest, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
 
             // connections
-            ConnectPavementNodes(northEastFromNorth, midpointSE);
-            ConnectPavementNodes(midpointSE, southWestFromWest);
+            ConnectWalkwayNodes(northEastFromNorth, midpointSE);
+            ConnectWalkwayNodes(midpointSE, southWestFromWest);
 
             // add waypoints
             waypoints.Add(northEastFromNorth);
@@ -318,8 +318,8 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
             WaypointNode northWestFromWest = new WaypointNode(_northWestFromWest, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
 
             // connections
-            ConnectPavementNodes(northWestFromNorth, midpointNW);
-            ConnectPavementNodes(midpointNW, northWestFromWest);
+            ConnectWalkwayNodes(northWestFromNorth, midpointNW);
+            ConnectWalkwayNodes(midpointNW, northWestFromWest);
 
             // add waypoints
             waypoints.Add(northWestFromNorth);
@@ -334,8 +334,8 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
             WaypointNode northEastFromEast = new WaypointNode(_northEastFromEast, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
 
             // connections
-            ConnectPavementNodes(southWestFromSouth, midpointNW);
-            ConnectPavementNodes(midpointNW, northEastFromEast);
+            ConnectWalkwayNodes(southWestFromSouth, midpointNW);
+            ConnectWalkwayNodes(midpointNW, northEastFromEast);
 
             // add waypoints
             waypoints.Add(southWestFromSouth);
@@ -348,8 +348,8 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
             WaypointNode southEastFromEast = new WaypointNode(_southEastFromEast, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
 
             // connections
-            ConnectPavementNodes(southEastFromSouth, midpointSE);
-            ConnectPavementNodes(midpointSE, southEastFromEast);
+            ConnectWalkwayNodes(southEastFromSouth, midpointSE);
+            ConnectWalkwayNodes(midpointSE, southEastFromEast);
 
             // add waypoints
             waypoints.Add(southEastFromSouth);
@@ -364,8 +364,8 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
             WaypointNode northWestFromWest = new WaypointNode(_northWestFromWest, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
 
             // connections
-            ConnectPavementNodes(southEastFromSouth, midpointNE);
-            ConnectPavementNodes(midpointNE, northWestFromWest);
+            ConnectWalkwayNodes(southEastFromSouth, midpointNE);
+            ConnectWalkwayNodes(midpointNE, northWestFromWest);
 
             // add waypoints
             waypoints.Add(southEastFromSouth);
@@ -378,8 +378,8 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
             WaypointNode southWestFromWest = new WaypointNode(_southWestFromWest, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
 
             // connections
-            ConnectPavementNodes(southWestFromSouth, midpointSW);
-            ConnectPavementNodes(midpointSW, southWestFromWest);
+            ConnectWalkwayNodes(southWestFromSouth, midpointSW);
+            ConnectWalkwayNodes(midpointSW, southWestFromWest);
 
             // add waypoints
             waypoints.Add(southWestFromSouth);
@@ -410,10 +410,10 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
         WaypointNode midpointSE = new WaypointNode(_midpointSE, cell, WaypointType.PedestrianRoadCrossing, WaypointNetworkType.Pedestrian);
 
         // pedestrian crossing connections
-        ConnectPavementNodes(midpointNW, midpointNE);
-        ConnectPavementNodes(midpointNW, midpointSW);
-        ConnectPavementNodes(midpointSE, midpointSW);
-        ConnectPavementNodes(midpointSE, midpointNE);
+        ConnectWalkwayNodes(midpointNW, midpointNE);
+        ConnectWalkwayNodes(midpointNW, midpointSW);
+        ConnectWalkwayNodes(midpointSE, midpointSW);
+        ConnectWalkwayNodes(midpointSE, midpointNE);
         waypoints.Add(midpointNW);
         waypoints.Add(midpointNE);
         waypoints.Add(midpointSW);
@@ -423,49 +423,49 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
         if (_hasNorth && _hasEast && _hasWest && !_hasSouth)
         {
             // north west connections
-            ConnectPavementNodes(northWestFromNorth, midpointNW);
-            ConnectPavementNodes(midpointNW, northWestFromWest);
+            ConnectWalkwayNodes(northWestFromNorth, midpointNW);
+            ConnectWalkwayNodes(midpointNW, northWestFromWest);
             // north east connections
-            ConnectPavementNodes(northEastFromNorth, midpointNE);
-            ConnectPavementNodes(midpointNE, northEastFromEast);
+            ConnectWalkwayNodes(northEastFromNorth, midpointNE);
+            ConnectWalkwayNodes(midpointNE, northEastFromEast);
             // south west to south east
-            ConnectPavementNodes(southWestFromWest, southEastFromEast);
+            ConnectWalkwayNodes(southWestFromWest, southEastFromEast);
         }
         // T-Junction with North, East, and South (missing West)
         else if (_hasNorth && _hasEast && _hasSouth && !_hasWest)
         {
             // north east connections
-            ConnectPavementNodes(northEastFromNorth, midpointNE);
-            ConnectPavementNodes(midpointNE, northEastFromEast);
+            ConnectWalkwayNodes(northEastFromNorth, midpointNE);
+            ConnectWalkwayNodes(midpointNE, northEastFromEast);
             // south east
-            ConnectPavementNodes(southEastFromSouth, midpointSE);
-            ConnectPavementNodes(midpointSE, southEastFromEast);
+            ConnectWalkwayNodes(southEastFromSouth, midpointSE);
+            ConnectWalkwayNodes(midpointSE, southEastFromEast);
             // north west to south west
-            ConnectPavementNodes(northWestFromNorth, southWestFromSouth);
+            ConnectWalkwayNodes(northWestFromNorth, southWestFromSouth);
         }
         // T-Junction with North, South, and West (missing East)
         else if (_hasNorth && _hasSouth && _hasWest && !_hasEast)
         {
             // north west connections
-            ConnectPavementNodes(northWestFromNorth, midpointNW);
-            ConnectPavementNodes(midpointNW, northWestFromWest);
+            ConnectWalkwayNodes(northWestFromNorth, midpointNW);
+            ConnectWalkwayNodes(midpointNW, northWestFromWest);
             // south west
-            ConnectPavementNodes(southWestFromSouth, midpointSW);
-            ConnectPavementNodes(midpointSW, southWestFromWest);
+            ConnectWalkwayNodes(southWestFromSouth, midpointSW);
+            ConnectWalkwayNodes(midpointSW, southWestFromWest);
             // north east to south east
-            ConnectPavementNodes(northEastFromNorth, southEastFromSouth);
+            ConnectWalkwayNodes(northEastFromNorth, southEastFromSouth);
         }
         // T-Junction with East, South, and West (missing North)
         else if (_hasEast && _hasSouth && _hasWest && !_hasNorth)
         {
             // south west
-            ConnectPavementNodes(southWestFromSouth, midpointSW);
-            ConnectPavementNodes(midpointSW, southWestFromWest);
+            ConnectWalkwayNodes(southWestFromSouth, midpointSW);
+            ConnectWalkwayNodes(midpointSW, southWestFromWest);
             // south east
-            ConnectPavementNodes(southEastFromSouth, midpointSE);
-            ConnectPavementNodes(midpointSE, southEastFromEast);
+            ConnectWalkwayNodes(southEastFromSouth, midpointSE);
+            ConnectWalkwayNodes(midpointSE, southEastFromEast);
             // north west to north east
-            ConnectPavementNodes(northWestFromWest, northEastFromEast);
+            ConnectWalkwayNodes(northWestFromWest, northEastFromEast);
         }
 
         if (_hasNorth)
@@ -514,23 +514,23 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
             WaypointNode midpointSE = new WaypointNode(_midpointSE, cell, WaypointType.PedestrianRoadCrossing, WaypointNetworkType.Pedestrian);
 
             // north west connections
-            ConnectPavementNodes(northWestFromNorth, midpointNW);
-            ConnectPavementNodes(midpointNW, northWestFromWest);
+            ConnectWalkwayNodes(northWestFromNorth, midpointNW);
+            ConnectWalkwayNodes(midpointNW, northWestFromWest);
             // north east connections
-            ConnectPavementNodes(northEastFromNorth, midpointNE);
-            ConnectPavementNodes(midpointNE, northEastFromEast);
+            ConnectWalkwayNodes(northEastFromNorth, midpointNE);
+            ConnectWalkwayNodes(midpointNE, northEastFromEast);
             // south west
-            ConnectPavementNodes(southWestFromSouth, midpointSW);
-            ConnectPavementNodes(midpointSW, southWestFromWest);
+            ConnectWalkwayNodes(southWestFromSouth, midpointSW);
+            ConnectWalkwayNodes(midpointSW, southWestFromWest);
             // south east
-            ConnectPavementNodes(southEastFromSouth, midpointSE);
-            ConnectPavementNodes(midpointSE, southEastFromEast);
+            ConnectWalkwayNodes(southEastFromSouth, midpointSE);
+            ConnectWalkwayNodes(midpointSE, southEastFromEast);
 
             // pedestrian crossing connections
-            ConnectPavementNodes(midpointNW, midpointNE);
-            ConnectPavementNodes(midpointNW, midpointSW);
-            ConnectPavementNodes(midpointSE, midpointSW);
-            ConnectPavementNodes(midpointSE, midpointNE);
+            ConnectWalkwayNodes(midpointNW, midpointNE);
+            ConnectWalkwayNodes(midpointNW, midpointSW);
+            ConnectWalkwayNodes(midpointSE, midpointSW);
+            ConnectWalkwayNodes(midpointSE, midpointNE);
 
             // add the waypoints
             waypoints.Add(northWestFromNorth);
@@ -591,9 +591,9 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
         WaypointNode exit = new WaypointNode(exitPos, cell, WaypointType.PedestrianWalkway, WaypointNetworkType.Pedestrian);
 
         // connections
-        ConnectPavementNodes(entry, midpoint1);
-        ConnectPavementNodes(midpoint1, midpoint2);
-        ConnectPavementNodes(midpoint2, exit);
+        ConnectWalkwayNodes(entry, midpoint1);
+        ConnectWalkwayNodes(midpoint1, midpoint2);
+        ConnectWalkwayNodes(midpoint2, exit);
 
         waypoints.Add(entry);
         waypoints.Add(midpoint1);
@@ -604,7 +604,7 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
     }
 
     // manual distance allows custom value (probably used for road crossing, high number for normal crossing, low number for traffic light crossing)
-    private void ConnectPavementNodes(WaypointNode a, WaypointNode b, float manualDistance = -1)
+    private void ConnectWalkwayNodes(WaypointNode a, WaypointNode b, float manualDistance = -1)
     {
         float dist = manualDistance == -1 ? Vector3.Distance(a.Position, b.Position) : manualDistance;
         a.Connections.Add(new WaypointConnection(b, dist));
@@ -720,7 +720,7 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
         Transform propertyEntryExit,
         Transform[] propertyEntryToDoor,
         Transform[] vehicleEntryExit,
-        Transform[] carToDoor,
+        Transform[] doorToVehicle,
         out WaypointNode insideBuildingWaypoint,
         out WaypointNode doorWaypoint,
         out WaypointNode entryExitPropertyWaypoint,
@@ -738,27 +738,6 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
         doorWaypoint = new WaypointNode(door.position, cell, WaypointType.BuildingDoor, WaypointNetworkType.Pedestrian);
         entryExitPropertyWaypoint = new WaypointNode(propertyEntryExit.position, cell, WaypointType.PropertyEntryExit, WaypointNetworkType.Pedestrian);
 
-        List<WaypointNode> vehicleEntryExitNodes = new List<WaypointNode>();
-        WaypointNode firstCarToDoorNode = null;
-        WaypointNode vehicleEntryExitNode = null;
-
-        foreach (Transform t in vehicleEntryExit)
-        {
-            vehicleEntryExitNode = new WaypointNode(t.position, cell, WaypointType.VehicleEntryExit, WaypointNetworkType.Pedestrian);
-            vehicleEntryExitNodes.Add(vehicleEntryExitNode);
-            _cellWaypoints[cell].Add(vehicleEntryExitNode);
-            _allWaypoints.Add(vehicleEntryExitNode);
-
-            // if we have a path from the car to the door, connect to the first element in that path
-            if (carToDoor.Length > 0)
-            {
-                firstCarToDoorNode = new WaypointNode(carToDoor[0].position, cell, WaypointType.PropertyWalkway, WaypointNetworkType.Pedestrian);
-                ConnectPavementNodes(vehicleEntryExitNode, firstCarToDoorNode);
-            }
-        }
-
-        entryExitVehicleWaypoints = vehicleEntryExitNodes.ToArray();
-
         // add them to the list
         _cellWaypoints[cell].Add(insideBuildingWaypoint);
         _cellWaypoints[cell].Add(doorWaypoint);
@@ -768,31 +747,41 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
         _allWaypoints.Add(entryExitPropertyWaypoint);
 
         // connect the inside building to the door
-        ConnectPavementNodes(insideBuildingWaypoint, doorWaypoint);
+        ConnectWalkwayNodes(insideBuildingWaypoint, doorWaypoint);
 
-        WaypointNode currentNode, previousNode = firstCarToDoorNode == null ? vehicleEntryExitNode : firstCarToDoorNode;
+        WaypointNode finalDoorToVehicleNode = doorWaypoint;
+        WaypointNode currentNode, previousNode = doorWaypoint;
 
-        string prevNodeString = firstCarToDoorNode == null ? "vehicleEntryExitNode" : "firstCarToDoorNode";
-
-        // loop through the path from the car to the the node before the door and connect them
-        // we previously connect to the first element in the path so start from the second if there is one
-        if (carToDoor.Length > 1)
+        // setup the path from the front door to the alight points for the parking spots
+        for (int i = 0; i < doorToVehicle.Length; i++)
         {
-            for (int i = 1; i < carToDoor.Length; i++)
-            {
-                currentNode = new WaypointNode(carToDoor[i].position, cell, WaypointType.PropertyWalkway, WaypointNetworkType.Pedestrian);
+            currentNode = new WaypointNode(doorToVehicle[i].position, cell, WaypointType.PropertyWalkway, WaypointNetworkType.Pedestrian);
+            _cellWaypoints[cell].Add(currentNode);
+            _allWaypoints.Add(currentNode);
 
-                ConnectPavementNodes(currentNode, previousNode);
+            // connect the current waypoint to the previous one
+            ConnectWalkwayNodes(currentNode, previousNode, 0.1f);
 
-                previousNode = currentNode;
+            if (i == doorToVehicle.Length - 1)
+                finalDoorToVehicleNode = currentNode;
 
-                _cellWaypoints[cell].Add(currentNode);
-                _allWaypoints.Add(currentNode);
-            }
+            previousNode = currentNode;
         }
 
-        // then connect to the door
-        ConnectPavementNodes(previousNode, doorWaypoint);
+        List<WaypointNode> vehicleEntryExitNodes = new List<WaypointNode>();
+
+        for (int i = 0; i < vehicleEntryExit.Length; i++)
+        {
+            currentNode = new WaypointNode(vehicleEntryExit[i].position, cell, WaypointType.VehicleEntryExit, WaypointNetworkType.Pedestrian);
+            vehicleEntryExitNodes.Add(currentNode);
+            _cellWaypoints[cell].Add(currentNode);
+            _allWaypoints.Add(currentNode);
+
+            // if we have a path from the door to the car, connect to the last element in that path (connect to the front door if not)
+            ConnectWalkwayNodes(currentNode, finalDoorToVehicleNode, 0.1f);
+        }
+
+        entryExitVehicleWaypoints = vehicleEntryExitNodes.ToArray();
 
         previousNode = entryExitPropertyWaypoint;
         // loop throught the path from the entry/exit to the door and connect them
@@ -800,7 +789,7 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
         {
             currentNode = new WaypointNode(propertyEntryToDoor[i].position, cell, WaypointType.PropertyWalkway, WaypointNetworkType.Pedestrian);
 
-            ConnectPavementNodes(currentNode, previousNode);
+            ConnectWalkwayNodes(currentNode, previousNode);
 
             previousNode = currentNode;
 
@@ -810,7 +799,7 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
 
         // now connect the last path node to the door
         currentNode = doorWaypoint;
-        ConnectPavementNodes(currentNode, previousNode);
+        ConnectWalkwayNodes(currentNode, previousNode);
 
         // find the closest pedestrian walkway node to the entry/exit nodes position to allow the person to walk from the property into the world
         List<WaypointNode> closestPedestrianWaypoints = FindClosestPedestrianNodesInNeighbourCellsFromPosition(cell, entryExitPropertyWaypoint.Position, 2);
@@ -818,7 +807,7 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
         // connect the property entry/exit node to the pedestrian walkway on the pavement
         foreach (WaypointNode node in closestPedestrianWaypoints)
         {
-            ConnectPavementNodes(entryExitPropertyWaypoint, node);
+            ConnectWalkwayNodes(entryExitPropertyWaypoint, node);
         }
     }
 
@@ -880,7 +869,7 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
         currentNode = topAlightList.First();
 
         // connect the entry node to the first alight node
-        ConnectPavementNodes(entry, currentNode, 0.1f);
+        ConnectWalkwayNodes(entry, currentNode, 0.1f);
 
         previousNode = currentNode;
 
@@ -892,7 +881,7 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
             _allWaypoints.Add(currentNode);
             topRouteList.Add(currentNode);
 
-            ConnectPavementNodes(previousNode, currentNode, 0.1f);
+            ConnectWalkwayNodes(previousNode, currentNode, 0.1f);
             previousNode = currentNode;
         }
 
@@ -900,7 +889,7 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
 
         // connect the last waypoint in the top route (previousNode) to the first bottom alight waypoint
         currentNode = bottomAlightList.First();
-        ConnectPavementNodes(currentNode, previousNode, 0.1f);
+        ConnectWalkwayNodes(currentNode, previousNode, 0.1f);
         previousNode = currentNode;
 
         // connect the bottom route. 
@@ -911,7 +900,7 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
             _allWaypoints.Add(currentNode);
             bottomRouteList.Add(currentNode);
 
-            ConnectPavementNodes(previousNode, currentNode, 0.1f);
+            ConnectWalkwayNodes(previousNode, currentNode, 0.1f);
             previousNode = currentNode;
         }
 
@@ -920,17 +909,17 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
         // connect the top route positions to the corresponding alight positions (ignoring the first alight position as that has already been handled)
         for (int i = 1; i < topAlight.Length; i++)
         {
-            ConnectPavementNodes(topAlight[i], topRoute[i], 0.1f);
+            ConnectWalkwayNodes(topAlight[i], topRoute[i], 0.1f);
         }
 
         // now do the same for the bottom
         for (int i = 0; i < bottomAlight.Length; i++)
         {
-            ConnectPavementNodes(bottomAlight[i], bottomRoute[i], 0.1f);
+            ConnectWalkwayNodes(bottomAlight[i], bottomRoute[i], 0.1f);
         }
 
         // connect the last node in the bottom route (previousNode) to the exit
-        ConnectPavementNodes(previousNode, exit, 0.1f);
+        ConnectWalkwayNodes(previousNode, exit, 0.1f);
 
         // find the closest pedestrian walkway node to the entry node position to allow the person to walk from the property into the world
         List<WaypointNode> closestPedestrianWaypoints = FindClosestPedestrianNodesInNeighbourCellsFromPosition(cell, entry.Position, 2);
@@ -938,7 +927,7 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
         // connect the property entry/exit node to the pedestrian walkway on the pavement
         foreach (WaypointNode node in closestPedestrianWaypoints)
         {
-            ConnectPavementNodes(entry, node);
+            ConnectWalkwayNodes(entry, node);
         }
 
         // do the same for the exit waypoint
@@ -947,7 +936,7 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
         // connect the property entry/exit node to the pedestrian walkway on the pavement
         foreach (WaypointNode node in closestPedestrianWaypoints)
         {
-            ConnectPavementNodes(exit, node);
+            ConnectWalkwayNodes(exit, node);
         }
     }
 
@@ -982,8 +971,8 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
         _allWaypoints.Add(pointBeforeFrontDoorNode);
 
         // connect the nodes
-        ConnectPavementNodes(insideBuildingWaypoint, frontDoorNode, 0.1f);
-        ConnectPavementNodes(frontDoorNode, pointBeforeFrontDoorNode, 0.1f);
+        ConnectWalkwayNodes(insideBuildingWaypoint, frontDoorNode, 0.1f);
+        ConnectWalkwayNodes(frontDoorNode, pointBeforeFrontDoorNode, 0.1f);
 
         List<WaypointNode> alightWaypointList = new();
         List<WaypointNode> fillUpWaypointList = new();
@@ -1006,7 +995,7 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
                 _cellWaypoints[cell].Add(currentNode);
                 _allWaypoints.Add(currentNode);
 
-                ConnectPavementNodes(previousNode, currentNode);
+                ConnectWalkwayNodes(previousNode, currentNode);
 
                 previousNode = currentNode;
             }
@@ -1021,13 +1010,13 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
                 _cellWaypoints[cell].Add(currentNode);
                 _allWaypoints.Add(currentNode);
 
-                ConnectPavementNodes(previousNode, currentNode);
+                ConnectWalkwayNodes(previousNode, currentNode);
 
                 previousNode = currentNode;
             }
 
             // connect the last path to shop waypoint, to the waypoint before the front door
-            ConnectPavementNodes(pointBeforeFrontDoorNode, previousNode);
+            ConnectWalkwayNodes(pointBeforeFrontDoorNode, previousNode);
         }
 
         alightWaypoints = alightWaypointList.ToArray();

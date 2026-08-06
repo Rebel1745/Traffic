@@ -7,7 +7,7 @@ public class BuildingHouse : BuildingBase
     [SerializeField] private Transform _doorWaypointPosition;
     [SerializeField] private Transform _entryExitPropertyWaypointPosition;
     [SerializeField] private Transform[] _entryExitVehicleWaypointPositions;
-    [SerializeField] private Transform[] _parkedToDoorWaypointPositions;
+    [SerializeField] private Transform[] _doorToVehicleWaypointPositions;
     [SerializeField] private Transform[] _propertyEntryToDoorWaypointPositions;
 
     [Header("Vehicle Waypoints")]
@@ -73,7 +73,7 @@ public class BuildingHouse : BuildingBase
             _entryExitPropertyWaypointPosition,
             _propertyEntryToDoorWaypointPositions,
             _entryExitVehicleWaypointPositions,
-            _parkedToDoorWaypointPositions,
+            _doorToVehicleWaypointPositions,
             out _insideBuildingWaypoint,
             out _doorWaypoint,
             out _entryExitPropertyWaypoint,
@@ -121,21 +121,23 @@ public class BuildingHouse : BuildingBase
     {
         if (_currentOccupancy >= MaximumOccupancy) return;
 
-        // Add resident
-        AgentController person = AddPersonToBuilding();
+        AddPersonAndVehicleToBuilding();
 
-        // Add vehicle
-        AgentController vehicle = AddVehicleToBuilding();
+        // // Add resident
+        // AgentController person = AddPersonToBuilding();
 
-        // Link person to vehicle
-        if (person != null && vehicle != null)
-        {
-            RelationshipManager.Instance.AddRelationship(
-                RelationshipType.Driver,
-                person.Id,
-                vehicle.Id
-            );
-        }
+        // // Add vehicle
+        // AgentController vehicle = AddVehicleToBuilding();
+
+        // // Link person to vehicle
+        // if (person != null && vehicle != null)
+        // {
+        //     RelationshipManager.Instance.AddRelationship(
+        //         RelationshipType.Driver,
+        //         person.Id,
+        //         vehicle.Id
+        //     );
+        // }
     }
 
     public AgentController AddPersonToBuilding()
@@ -159,7 +161,7 @@ public class BuildingHouse : BuildingBase
     {
         if (_currentVehicleOccupancy >= MaximumVehicleOccupancy) return null;
 
-        WaypointNode parkingSpot = _parkingSpotWaypoints[_parkingSpotWaypoints.Length - 1];
+        WaypointNode parkingSpot = _parkingSpotWaypoints[_currentVehicleOccupancy];
         AgentController vehicle = VehicleManager.Instance.AddAndRegisterVehicle(parkingSpot);
 
         RelationshipManager.Instance.AddRelationship(
@@ -174,14 +176,27 @@ public class BuildingHouse : BuildingBase
             parkingSpot.Id
         );
 
-        // RelationshipManager.Instance.AddRelationship(
-        //     RelationshipType.CurrentParkingSpot,
-        //     vehicle.Id,
-        //     parkingSpot.Id
-        // );
-
         _currentVehicleOccupancy++;
         return vehicle;
+    }
+
+    public void AddPersonAndVehicleToBuilding()
+    {
+        if (_currentOccupancy >= MaximumOccupancy || _currentVehicleOccupancy >= MaximumVehicleOccupancy)
+            return;
+
+        AgentController person = AddPersonToBuilding();
+        AgentController vehicle = AddVehicleToBuilding();
+
+        // Link person to vehicle
+        if (person != null && vehicle != null)
+        {
+            RelationshipManager.Instance.AddRelationship(
+                RelationshipType.Driver,
+                person.Id,
+                vehicle.Id
+            );
+        }
     }
 
     private Vector3 GetSpawnPositionForPerson(Vector3 origin)
