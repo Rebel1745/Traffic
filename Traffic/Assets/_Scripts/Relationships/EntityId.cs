@@ -35,6 +35,21 @@ public struct EntityId
     public override bool Equals(object obj) => obj is EntityId other && Id == other.Id;
     public override int GetHashCode() => Id.GetHashCode();
 
-    // Optional: Override ToString for better debugging in Inspector
+    // creates and EntityId with a predefined string (rather than creating a new one) - used when loading an object that already has an Id
+    public static EntityId FromString(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return None;
+
+        // TryParse is safer than new Guid(value) because it won't crash if the string is bad
+        if (Guid.TryParse(value, out Guid parsedGuid))
+        {
+            return new EntityId(parsedGuid);
+        }
+
+        Debug.LogWarning($"Failed to parse EntityId from string: {value}");
+        return None;
+    }
+
     public override string ToString() => _idString;
 }

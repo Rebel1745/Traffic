@@ -1179,28 +1179,28 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
     //     Debug.Log($"[WaypointManager] Loaded {_allWaypoints.Count} pedestrian waypoint nodes.");
     // }
 
-    private void OnDrawGizmos()
-    {
-        if (_allWaypoints.Count <= 0) return;
+    // private void OnDrawGizmos()
+    // {
+    //     if (_allWaypoints.Count <= 0) return;
 
-        // Draw waypoints
-        foreach (WaypointNode node in _allWaypoints)
-        {
-            //if (node.Type != WaypointType.PedestrianRoadCrossing) continue;
-            Gizmos.color = Color.red;
-            Gizmos.DrawSphere(Utils.GetVectorWithSetHeight(node.Position, 0.5f), 0.2f);
-        }
+    //     // Draw waypoints
+    //     foreach (WaypointNode node in _allWaypoints)
+    //     {
+    //         //if (node.Type != WaypointType.PedestrianRoadCrossing) continue;
+    //         Gizmos.color = Color.red;
+    //         Gizmos.DrawSphere(Utils.GetVectorWithSetHeight(node.Position, 0.5f), 0.2f);
+    //     }
 
-        Gizmos.color = Color.green;
-        foreach (var kvp in _cellWaypoints)
-        {
-            foreach (var node in kvp.Value)
-            {
-                foreach (var connection in node.Connections)
-                {
-                    Gizmos.DrawLine(Utils.GetVectorWithSetHeight(node.Position, 0.5f), Utils.GetVectorWithSetHeight(connection.TargetWaypoint.Position, 0.5f));
-                }
-            }
-        }
-    }
+    //     Gizmos.color = Color.green;
+    //     foreach (var kvp in _cellWaypoints)
+    //     {
+    //         foreach (var node in kvp.Value)
+    //         {
+    //             foreach (var connection in node.Connections)
+    //             {
+    //                 Gizmos.DrawLine(Utils.GetVectorWithSetHeight(node.Position, 0.5f), Utils.GetVectorWithSetHeight(connection.TargetWaypoint.Position, 0.5f));
+    //             }
+    //         }
+    //     }
+    // }
 }

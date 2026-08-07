@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEditor.Rendering;
 using UnityEngine;
 
-public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork//, ISaveable
+public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
 {
     public static RoadWaypointManager Instance { get; private set; }
 
@@ -30,9 +30,6 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork//, ISaveable
 
     public event Action OnRoadWaypointsUpdated;
 
-    private bool _subscribedToSaveManager = false;
-    private bool _subscribedToRoadMeshRenderer = false;
-
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -43,50 +40,15 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork//, ISaveable
         Instance = this;
     }
 
-    private void Update()
+    private void Start()
     {
-        if (!_subscribedToSaveManager)
-            TryToSubscribeToSaveManager();
-
-        if (!_subscribedToRoadMeshRenderer)
-            TryToSubscribeToRoadMeshRenderer();
-    }
-
-    private void OnEnable()
-    {
-        TryToSubscribeToSaveManager();
-        TryToSubscribeToRoadMeshRenderer();
-    }
-
-    private void OnDisable()
-    {
-        if (SaveManager.Instance != null)
-        {
-            //SaveManager.Instance.UnregisterSaveable(this);
-            _subscribedToSaveManager = false;
-        }
-
-        if (RoadMeshRenderer.Instance != null)
-        {
-            RoadMeshRenderer.Instance.OnRoadMeshUpdated -= RoadMeshUpdated;
-            _subscribedToRoadMeshRenderer = false;
-        }
-    }
-
-    private void TryToSubscribeToSaveManager()
-    {
-        if (SaveManager.Instance == null) return;
-
-        //SaveManager.Instance.RegisterSaveable(this);
-        _subscribedToSaveManager = true;
-    }
-
-    private void TryToSubscribeToRoadMeshRenderer()
-    {
-        if (RoadMeshRenderer.Instance == null) return;
-
+        SaveManager.Instance.RegisterSaveable(this);
         RoadMeshRenderer.Instance.OnRoadMeshUpdated += RoadMeshUpdated;
-        _subscribedToRoadMeshRenderer = true;
+    }
+
+    private void OnDestroy()
+    {
+        RoadMeshRenderer.Instance.OnRoadMeshUpdated -= RoadMeshUpdated;
     }
 
     private void RoadMeshUpdated()
@@ -743,15 +705,15 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork//, ISaveable
         neighborEntryWaypoints = _cellWaypoints[neighbor].Where(w => w.Type == WaypointType.Entry).ToList();
 
         // Connect exit waypoints to entry waypoints only if they are at the same position (or very close)
-        foreach (var exitWaypoint in cellExitWaypoints)
+        foreach (WaypointNode exitWaypoint in cellExitWaypoints)
         {
-            foreach (var entryWaypoint in neighborEntryWaypoints)
+            foreach (WaypointNode entryWaypoint in neighborEntryWaypoints)
             {
                 // Check if the waypoints are at the same position (or very close)
                 float distance = Vector3.Distance(exitWaypoint.Position, entryWaypoint.Position);
 
                 // If the distance is very small (essentially zero), connect them
-                if (distance < 0.05f) // Tolerance for floating point precision
+                if (distance < 0.01f) // Tolerance for floating point precision
                 {
                     exitWaypoint.Connections.Add(new WaypointConnection(entryWaypoint, distance));
                 }
@@ -1131,149 +1093,157 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork//, ISaveable
         return null;
     }
 
-    // public void PopulateSaveData(GameSaveData saveData)
-    // {
-    //     var waypointData = new WaypointSaveData();
+    public void PopulateSaveData(GameSaveData saveData)
+    {
+        var waypointData = new WaypointSaveData();
 
-    //     foreach (var node in _allWaypoints)
-    //     {
-    //         var nodeData = new WaypointNodeSaveData
-    //         {
-    //             Id = node.Id,
-    //             X = node.Position.x,
-    //             Z = node.Position.z,
-    //             Type = node.Type,
-    //             NetworkType = node.NetworkType,
-    //             ParentCellX = node.ParentCell.Position.x,
-    //             ParentCellZ = node.ParentCell.Position.z,
-    //             PairedCrossingWaypointId = node.PairedCrossingWaypoint?.Id,
-    //             LaneNodeForTrafficLightId = node.LaneNodeForTrafficLight?.Id,
-    //             LightPosition = node.LightPosition
-    //         };
+        foreach (var node in _allWaypoints)
+        {
+            var nodeData = new WaypointNodeSaveData
+            {
+                Id = node.Id.ToString(),
+                X = node.Position.x,
+                Z = node.Position.z,
+                Type = node.Type,
+                NetworkType = node.NetworkType,
+                ParentCellX = node.ParentCell.Position.x,
+                ParentCellZ = node.ParentCell.Position.z,
+                PairedCrossingWaypointId = node.PairedCrossingWaypoint?.Id.ToString(),
+                LaneNodeForTrafficLightId = node.LaneNodeForTrafficLight?.Id.ToString(),
+                LightPosition = node.LightPosition
+            };
 
-    //         foreach (var connection in node.Connections)
-    //         {
-    //             nodeData.Connections.Add(new WaypointConnectionSaveData
-    //             {
-    //                 TargetNodeId = connection.TargetWaypoint.Id,
-    //                 Cost = connection.Cost
-    //             });
-    //         }
+            foreach (var connection in node.Connections)
+            {
+                nodeData.Connections.Add(new WaypointConnectionSaveData
+                {
+                    TargetNodeId = connection.TargetWaypoint.Id.ToString(),
+                    Cost = connection.Cost
+                });
+            }
 
-    //         waypointData.Nodes.Add(nodeData);
-    //     }
+            waypointData.Nodes.Add(nodeData);
+        }
 
-    //     saveData.VehicleWaypoints = waypointData;
-    // }
+        saveData.VehicleWaypoints = waypointData;
+    }
 
-    // public void LoadFromSaveData(GameSaveData saveData)
-    // {
-    //     if (saveData.VehicleWaypoints == null)
-    //     {
-    //         Debug.LogWarning("[VehicleWaypointManager] No waypoint data in save file.");
-    //         return;
-    //     }
+    public void LoadFromSaveData(GameSaveData saveData)
+    {
+        if (saveData.VehicleWaypoints == null)
+        {
+            Debug.LogWarning("[VehicleWaypointManager] No waypoint data in save file.");
+            return;
+        }
 
-    //     _allWaypoints.Clear();
-    //     var nodeLookup = new Dictionary<string, WaypointNode>();
+        _allWaypoints.Clear();
+        _cellWaypoints.Clear();
 
-    //     // First pass — create all nodes
-    //     foreach (var nodeData in saveData.VehicleWaypoints.Nodes)
-    //     {
-    //         // Retrieve the parent cell from the grid
-    //         var parentCell = GridManager.Instance.GetCell(nodeData.ParentCellX, nodeData.ParentCellZ);
-    //         if (parentCell == null)
-    //         {
-    //             Debug.LogWarning($"[VehicleWaypointManager] Parent cell ({nodeData.ParentCellX}, {nodeData.ParentCellZ}) not found for node {nodeData.Id}.");
-    //             continue;
-    //         }
+        var nodeLookup = new Dictionary<string, WaypointNode>();
 
-    //         var node = new WaypointNode(
-    //             new Vector3(nodeData.X, 0f, nodeData.Z),
-    //             parentCell,
-    //             nodeData.Type,
-    //             nodeData.NetworkType
-    //         );
+        // First pass — create all nodes
+        foreach (var nodeData in saveData.VehicleWaypoints.Nodes)
+        {
+            // Retrieve the parent cell from the grid
+            var parentCell = GridManager.Instance.GetCell(nodeData.ParentCellX, nodeData.ParentCellZ);
+            if (parentCell == null)
+            {
+                Debug.LogWarning($"[VehicleWaypointManager] Parent cell ({nodeData.ParentCellX}, {nodeData.ParentCellZ}) not found for node {nodeData.Id}.");
+                continue;
+            }
 
-    //         // Restore the saved ID rather than using the new GUID generated in the constructor
-    //         node.Id = nodeData.Id;
+            if (!_cellWaypoints.ContainsKey(parentCell))
+            {
+                _cellWaypoints[parentCell] = new List<WaypointNode>();
+            }
 
-    //         // Restore paired crossing waypoint reference (if any)
-    //         if (!string.IsNullOrEmpty(nodeData.PairedCrossingWaypointId))
-    //         {
-    //             node.PairedCrossingWaypointId = nodeData.PairedCrossingWaypointId;  // Store ID for later resolution
-    //         }
+            var node = new WaypointNode(
+                new Vector3(nodeData.X, 0f, nodeData.Z),
+                parentCell,
+                nodeData.Type,
+                nodeData.NetworkType
+            );
 
-    //         // Restore traffic light lane waypoint reference (if any)
-    //         if (!string.IsNullOrEmpty(nodeData.LaneNodeForTrafficLightId))
-    //         {
-    //             node.LaneNodeForTrafficLightId = nodeData.LaneNodeForTrafficLightId;  // Store ID for later resolution
-    //             node.LightPosition = nodeData.LightPosition;
-    //         }
+            // Restore the saved ID rather than using the new GUID generated in the constructor
+            node.Id = EntityId.FromString(nodeData.Id);
 
-    //         _allWaypoints.Add(node);
-    //         nodeLookup[node.Id] = node;
-    //     }
+            // Restore paired crossing waypoint reference (if any)
+            if (!string.IsNullOrEmpty(nodeData.PairedCrossingWaypointId))
+            {
+                node.PairedCrossingWaypointId = nodeData.PairedCrossingWaypointId;  // Store ID for later resolution
+            }
 
-    //     // Second pass — restore connections
-    //     foreach (var nodeData in saveData.VehicleWaypoints.Nodes)
-    //     {
-    //         if (!nodeLookup.TryGetValue(nodeData.Id, out var node))
-    //             continue;
+            // Restore traffic light lane waypoint reference (if any)
+            if (!string.IsNullOrEmpty(nodeData.LaneNodeForTrafficLightId))
+            {
+                node.LaneNodeForTrafficLightId = nodeData.LaneNodeForTrafficLightId;  // Store ID for later resolution
+                node.LightPosition = nodeData.LightPosition;
+            }
 
-    //         foreach (var connectionData in nodeData.Connections)
-    //         {
-    //             if (nodeLookup.TryGetValue(connectionData.TargetNodeId, out var targetNode))
-    //             {
-    //                 node.Connections.Add(new WaypointConnection(targetNode, connectionData.Cost));
-    //             }
-    //             else
-    //             {
-    //                 Debug.LogWarning($"[VehicleWaypointManager] Target node {connectionData.TargetNodeId} not found for connection.");
-    //             }
-    //         }
-    //     }
+            _allWaypoints.Add(node);
+            _cellWaypoints[parentCell].Add(node);
 
-    //     // Third pass — resolve paired crossing waypoints (after all nodes are created)
-    //     foreach (var node in _allWaypoints)
-    //     {
-    //         if (!string.IsNullOrEmpty(node.PairedCrossingWaypointId) &&
-    //             nodeLookup.TryGetValue(node.PairedCrossingWaypointId, out var pairedNode))
-    //         {
-    //             node.PairedCrossingWaypoint = pairedNode;
-    //         }
-    //         if (!string.IsNullOrEmpty(node.LaneNodeForTrafficLightId) &&
-    //             nodeLookup.TryGetValue(node.LaneNodeForTrafficLightId, out var laneNode))
-    //         {
-    //             node.LaneNodeForTrafficLight = laneNode;
-    //         }
-    //     }
+            nodeLookup[node.Id.ToString()] = node;
+        }
 
-    //     Debug.Log($"[VehicleWaypointManager] Loaded {_allWaypoints.Count} vehicle waypoint nodes.");
-    // }
+        // Second pass — restore connections
+        foreach (WaypointNodeSaveData nodeData in saveData.VehicleWaypoints.Nodes)
+        {
+            if (!nodeLookup.TryGetValue(nodeData.Id, out WaypointNode node)) continue;
 
-    // private void OnDrawGizmos()
-    // {
-    //     if (_allWaypoints.Count <= 0) return;
+            foreach (WaypointConnectionSaveData connectionData in nodeData.Connections)
+            {
+                if (nodeLookup.TryGetValue(connectionData.TargetNodeId, out WaypointNode targetNode))
+                {
+                    node.Connections.Add(new WaypointConnection(targetNode, connectionData.Cost));
+                }
+                else
+                {
+                    Debug.LogWarning($"[VehicleWaypointManager] Target node {connectionData.TargetNodeId} not found for connection.");
+                }
+            }
+        }
 
-    //     // Draw waypoints
-    //     foreach (WaypointNode node in _allWaypoints)
-    //     {
-    //         if (node.NetworkType != WaypointNetworkType.Vehicle || node.Type == WaypointType.TrafficLightLocation) continue;
-    //         Gizmos.color = Color.red;
-    //         Gizmos.DrawSphere(Utils.GetVectorWithSetHeight(node.Position, 0.5f), 0.2f);
-    //     }
+        // Third pass — resolve paired crossing waypoints (after all nodes are created)
+        foreach (WaypointNode node in _allWaypoints)
+        {
+            if (!string.IsNullOrEmpty(node.PairedCrossingWaypointId) &&
+                nodeLookup.TryGetValue(node.PairedCrossingWaypointId, out WaypointNode pairedNode))
+            {
+                node.PairedCrossingWaypoint = pairedNode;
+            }
+            if (!string.IsNullOrEmpty(node.LaneNodeForTrafficLightId) &&
+                nodeLookup.TryGetValue(node.LaneNodeForTrafficLightId, out WaypointNode laneNode))
+            {
+                node.LaneNodeForTrafficLight = laneNode;
+            }
+        }
 
-    //     Gizmos.color = Color.green;
-    //     foreach (var kvp in _cellWaypoints)
-    //     {
-    //         foreach (var node in kvp.Value)
-    //         {
-    //             foreach (var connection in node.Connections)
-    //             {
-    //                 Gizmos.DrawLine(Utils.GetVectorWithSetHeight(node.Position, 0.5f), Utils.GetVectorWithSetHeight(connection.TargetWaypoint.Position, 0.5f));
-    //             }
-    //         }
-    //     }
-    // }
+        Debug.Log($"[VehicleWaypointManager] Loaded {_allWaypoints.Count} vehicle waypoint nodes.");
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (_allWaypoints.Count <= 0) return;
+
+        // Draw waypoints
+        foreach (WaypointNode node in _allWaypoints)
+        {
+            //if (node.NetworkType != WaypointNetworkType.Vehicle || node.Type == WaypointType.TrafficLightLocation) continue;
+            Gizmos.color = Color.red;
+            Gizmos.DrawSphere(Utils.GetVectorWithSetHeight(node.Position, 0.5f), 0.2f);
+        }
+
+        Gizmos.color = Color.green;
+        foreach (var kvp in _cellWaypoints)
+        {
+            foreach (WaypointNode node in kvp.Value)
+            {
+                foreach (WaypointConnection connection in node.Connections)
+                {
+                    Gizmos.DrawLine(Utils.GetVectorWithSetHeight(node.Position, 0.5f), Utils.GetVectorWithSetHeight(connection.TargetWaypoint.Position, 0.5f));
+                }
+            }
+        }
+    }
 }
