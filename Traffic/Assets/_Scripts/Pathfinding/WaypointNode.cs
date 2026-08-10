@@ -6,7 +6,8 @@ public class WaypointNode
 {
     public EntityId Id { get; set; }
     public Vector3 Position { get; set; }
-    public List<WaypointConnection> Connections { get; set; }
+    //public List<WaypointConnection> Connections { get; set; }
+    public Dictionary<WaypointNode, float> Connections { get; set; }
     public GridCell ParentCell { get; set; }
     public WaypointType Type { get; set; }
     public WaypointNetworkType NetworkType { get; set; }
@@ -26,7 +27,7 @@ public class WaypointNode
         ParentCell = parentCell;
         Type = type;
         NetworkType = networkType;
-        Connections = new List<WaypointConnection>();
+        Connections = new();
         AssignedLight = null;
         PairedCrossingWaypoint = null;
         LaneNodeForTrafficLight = laneNode;

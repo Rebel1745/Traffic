@@ -53,12 +53,12 @@ public class AStarPathfinder
             // Check all connections from current waypoint
             foreach (var connection in currentNode.Waypoint.Connections)
             {
-                WaypointNode neighbor = connection.TargetWaypoint;
+                WaypointNode neighbor = connection.Key;
 
                 if (closedSet.Contains(neighbor))
                     continue;
 
-                float newGCost = currentNode.GCost + connection.Cost;
+                float newGCost = currentNode.GCost + connection.Value;
                 float hCost = CalculateHeuristic(neighbor, endWaypoint);
 
                 // Check if this neighbor is already in open set

@@ -607,8 +607,8 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
     private void ConnectWalkwayNodes(WaypointNode a, WaypointNode b, float manualDistance = -1)
     {
         float dist = manualDistance == -1 ? Vector3.Distance(a.Position, b.Position) : manualDistance;
-        a.Connections.Add(new WaypointConnection(b, dist));
-        b.Connections.Add(new WaypointConnection(a, dist)); // bidirectional
+        a.Connections[b] = dist;
+        b.Connections[a] = dist; // bidirectional
     }
 
     public List<WaypointNode> GetAllWaypoints()
@@ -688,7 +688,7 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
                 // If the distance is very small (essentially zero), connect them
                 if (distance < 0.05f) // Tolerance for floating point precision
                 {
-                    w1.Connections.Add(new WaypointConnection(w2, distance));
+                    w1.Connections[w2] = distance;
                 }
             }
         }
