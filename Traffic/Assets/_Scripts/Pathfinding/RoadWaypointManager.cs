@@ -682,12 +682,6 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         out WaypointNode vehicleEntryExitPropertyWaypoint
     )
     {
-        // Store waypoints for this cell
-        if (!_cellWaypoints.ContainsKey(cell))
-        {
-            _cellWaypoints[cell] = new List<WaypointNode>();
-        }
-
         // define the main vehicle nodes
         vehicleEntryExitPropertyWaypoint = CreateAndAddWaypoint(cell, entryWaypoint.position, WaypointType.VehiclePropertyEntryExit, WaypointNetworkType.Vehicle);
 
@@ -697,17 +691,10 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         for (int i = 0; i < parkedWaypoints.Length; i++)
         {
             parkedNode = CreateAndAddWaypoint(cell, parkedWaypoints[i].position, WaypointType.VehicleParking, WaypointNetworkType.Vehicle);
-
             parkedNodeList.Add(parkedNode);
-            _cellWaypoints[cell].Add(parkedNode);
-            _allWaypoints.Add(parkedNode);
         }
 
         parkingSpotWaypoints = parkedNodeList.ToArray();
-
-        // add them to the list
-        _cellWaypoints[cell].Add(vehicleEntryExitPropertyWaypoint);
-        _allWaypoints.Add(vehicleEntryExitPropertyWaypoint);
 
         WaypointNode currentNode, previousNode = vehicleEntryExitPropertyWaypoint;
 
@@ -721,9 +708,6 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
             AddWaypointConnection(currentNode, previousNode, 0f);
 
             previousNode = currentNode;
-
-            _cellWaypoints[cell].Add(currentNode);
-            _allWaypoints.Add(currentNode);
         }
 
         // then connect to the parked nodes
@@ -763,20 +747,9 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         out WaypointNode[] pumpNodes
     )
     {
-        // Store waypoints for this cell
-        if (!_cellWaypoints.ContainsKey(cell))
-        {
-            _cellWaypoints[cell] = new List<WaypointNode>();
-        }
-
         // create waypoints for the entry and exit points of the petrol station
         propertyEntry = CreateAndAddWaypoint(cell, entry.position, WaypointType.VehiclePropertyEntry, WaypointNetworkType.Vehicle);
         WaypointNode propertyExit = CreateAndAddWaypoint(cell, exit.position, WaypointType.VehiclePropertyExit, WaypointNetworkType.Vehicle);
-
-        _cellWaypoints[cell].Add(propertyEntry);
-        _allWaypoints.Add(propertyEntry);
-        _cellWaypoints[cell].Add(propertyExit);
-        _allWaypoints.Add(propertyExit);
 
         List<WaypointNode> pumpList = new();
 
@@ -786,14 +759,6 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
             WaypointNode pumpEntry = CreateAndAddWaypoint(cell, p.PumpEntry.position, WaypointType.Midpoint, WaypointNetworkType.Vehicle);
             WaypointNode pump = CreateAndAddWaypoint(cell, p.Pump.position, WaypointType.PetrolStationPump, WaypointNetworkType.Vehicle);
             WaypointNode pumpExit = CreateAndAddWaypoint(cell, p.PumpExit.position, WaypointType.Midpoint, WaypointNetworkType.Vehicle);
-
-            // add the to the waypoints list
-            _cellWaypoints[cell].Add(pumpEntry);
-            _allWaypoints.Add(pumpEntry);
-            _cellWaypoints[cell].Add(pump);
-            _allWaypoints.Add(pump);
-            _cellWaypoints[cell].Add(pumpExit);
-            _allWaypoints.Add(pumpExit);
 
             pumpList.Add(pump);
 
@@ -842,20 +807,9 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
             out WaypointNode exitWaypoint
         )
     {
-        // Store waypoints for this cell
-        if (!_cellWaypoints.ContainsKey(cell))
-        {
-            _cellWaypoints[cell] = new List<WaypointNode>();
-        }
-
         // easy stuff first, start with the entry and exit waypoints
         entryWaypoint = CreateAndAddWaypoint(cell, entry.position, WaypointType.VehiclePropertyEntry, WaypointNetworkType.Vehicle);
         exitWaypoint = CreateAndAddWaypoint(cell, exit.position, WaypointType.VehiclePropertyExit, WaypointNetworkType.Vehicle);
-
-        _cellWaypoints[cell].Add(entryWaypoint);
-        _allWaypoints.Add(entryWaypoint);
-        _cellWaypoints[cell].Add(exitWaypoint);
-        _allWaypoints.Add(exitWaypoint);
 
         List<WaypointNode> entryRouteList = new(), topParkingSpotList = new(), exitRouteList = new(), bottomParkingSpotList = new();
         WaypointNode currentNode, previousNode;
@@ -867,10 +821,6 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         {
             // create the node
             currentNode = CreateAndAddWaypoint(cell, entryRoutes[i].position, WaypointType.Midpoint, WaypointNetworkType.Vehicle);
-
-            // add the node to the lists
-            _cellWaypoints[cell].Add(currentNode);
-            _allWaypoints.Add(currentNode);
             entryRouteList.Add(currentNode);
 
             // connect the previous node to the current node
@@ -887,10 +837,6 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         {
             // create the node
             currentNode = CreateAndAddWaypoint(cell, exitRoutes[i].position, WaypointType.Midpoint, WaypointNetworkType.Vehicle);
-
-            // add the node to the lists
-            _cellWaypoints[cell].Add(currentNode);
-            _allWaypoints.Add(currentNode);
             exitRouteList.Add(currentNode);
 
             // connect the previous node to the current node
@@ -910,15 +856,10 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         {
             // create the node
             currentNode = CreateAndAddWaypoint(cell, topParkingSpots[i].position, WaypointType.VehicleParking, WaypointNetworkType.Vehicle);
-
-            // add the node to the lists
-            _cellWaypoints[cell].Add(currentNode);
-            _allWaypoints.Add(currentNode);
             topParkingSpotList.Add(currentNode);
 
             // connect the parking space to the entry route
-            AddWaypointConnection(currentNode, entryRouteWaypoints[i], 0.1f);
-            AddWaypointConnection(entryRouteWaypoints[i], currentNode, 0.1f);
+            AddWaypointConnection(currentNode, entryRouteWaypoints[i], 0.1f, twoWay: true);
         }
 
         topParkingSpotWaypoints = topParkingSpotList.ToArray();
@@ -928,15 +869,10 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         {
             // create the node
             currentNode = CreateAndAddWaypoint(cell, bottomParkingSpots[i].position, WaypointType.VehicleParking, WaypointNetworkType.Vehicle);
-
-            // add the node to the lists
-            _cellWaypoints[cell].Add(currentNode);
-            _allWaypoints.Add(currentNode);
             bottomParkingSpotList.Add(currentNode);
 
             // connect the parking space to the exit route
-            AddWaypointConnection(currentNode, exitRouteWaypoints[i], 0.1f);
-            AddWaypointConnection(exitRouteWaypoints[i], currentNode, 0.1f);
+            AddWaypointConnection(currentNode, exitRouteWaypoints[i], 0.1f, twoWay: true);
         }
         bottomParkingSpotWaypoints = bottomParkingSpotList.ToArray();
 
