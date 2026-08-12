@@ -266,6 +266,7 @@ public class GridManager : MonoBehaviour, ISaveable
         // Update the road type of all cells in the list
         foreach (Vector3Int cell in cellsToUpdate)
         {
+            _grid[cell.x, cell.z].IsUpdated = true;
             _grid[cell.x, cell.z].RoadType = GetRoadType(cell.x, cell.z);
         }
     }
@@ -436,6 +437,17 @@ public class GridManager : MonoBehaviour, ISaveable
         // This method should trigger the road mesh regeneration
         // Since we're separating concerns, we'll create an event for this
         OnRoadGridUpdated?.Invoke();
+    }
+
+    public void ResetUpdated()
+    {
+        for (int x = 0; x < _gridWidth; x++)
+        {
+            for (int z = 0; z < _gridHeight; z++)
+            {
+                _grid[x, z].IsUpdated = false;
+            }
+        }
     }
 
     public void PopulateSaveData(GameSaveData saveData)

@@ -9,10 +9,12 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
 
     public string SaveKey => "VehicleWaypoints";
 
-    private Dictionary<GridCell, List<WaypointNode>> _cellWaypoints = new Dictionary<GridCell, List<WaypointNode>>();
-    private List<WaypointNode> _allWaypoints = new List<WaypointNode>();
+    private Dictionary<EntityId, WaypointNode> _allWaypoints = new Dictionary<EntityId, WaypointNode>();
+    private List<WaypointNode>[,] _cellWaypoints;
 
     // cell calculations
+    private int _gridWidth;
+    private int _gridHeight;
     private Vector3 _cellCentre;
     private float _laneCentre;
     private float _halfCellSize;
@@ -43,6 +45,9 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
     {
         SaveManager.Instance.RegisterSaveable(this);
         RoadMeshRenderer.Instance.OnRoadMeshUpdated += RoadMeshUpdated;
+
+        _gridWidth = GridManager.Instance.GridWidth;
+        _gridHeight = GridManager.Instance.GridHeight;
     }
 
     private void OnDestroy()
@@ -62,18 +67,16 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
 
     private void AddWaypoint(GridCell cell, WaypointNode waypoint)
     {
-        _allWaypoints.Add(waypoint);
-        _cellWaypoints[cell].Add(waypoint);
+        _allWaypoints[waypoint.Id] = waypoint;
+
+        if (_cellWaypoints[cell.Position.x, cell.Position.z] == null)
+            _cellWaypoints[cell.Position.x, cell.Position.z] = new List<WaypointNode>();
+
+        _cellWaypoints[cell.Position.x, cell.Position.z].Add(waypoint);
     }
 
     private WaypointNode CreateAndAddWaypoint(GridCell cell, Vector3 position, WaypointType type, WaypointNetworkType networkType = WaypointNetworkType.Vehicle, WaypointNode laneNode = null, RoadDirection lightPos = RoadDirection.None)
     {
-        // create a dictionary entry for this cell if there is not one
-        if (!_cellWaypoints.ContainsKey(cell))
-        {
-            _cellWaypoints[cell] = new List<WaypointNode>();
-        }
-
         // create the waypoint
         WaypointNode newNode = CreateWaypoint(cell, position, type, networkType);
 
@@ -122,7 +125,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
     {
         GridCell[,] grid = GridManager.Instance.GetGrid();
 
-        _cellWaypoints.Clear();
+        _cellWaypoints = new List<WaypointNode>[GridManager.Instance.GridWidth, GridManager.Instance.GridHeight];
         _allWaypoints.Clear();
 
         _laneCentre = RoadMeshRenderer.Instance.GetLaneWidth() / 2f;
@@ -143,8 +146,6 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         }
 
         ConnectAllCells();
-
-        Debug.Log($"AW: {_allWaypoints.Count} Cells: {_cellWaypoints.Count}");
 
         OnRoadWaypointsUpdated?.Invoke();
     }
@@ -573,12 +574,21 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
 
     public void ConnectAllCells()
     {
-        // After all cells have been created, connect neighboring cells
-        foreach (var kvp in _cellWaypoints)
+        for (int x = 0; x < _gridWidth; x++)
         {
-            GridCell cell = kvp.Key;
-            List<WaypointNode> waypoints = kvp.Value;
-            ConnectToNeighboringCells(cell, waypoints);
+            for (int y = 0; y < _gridHeight; y++)
+            {
+                GridCell currentCell = GridManager.Instance.GetCell(x, y);
+
+                if (currentCell.CellType != CellType.Road) continue;
+
+                List<WaypointNode> cellWaypoints = _cellWaypoints[x, y];
+
+                if (cellWaypoints == null || cellWaypoints.Count == 0)
+                    continue;
+
+                ConnectToNeighboringCells(currentCell, cellWaypoints);
+            }
         }
     }
 
@@ -606,7 +616,9 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
 
     private void ConnectWaypointsToNeighbor(List<WaypointNode> waypoints, GridCell neighbor)
     {
-        if (!_cellWaypoints.ContainsKey(neighbor))
+        List<WaypointNode> neighbourWaypoints = _cellWaypoints[neighbor.Position.x, neighbor.Position.z];
+
+        if (neighbourWaypoints == null || neighbourWaypoints.Count == 0)
             return;
 
         List<WaypointNode> cellExitWaypoints = new List<WaypointNode>();
@@ -614,7 +626,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
 
         // Get exit waypoints from current cell and entry waypoints from neighbor
         cellExitWaypoints = waypoints.Where(w => w.Type == WaypointType.Exit).ToList();
-        neighborEntryWaypoints = _cellWaypoints[neighbor].Where(w => w.Type == WaypointType.Entry).ToList();
+        neighborEntryWaypoints = neighbourWaypoints.Where(w => w.Type == WaypointType.Entry).ToList();
 
         // Connect exit waypoints to entry waypoints only if they are at the same position (or very close)
         foreach (WaypointNode exitWaypoint in cellExitWaypoints)
@@ -635,38 +647,18 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
 
     public List<WaypointNode> GetAllWaypoints()
     {
-        return _allWaypoints;
+        return _allWaypoints.Values.ToList();
     }
 
     public List<WaypointNode> GetCellWaypoints(GridCell cell)
     {
-        List<WaypointNode> cellWaypoints = new();
-
-        foreach (WaypointNode node in _allWaypoints)
-        {
-            if (node.ParentCell == cell)
-                cellWaypoints.Add(node);
-        }
-
-        return cellWaypoints;
-    }
-
-    public Dictionary<EntityId, WaypointNode> GetAllWaypointLookup()
-    {
-        var lookup = new Dictionary<EntityId, WaypointNode>();
-        foreach (var node in _allWaypoints)
-        {
-            lookup[node.Id] = node;
-        }
-        return lookup;
+        return _cellWaypoints[cell.Position.x, cell.Position.z];
     }
 
     public WaypointNode GetWaypointFromId(EntityId id)
     {
-        foreach (var node in _allWaypoints)
-        {
-            if (node.Id.Equals(id)) return node;
-        }
+        if (_allWaypoints.ContainsKey(id))
+            return _allWaypoints[id];
 
         return null;
     }
@@ -945,7 +937,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
     {
         var waypointData = new WaypointSaveData();
 
-        foreach (var node in _allWaypoints)
+        foreach (var node in _allWaypoints.Values)
         {
             var nodeData = new WaypointNodeSaveData
             {
@@ -985,7 +977,8 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         }
 
         _allWaypoints.Clear();
-        _cellWaypoints.Clear();
+        _cellWaypoints = new List<WaypointNode>[_gridWidth, _gridHeight];
+
         int connectionCount = 0;
 
         var nodeLookup = new Dictionary<string, WaypointNode>();
@@ -1001,9 +994,9 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
                 continue;
             }
 
-            if (!_cellWaypoints.ContainsKey(parentCell))
+            if (_cellWaypoints[parentCell.Position.x, parentCell.Position.z] == null)
             {
-                _cellWaypoints[parentCell] = new List<WaypointNode>();
+                _cellWaypoints[parentCell.Position.x, parentCell.Position.z] = new List<WaypointNode>();
             }
 
             var node = CreateAndAddWaypoint(parentCell,
@@ -1051,7 +1044,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         }
 
         // Third pass — resolve paired crossing waypoints (after all nodes are created)
-        foreach (WaypointNode node in _allWaypoints)
+        foreach (WaypointNode node in _allWaypoints.Values)
         {
             if (!string.IsNullOrEmpty(node.PairedCrossingWaypointId) &&
                 nodeLookup.TryGetValue(node.PairedCrossingWaypointId, out WaypointNode pairedNode))
@@ -1073,7 +1066,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         if (_allWaypoints.Count <= 0) return;
 
         // Draw waypoints
-        foreach (WaypointNode node in _allWaypoints)
+        foreach (WaypointNode node in _allWaypoints.Values)
         {
             //if (node.NetworkType != WaypointNetworkType.Vehicle || node.Type == WaypointType.TrafficLightLocation) continue;
             Gizmos.color = Color.red;

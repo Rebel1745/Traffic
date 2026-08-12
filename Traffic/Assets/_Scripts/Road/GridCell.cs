@@ -9,6 +9,7 @@ public class GridCell
     public bool HasCustomUVs;
     public Vector2[] CustomUVs;
     public bool HasTrafficLights;
+    public bool IsUpdated;
 
     public void SetCustomUVs(Vector2[] customUVs)
     {
