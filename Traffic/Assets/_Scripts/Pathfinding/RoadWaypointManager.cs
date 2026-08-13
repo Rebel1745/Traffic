@@ -9,7 +9,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
 
     public string SaveKey => "VehicleWaypoints";
 
-    private Dictionary<EntityId, WaypointNode> _allWaypoints = new Dictionary<EntityId, WaypointNode>();
+    private Dictionary<EntityId, WaypointNode> _allWaypoints;
     private List<WaypointNode>[,] _cellWaypoints;
 
     // cell calculations
@@ -48,6 +48,9 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
 
         _gridWidth = GridManager.Instance.GridWidth;
         _gridHeight = GridManager.Instance.GridHeight;
+
+        _cellWaypoints = new List<WaypointNode>[_gridWidth, _gridHeight];
+        _allWaypoints = new();
     }
 
     private void OnDestroy()
@@ -77,6 +80,13 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
 
     private WaypointNode CreateAndAddWaypoint(GridCell cell, Vector3 position, WaypointType type, WaypointNetworkType networkType = WaypointNetworkType.Vehicle, WaypointNode laneNode = null, RoadDirection lightPos = RoadDirection.None)
     {
+        // check to see if we have this waypoint already
+        WaypointNode existing = GetWaypointNodeFromPositionInCell(cell, position, 0.1f, type);
+        if (existing != null)
+        {
+            Debug.Log($"New waypoint {type.ToString()} at {position} is already present with type {existing.Type} at {position}");
+        }
+
         // create the waypoint
         WaypointNode newNode = CreateWaypoint(cell, position, type, networkType);
 
@@ -88,9 +98,10 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
 
     private void AddWaypointConnection(WaypointNode source, WaypointNode target, float cost, bool twoWay = false)
     {
-        source.Connections[target] = cost;
+        if (!source.HasConnection(target))
+            source.Connections[target] = cost;
 
-        if (twoWay)
+        if (twoWay && !target.HasConnection(source))
             target.Connections[source] = cost;
     }
 
@@ -125,21 +136,33 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
     {
         GridCell[,] grid = GridManager.Instance.GetGrid();
 
-        _cellWaypoints = new List<WaypointNode>[GridManager.Instance.GridWidth, GridManager.Instance.GridHeight];
-        _allWaypoints.Clear();
-
         _laneCentre = RoadMeshRenderer.Instance.GetLaneWidth() / 2f;
         _halfCellSize = GridManager.Instance.CellSize / 2f;
         _quarterCellSize = _halfCellSize / 2f;
         _halfPavementSize = RoadMeshRenderer.Instance.GetPavementWidth() / 2f;
 
-        // First pass: Create waypoints for each cell
+        // First pass: remove waypoints from newly empty cell
         for (int x = 0; x < grid.GetLength(0); x++)
         {
             for (int y = 0; y < grid.GetLength(1); y++)
             {
-                if (grid[x, y].CellType != CellType.Empty)
+                if (grid[x, y].CellType == CellType.Empty && grid[x, y].IsUpdated)
                 {
+                    Debug.Log($"Cell {x}, {y} is now empty, removing waypoints");
+                    RemoveCellWaypoints(grid[x, y]);
+                }
+            }
+        }
+
+        // Second pass: Create waypoints for each updated cell
+        for (int x = 0; x < grid.GetLength(0); x++)
+        {
+            for (int y = 0; y < grid.GetLength(1); y++)
+            {
+                if (grid[x, y].CellType != CellType.Empty && grid[x, y].IsUpdated)
+                {
+                    Debug.Log($"Working waypoints for cell {x}, {y}");
+                    RemoveCellWaypoints(grid[x, y]);
                     CreateAndConnectWaypoints(grid[x, y]);
                 }
             }
@@ -152,12 +175,14 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
 
     private void CreateAndConnectWaypoints(GridCell cell)
     {
-        if (cell.CellType == CellType.Empty) return;
-
         CalculateEntryExitAndMidpointsForCell(cell);
 
         switch (cell.RoadType)
         {
+            case RoadType.Empty:
+            case RoadType.Single:
+                RemoveCellWaypoints(cell);
+                break;
             case RoadType.Straight:
                 CreateStraightWaypoints(cell);
                 break;
@@ -176,8 +201,64 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         }
     }
 
+    private void RemoveCellWaypoints(GridCell cell)
+    {
+        // we are deleting this cell, remove any connections between this and its neighbours
+        RemoveConnectionsToNeighbours(cell);
+
+        List<WaypointNode> cellWaypoints = GetCellWaypoints(cell);
+        if (cellWaypoints == null || cellWaypoints.Count == 0) return;
+
+        Debug.Log($"Removing {cellWaypoints.Count} waypoints from {_allWaypoints.Count}");
+
+        // remove waypoints from cell in _allWaypoints
+        foreach (WaypointNode node in cellWaypoints)
+        {
+            _allWaypoints.Remove(node.Id);
+        }
+
+        Debug.Log($"{_allWaypoints.Count} remain");
+
+        // remove cell from _cellWaypoints
+        _cellWaypoints[cell.Position.x, cell.Position.z].Clear();
+    }
+
+    // this function runs for each updated cell as an opposite function to connect cells
+    private void RemoveConnectionsToNeighbours(GridCell cell)
+    {
+        List<WaypointNode> cellWaypoints = GetCellWaypoints(cell);
+        if (cellWaypoints == null || cellWaypoints.Count == 0) return;
+
+        List<GridCell> neighbours = GridManager.Instance.GetCellRoadNeighbours(cell);
+        if (neighbours.Count == 0) return;
+
+        List<WaypointNode> neighbourWaypoints;
+
+        Debug.Log($"Cell at {cell.Position.x}, {cell.Position.z} has {neighbours.Count} neighbours");
+
+        // remove each 
+        foreach (GridCell gc in neighbours)
+        {
+            neighbourWaypoints = GetCellWaypoints(gc);
+            if (neighbourWaypoints == null || neighbourWaypoints.Count == 0) continue;
+
+            foreach (WaypointNode neighbourNode in neighbourWaypoints)
+            {
+                foreach (WaypointNode cellNode in cellWaypoints)
+                {
+                    if (neighbourNode.HasConnection(cellNode))
+                    {
+                        Debug.Log($"Removing connection to cell {cellNode.ParentCell.Position.x}, {cellNode.ParentCell.Position.z}");
+                        neighbourNode.RemoveConnection(cellNode);
+                    }
+                }
+            }
+        }
+    }
+
     private void CreateStraightWaypoints(GridCell cell)
     {
+        Debug.Log("Adding straight waypoints");
         if (_hasNorth && _hasSouth) // Vertical road
         {
             // Lane going North (traffic flows from South to North)
@@ -525,6 +606,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
 
     private void CreateDeadEndWaypoints(GridCell cell)
     {
+        Debug.Log("Adding dead end waypoints");
         Vector3 wpEntry = Vector3.zero, wpMidpoint1 = Vector3.zero, wpUTurn = Vector3.zero, wpMidpoint2 = Vector3.zero, wpExit = Vector3.zero;
         WaypointNode entry = null, midpoint1 = null, uTurn = null, midpoint2 = null, exit = null;
 
@@ -914,20 +996,30 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         return new List<WaypointNode>();
     }
 
-    public WaypointNode GetWaypointNodeFromPositionInCell(GridCell cell, Vector3 position)
+    public WaypointNode GetWaypointNodeFromPositionInCell(GridCell cell, Vector3 position, float distance, WaypointType type)
     {
         List<WaypointNode> allNodes = GetCellWaypoints(cell);
+        if (allNodes == null || allNodes.Count == 0) return null;
 
-        if (allNodes.Count > 0)
+        List<WaypointNode> selectedNodes = new();
+
+        foreach (WaypointNode node in allNodes)
         {
-            allNodes.Sort((a, b) =>
+            if (node.Type != type) continue;
+            selectedNodes.Add(node);
+        }
+
+        if (selectedNodes.Count > 0)
+        {
+            selectedNodes.Sort((a, b) =>
             {
                 float distA = Utils.GetDistanceWithSetHeight(position, a.Position, 0f);
                 float distB = Utils.GetDistanceWithSetHeight(position, b.Position, 0f);
                 return distA.CompareTo(distB);
             });
 
-            return allNodes.First();
+            if (Vector3.Distance(selectedNodes.First().Position, position) < distance)
+                return selectedNodes.First();
         }
 
         return null;
@@ -976,7 +1068,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
             return;
         }
 
-        _allWaypoints.Clear();
+        _allWaypoints = new();
         _cellWaypoints = new List<WaypointNode>[_gridWidth, _gridHeight];
 
         int connectionCount = 0;
@@ -999,7 +1091,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
                 _cellWaypoints[parentCell.Position.x, parentCell.Position.z] = new List<WaypointNode>();
             }
 
-            var node = CreateAndAddWaypoint(parentCell,
+            var node = CreateWaypoint(parentCell,
                 new Vector3(nodeData.X, 0f, nodeData.Z),
                 nodeData.Type,
                 nodeData.NetworkType
@@ -1007,6 +1099,8 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
 
             // Restore the saved ID rather than using the new GUID generated in the constructor
             node.Id = EntityId.FromString(nodeData.Id);
+
+            AddWaypoint(parentCell, node);
 
             // Restore paired crossing waypoint reference (if any)
             if (!string.IsNullOrEmpty(nodeData.PairedCrossingWaypointId))
@@ -1063,7 +1157,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
 
     private void OnDrawGizmos()
     {
-        if (_allWaypoints.Count <= 0) return;
+        if (_allWaypoints == null) return;
 
         // Draw waypoints
         foreach (WaypointNode node in _allWaypoints.Values)

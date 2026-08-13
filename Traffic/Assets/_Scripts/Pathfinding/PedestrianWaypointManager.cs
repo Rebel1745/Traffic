@@ -696,6 +696,8 @@ public class PedestrianWaypointManager : MonoBehaviour, IWaypointNetwork//, ISav
 
     private void ConfigureTrafficLights(GridCell cell, List<WaypointNode> cellWaypoints)
     {
+        if (cellWaypoints == null || cellWaypoints.Count == 0) return;
+
         List<WaypointNode> pedestrianCrossingWaypoints = cellWaypoints.Where(w => w.Type == WaypointType.PedestrianRoadCrossing).ToList();
         List<WaypointNode> cellRoadWaypoints = RoadWaypointManager.Instance.GetCellWaypoints(cell).Where(w => w.Type == WaypointType.TrafficLightLocation).ToList();
 

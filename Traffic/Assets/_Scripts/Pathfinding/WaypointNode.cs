@@ -6,7 +6,6 @@ public class WaypointNode
 {
     public EntityId Id { get; set; }
     public Vector3 Position { get; set; }
-    //public List<WaypointConnection> Connections { get; set; }
     public Dictionary<WaypointNode, float> Connections { get; set; }
     public GridCell ParentCell { get; set; }
     public WaypointType Type { get; set; }
@@ -33,6 +32,10 @@ public class WaypointNode
         LaneNodeForTrafficLight = laneNode;
         LightPosition = lightPos;
     }
+
+    public bool HasConnection(WaypointNode other) => Connections.ContainsKey(other);
+
+    public void RemoveConnection(WaypointNode other) => Connections.Remove(other);
 }
 
 public enum WaypointType

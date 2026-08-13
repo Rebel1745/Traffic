@@ -384,6 +384,7 @@ public class GridManager : MonoBehaviour, ISaveable
         if (IsValidGridPosition(position))
         {
             _grid[position.x, position.z].CellType = type;
+            _grid[position.x, position.z].IsUpdated = true;
         }
     }
 
@@ -430,6 +431,22 @@ public class GridManager : MonoBehaviour, ISaveable
             return null;
 
         return _grid[newX, newZ];
+    }
+
+    public List<GridCell> GetCellRoadNeighbours(GridCell cell)
+    {
+        List<GridCell> neighbours = new();
+
+        if (HasRoadNeighbour(cell, RoadDirection.North))
+            neighbours.Add(GetNeighborInDirection(cell, RoadDirection.North));
+        if (HasRoadNeighbour(cell, RoadDirection.South))
+            neighbours.Add(GetNeighborInDirection(cell, RoadDirection.South));
+        if (HasRoadNeighbour(cell, RoadDirection.East))
+            neighbours.Add(GetNeighborInDirection(cell, RoadDirection.East));
+        if (HasRoadNeighbour(cell, RoadDirection.West))
+            neighbours.Add(GetNeighborInDirection(cell, RoadDirection.West));
+
+        return neighbours;
     }
 
     public void UpdateRoadGrid()
