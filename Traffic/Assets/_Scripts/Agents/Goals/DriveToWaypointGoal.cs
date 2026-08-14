@@ -32,7 +32,8 @@ public class DriveToWaypointGoal : Goal
         else
         {
             Debug.LogWarning($"[{_vehicle.gameObject.name}] No path found for goal: {GoalName}");
-            // Handle failure (retry, pick new goal, etc.)
+            path = new() { _vehicle.Mover.CurrentWaypoint, _target };
+            _vehicle.Mover.SetPath(path);
         }
     }
 

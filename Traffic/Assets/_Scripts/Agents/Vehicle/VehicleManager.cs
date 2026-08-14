@@ -111,7 +111,7 @@ public class VehicleManager : MonoBehaviour
 
         if (!waypointId.IsValid) Debug.LogError("Home building not found");
 
-        WaypointNode parkingSpot = RoadWaypointManager.Instance.GetWaypointFromId(waypointId);
+        WaypointNode parkingSpot = VehicleWaypointManager.Instance.GetWaypointFromId(waypointId);
 
         List<WaypointNode> newPath = AStarPathfinder.FindPath(vm.CurrentWaypoint, parkingSpot);
 
@@ -156,7 +156,7 @@ public class VehicleManager : MonoBehaviour
 
     public WaypointNode GetRandomVehicleWaypoint(WaypointType type)
     {
-        List<WaypointNode> allWaypoints = RoadWaypointManager.Instance.GetAllWaypoints();
+        List<WaypointNode> allWaypoints = VehicleWaypointManager.Instance.GetAllWaypoints();
         List<WaypointNode> specificNodes = allWaypoints;
 
         if (type != WaypointType.None)

@@ -3,23 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
+public class VehicleWaypointManager : WaypointManagerBase, ISaveable
 {
-    public static RoadWaypointManager Instance { get; private set; }
+    public static VehicleWaypointManager Instance { get; private set; }
 
     public string SaveKey => "VehicleWaypoints";
-
-    private Dictionary<EntityId, WaypointNode> _allWaypoints;
-    private List<WaypointNode>[,] _cellWaypoints;
-
-    // cell calculations
-    private int _gridWidth;
-    private int _gridHeight;
-    private Vector3 _cellCentre;
-    private float _laneCentre;
-    private float _halfCellSize;
-    private float _quarterCellSize;
-    private float _halfPavementSize;
 
     // waypoint values
     private Vector3 _northEntry, _northExit;
@@ -27,7 +15,6 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
     private Vector3 _westEntry, _westExit;
     private Vector3 _eastEntry, _eastExit;
     private Vector3 _midpointNW, _midpointNE, _midpointSW, _midpointSE;
-    private bool _hasNorth, _hasSouth, _hasWest, _hasEast;
 
     public event Action OnRoadWaypointsUpdated;
 
@@ -41,16 +28,12 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         Instance = this;
     }
 
-    private void Start()
+    protected override void Start()
     {
+        base.Start();
+
         SaveManager.Instance.RegisterSaveable(this);
         RoadMeshRenderer.Instance.OnRoadMeshUpdated += RoadMeshUpdated;
-
-        _gridWidth = GridManager.Instance.GridWidth;
-        _gridHeight = GridManager.Instance.GridHeight;
-
-        _cellWaypoints = new List<WaypointNode>[_gridWidth, _gridHeight];
-        _allWaypoints = new();
     }
 
     private void OnDestroy()
@@ -63,51 +46,9 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         GenerateWaypoints();
     }
 
-    private WaypointNode CreateWaypoint(GridCell cell, Vector3 position, WaypointType type, WaypointNetworkType networkType = WaypointNetworkType.Vehicle, WaypointNode laneNode = null, RoadDirection lightPos = RoadDirection.None)
+    protected override void CalculateEntryExitAndMidpointsForCell(GridCell cell)
     {
-        return new(position, cell, type, networkType);
-    }
-
-    private void AddWaypoint(GridCell cell, WaypointNode waypoint)
-    {
-        _allWaypoints[waypoint.Id] = waypoint;
-
-        if (_cellWaypoints[cell.Position.x, cell.Position.z] == null)
-            _cellWaypoints[cell.Position.x, cell.Position.z] = new List<WaypointNode>();
-
-        _cellWaypoints[cell.Position.x, cell.Position.z].Add(waypoint);
-    }
-
-    private WaypointNode CreateAndAddWaypoint(GridCell cell, Vector3 position, WaypointType type, WaypointNetworkType networkType = WaypointNetworkType.Vehicle, WaypointNode laneNode = null, RoadDirection lightPos = RoadDirection.None)
-    {
-        // check to see if we have this waypoint already
-        WaypointNode existing = GetWaypointNodeFromPositionInCell(cell, position, 0.1f, type);
-        if (existing != null)
-        {
-            Debug.Log($"New waypoint {type.ToString()} at {position} is already present with type {existing.Type} at {position}");
-        }
-
-        // create the waypoint
-        WaypointNode newNode = CreateWaypoint(cell, position, type, networkType);
-
-        // add the waypoint
-        AddWaypoint(cell, newNode);
-
-        return newNode;
-    }
-
-    private void AddWaypointConnection(WaypointNode source, WaypointNode target, float cost, bool twoWay = false)
-    {
-        if (!source.HasConnection(target))
-            source.Connections[target] = cost;
-
-        if (twoWay && !target.HasConnection(source))
-            target.Connections[source] = cost;
-    }
-
-    private void CalculateEntryExitAndMidpointsForCell(GridCell cell)
-    {
-        _cellCentre = GridManager.Instance.GetCellCentre(cell);
+        base.CalculateEntryExitAndMidpointsForCell(cell);
 
         _northEntry = _cellCentre + new Vector3(_laneCentre, 0, _halfCellSize);
         _northExit = _cellCentre + new Vector3(-_laneCentre, 0, _halfCellSize);
@@ -125,138 +66,16 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         _midpointNE = _cellCentre + new Vector3(_laneCentre, 0, _laneCentre);
         _midpointSW = _cellCentre + new Vector3(-_laneCentre, 0, -_laneCentre);
         _midpointSE = _cellCentre + new Vector3(_laneCentre, 0, -_laneCentre);
-
-        _hasNorth = GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.North);
-        _hasSouth = GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.South);
-        _hasEast = GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.East);
-        _hasWest = GridManager.Instance.HasRoadNeighbour(cell, RoadDirection.West);
     }
 
-    public void GenerateWaypoints()
+    protected override void GenerateWaypoints()
     {
-        GridCell[,] grid = GridManager.Instance.GetGrid();
-
-        _laneCentre = RoadMeshRenderer.Instance.GetLaneWidth() / 2f;
-        _halfCellSize = GridManager.Instance.CellSize / 2f;
-        _quarterCellSize = _halfCellSize / 2f;
-        _halfPavementSize = RoadMeshRenderer.Instance.GetPavementWidth() / 2f;
-
-        // First pass: remove waypoints from newly empty cell
-        for (int x = 0; x < grid.GetLength(0); x++)
-        {
-            for (int y = 0; y < grid.GetLength(1); y++)
-            {
-                if (grid[x, y].CellType == CellType.Empty && grid[x, y].IsUpdated)
-                {
-                    Debug.Log($"Cell {x}, {y} is now empty, removing waypoints");
-                    RemoveCellWaypoints(grid[x, y]);
-                }
-            }
-        }
-
-        // Second pass: Create waypoints for each updated cell
-        for (int x = 0; x < grid.GetLength(0); x++)
-        {
-            for (int y = 0; y < grid.GetLength(1); y++)
-            {
-                if (grid[x, y].CellType != CellType.Empty && grid[x, y].IsUpdated)
-                {
-                    Debug.Log($"Working waypoints for cell {x}, {y}");
-                    RemoveCellWaypoints(grid[x, y]);
-                    CreateAndConnectWaypoints(grid[x, y]);
-                }
-            }
-        }
-
-        ConnectAllCells();
+        base.GenerateWaypoints();
 
         OnRoadWaypointsUpdated?.Invoke();
     }
 
-    private void CreateAndConnectWaypoints(GridCell cell)
-    {
-        CalculateEntryExitAndMidpointsForCell(cell);
-
-        switch (cell.RoadType)
-        {
-            case RoadType.Empty:
-            case RoadType.Single:
-                RemoveCellWaypoints(cell);
-                break;
-            case RoadType.Straight:
-                CreateStraightWaypoints(cell);
-                break;
-            case RoadType.Corner:
-                CreateCornerWaypoints(cell);
-                break;
-            case RoadType.TJunction:
-                CreateTJunctionWaypoints(cell);
-                break;
-            case RoadType.Crossroads:
-                CreateCrossroadsWaypoints(cell);
-                break;
-            case RoadType.DeadEnd:
-                CreateDeadEndWaypoints(cell);
-                break;
-        }
-    }
-
-    private void RemoveCellWaypoints(GridCell cell)
-    {
-        // we are deleting this cell, remove any connections between this and its neighbours
-        RemoveConnectionsToNeighbours(cell);
-
-        List<WaypointNode> cellWaypoints = GetCellWaypoints(cell);
-        if (cellWaypoints == null || cellWaypoints.Count == 0) return;
-
-        Debug.Log($"Removing {cellWaypoints.Count} waypoints from {_allWaypoints.Count}");
-
-        // remove waypoints from cell in _allWaypoints
-        foreach (WaypointNode node in cellWaypoints)
-        {
-            _allWaypoints.Remove(node.Id);
-        }
-
-        Debug.Log($"{_allWaypoints.Count} remain");
-
-        // remove cell from _cellWaypoints
-        _cellWaypoints[cell.Position.x, cell.Position.z].Clear();
-    }
-
-    // this function runs for each updated cell as an opposite function to connect cells
-    private void RemoveConnectionsToNeighbours(GridCell cell)
-    {
-        List<WaypointNode> cellWaypoints = GetCellWaypoints(cell);
-        if (cellWaypoints == null || cellWaypoints.Count == 0) return;
-
-        List<GridCell> neighbours = GridManager.Instance.GetCellRoadNeighbours(cell);
-        if (neighbours.Count == 0) return;
-
-        List<WaypointNode> neighbourWaypoints;
-
-        Debug.Log($"Cell at {cell.Position.x}, {cell.Position.z} has {neighbours.Count} neighbours");
-
-        // remove each 
-        foreach (GridCell gc in neighbours)
-        {
-            neighbourWaypoints = GetCellWaypoints(gc);
-            if (neighbourWaypoints == null || neighbourWaypoints.Count == 0) continue;
-
-            foreach (WaypointNode neighbourNode in neighbourWaypoints)
-            {
-                foreach (WaypointNode cellNode in cellWaypoints)
-                {
-                    if (neighbourNode.HasConnection(cellNode))
-                    {
-                        Debug.Log($"Removing connection to cell {cellNode.ParentCell.Position.x}, {cellNode.ParentCell.Position.z}");
-                        neighbourNode.RemoveConnection(cellNode);
-                    }
-                }
-            }
-        }
-    }
-
-    private void CreateStraightWaypoints(GridCell cell)
+    protected override void CreateStraightWaypoints(GridCell cell)
     {
         Debug.Log("Adding straight waypoints");
         if (_hasNorth && _hasSouth) // Vertical road
@@ -266,14 +85,14 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
             WaypointNode northExit = CreateAndAddWaypoint(cell, _northExit, WaypointType.Exit);
 
             // Connect entry to exit (one-way)
-            AddWaypointConnection(southEntry, northExit, Vector3.Distance(_southEntry, _northExit));
+            AddWaypointConnection(southEntry, northExit);
 
             // Lane going South (traffic flows from North to South)
             WaypointNode northEntry = CreateAndAddWaypoint(cell, _northEntry, WaypointType.Entry);
             WaypointNode southExit = CreateAndAddWaypoint(cell, _southExit, WaypointType.Exit);
 
             // Connect entry to exit (one-way)
-            AddWaypointConnection(northEntry, southExit, Vector3.Distance(_northEntry, _southExit));
+            AddWaypointConnection(northEntry, southExit);
 
             // Trafflic light loaction waypoints
             Vector3 wpLeftLight = _cellCentre + new Vector3(-_halfCellSize + _halfPavementSize, 0, 0);
@@ -292,14 +111,14 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
             WaypointNode eastExit = CreateAndAddWaypoint(cell, _eastExit, WaypointType.Exit);
 
             // Connect entry to exit (one-way)
-            AddWaypointConnection(westEntry, eastExit, Vector3.Distance(_westEntry, _eastExit));
+            AddWaypointConnection(westEntry, eastExit);
 
             // Lane going West (traffic flows from East to West)
             WaypointNode eastEntry = CreateAndAddWaypoint(cell, _eastEntry, WaypointType.Entry);
             WaypointNode westExit = CreateAndAddWaypoint(cell, _westExit, WaypointType.Exit);
 
             // Connect entry to exit (one-way)
-            AddWaypointConnection(eastEntry, westExit, Vector3.Distance(_eastEntry, _westExit));
+            AddWaypointConnection(eastEntry, westExit);
 
             // Trafflic light loaction waypoints
             Vector3 wpTopLight = _cellCentre + new Vector3(0, 0, -_halfCellSize + _halfPavementSize);
@@ -313,7 +132,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         }
     }
 
-    private void CreateCornerWaypoints(GridCell cell)
+    protected override void CreateCornerWaypoints(GridCell cell)
     {
         // Corner cases
         if (_hasNorth && _hasEast) // Corner from North to East
@@ -324,8 +143,8 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
             WaypointNode eastExit = CreateAndAddWaypoint(cell, _eastExit, WaypointType.Exit);
 
             // connections
-            AddWaypointConnection(northEntry, midpoint1, Vector3.Distance(_northEntry, _midpointNE));
-            AddWaypointConnection(midpoint1, eastExit, Vector3.Distance(_midpointNE, _eastExit));
+            AddWaypointConnection(northEntry, midpoint1);
+            AddWaypointConnection(midpoint1, eastExit);
 
             // Lane going East to North (reverse direction)
             WaypointNode eastEntry = CreateAndAddWaypoint(cell, _eastEntry, WaypointType.Entry);
@@ -333,8 +152,8 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
             WaypointNode northExit = CreateAndAddWaypoint(cell, _northExit, WaypointType.Exit);
 
             // connections
-            AddWaypointConnection(eastEntry, midpoint2, Vector3.Distance(_eastEntry, _midpointSW));
-            AddWaypointConnection(midpoint2, northExit, Vector3.Distance(_midpointSW, _northExit));
+            AddWaypointConnection(eastEntry, midpoint2);
+            AddWaypointConnection(midpoint2, northExit);
         }
         else if (_hasNorth && _hasWest) // Corner from North to West
         {
@@ -344,8 +163,8 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
             WaypointNode westExit = CreateAndAddWaypoint(cell, _westExit, WaypointType.Exit);
 
             // connections
-            AddWaypointConnection(northEntry, midpoint1, Vector3.Distance(_northEntry, _midpointSE));
-            AddWaypointConnection(midpoint1, westExit, Vector3.Distance(_midpointSE, _westExit));
+            AddWaypointConnection(northEntry, midpoint1);
+            AddWaypointConnection(midpoint1, westExit);
 
             // Lane going West to North (reverse direction)
             WaypointNode westEntry = CreateAndAddWaypoint(cell, _westEntry, WaypointType.Entry);
@@ -353,8 +172,8 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
             WaypointNode northExit = CreateAndAddWaypoint(cell, _northExit, WaypointType.Exit);
 
             // connections
-            AddWaypointConnection(westEntry, midpoint2, Vector3.Distance(_westEntry, _midpointNW));
-            AddWaypointConnection(midpoint2, northExit, Vector3.Distance(_midpointNW, _northExit));
+            AddWaypointConnection(westEntry, midpoint2);
+            AddWaypointConnection(midpoint2, northExit);
         }
         else if (_hasSouth && _hasEast) // Corner from South to East
         {
@@ -364,8 +183,8 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
             WaypointNode eastExit = CreateAndAddWaypoint(cell, _eastExit, WaypointType.Exit);
 
             // connections
-            AddWaypointConnection(southEntry, midpoint1, Vector3.Distance(_southEntry, _midpointNW));
-            AddWaypointConnection(midpoint1, eastExit, Vector3.Distance(_midpointNW, _eastExit));
+            AddWaypointConnection(southEntry, midpoint1);
+            AddWaypointConnection(midpoint1, eastExit);
 
             // Lane going East to South (reverse direction)
             WaypointNode eastEntry = CreateAndAddWaypoint(cell, _eastEntry, WaypointType.Entry);
@@ -373,8 +192,8 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
             WaypointNode southExit = CreateAndAddWaypoint(cell, _southExit, WaypointType.Exit);
 
             // connections
-            AddWaypointConnection(eastEntry, midpoint2, Vector3.Distance(_eastEntry, _midpointSE));
-            AddWaypointConnection(midpoint2, southExit, Vector3.Distance(_midpointSE, _southExit));
+            AddWaypointConnection(eastEntry, midpoint2);
+            AddWaypointConnection(midpoint2, southExit);
         }
         else if (_hasSouth && _hasWest) // Corner from South to West
         {
@@ -384,8 +203,8 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
             WaypointNode westExit = CreateAndAddWaypoint(cell, _westExit, WaypointType.Exit);
 
             // connections
-            AddWaypointConnection(southEntry, midpoint1, Vector3.Distance(_southEntry, _midpointSW));
-            AddWaypointConnection(midpoint1, westExit, Vector3.Distance(_midpointSW, _westExit));
+            AddWaypointConnection(southEntry, midpoint1);
+            AddWaypointConnection(midpoint1, westExit);
 
             // Lane going West to South (reverse direction)
             WaypointNode westEntry = CreateAndAddWaypoint(cell, _westEntry, WaypointType.Entry);
@@ -393,12 +212,12 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
             WaypointNode southExit = CreateAndAddWaypoint(cell, _southExit, WaypointType.Exit);
 
             // connections
-            AddWaypointConnection(westEntry, midpoint2, Vector3.Distance(_westEntry, _midpointNE));
-            AddWaypointConnection(midpoint2, southExit, Vector3.Distance(_midpointNE, _southExit));
+            AddWaypointConnection(westEntry, midpoint2);
+            AddWaypointConnection(midpoint2, southExit);
         }
     }
 
-    private void CreateTJunctionWaypoints(GridCell cell)
+    protected override void CreateTJunctionWaypoints(GridCell cell)
     {
         // first create all of the waypoints
         // we will only need three quarters, but it really doesn't matter, we won,t add the unwanted nodes to the list
@@ -430,26 +249,26 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         if (_hasNorth && _hasEast && _hasWest && !_hasSouth)
         {
             // Lane 1: North to East (left turn)
-            AddWaypointConnection(northEntry, midpointNE, Vector3.Distance(_northEntry, _midpointNE));
-            AddWaypointConnection(midpointNE, eastExit, Vector3.Distance(_midpointNE, _eastExit));
+            AddWaypointConnection(northEntry, midpointNE);
+            AddWaypointConnection(midpointNE, eastExit);
 
             // Lane 2: North to West (right turn)
-            AddWaypointConnection(northEntry, midpointSE, Vector3.Distance(_northEntry, _midpointSE));
-            AddWaypointConnection(midpointSE, westExit, Vector3.Distance(_midpointSE, _westExit));
+            AddWaypointConnection(northEntry, midpointSE);
+            AddWaypointConnection(midpointSE, westExit);
 
             // Lane 3: East to North (right turn)
-            AddWaypointConnection(eastEntry, midpointSW, Vector3.Distance(_eastEntry, _midpointSW));
-            AddWaypointConnection(midpointSW, northExit, Vector3.Distance(_midpointSW, _northExit));
+            AddWaypointConnection(eastEntry, midpointSW);
+            AddWaypointConnection(midpointSW, northExit);
 
             // Lane 4: East to West (straight through)
-            AddWaypointConnection(eastEntry, westExit, Vector3.Distance(_eastEntry, _westExit));
+            AddWaypointConnection(eastEntry, westExit);
 
             // Lane 5: West to North (left turn)
-            AddWaypointConnection(westEntry, midpointNW, Vector3.Distance(_westEntry, _midpointNW));
-            AddWaypointConnection(midpointNW, northExit, Vector3.Distance(_midpointNW, _northExit));
+            AddWaypointConnection(westEntry, midpointNW);
+            AddWaypointConnection(midpointNW, northExit);
 
             // Lane 6: West to East (straight through)
-            AddWaypointConnection(westEntry, eastExit, Vector3.Distance(_westEntry, _eastExit));
+            AddWaypointConnection(westEntry, eastExit);
 
             trafficLight3.PedestiranOnlyTrafficLight = true;
         }
@@ -457,26 +276,26 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         else if (_hasNorth && _hasEast && _hasSouth && !_hasWest)
         {
             // Lane 1: North to East (left turn)
-            AddWaypointConnection(northEntry, midpointNE, Vector3.Distance(_northEntry, _midpointNE));
-            AddWaypointConnection(midpointNE, eastExit, Vector3.Distance(_midpointNE, _eastExit));
+            AddWaypointConnection(northEntry, midpointNE);
+            AddWaypointConnection(midpointNE, eastExit);
 
             // Lane 2: North to South (straight through)
-            AddWaypointConnection(northEntry, southExit, Vector3.Distance(_northEntry, _southExit));
+            AddWaypointConnection(northEntry, southExit);
 
             // Lane 3: East to South (left turn)
-            AddWaypointConnection(eastEntry, midpointSE, Vector3.Distance(_eastEntry, _midpointSE));
-            AddWaypointConnection(midpointSE, southExit, Vector3.Distance(_midpointSE, _southExit));
+            AddWaypointConnection(eastEntry, midpointSE);
+            AddWaypointConnection(midpointSE, southExit);
 
             // Lane 4: East to North (right turn)
-            AddWaypointConnection(eastEntry, midpointSW, Vector3.Distance(_eastEntry, _midpointSW));
-            AddWaypointConnection(midpointSW, northExit, Vector3.Distance(_midpointSW, _northExit));
+            AddWaypointConnection(eastEntry, midpointSW);
+            AddWaypointConnection(midpointSW, northExit);
 
             // Lane 5: South to North (straight through)
-            AddWaypointConnection(southEntry, northExit, Vector3.Distance(_southEntry, _northExit));
+            AddWaypointConnection(southEntry, northExit);
 
             // Lane 6: South to East (right turn)
-            AddWaypointConnection(southEntry, midpointNW, Vector3.Distance(_southEntry, _midpointNW));
-            AddWaypointConnection(midpointNW, eastExit, Vector3.Distance(_midpointNW, _eastExit));
+            AddWaypointConnection(southEntry, midpointNW);
+            AddWaypointConnection(midpointNW, eastExit);
 
             trafficLight1.PedestiranOnlyTrafficLight = true;
         }
@@ -485,26 +304,26 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         {
 
             // Lane 1: North to South (straight through)
-            AddWaypointConnection(northEntry, southExit, Vector3.Distance(_northEntry, _southExit));
+            AddWaypointConnection(northEntry, southExit);
 
             // Lane 2: North to West (right turn)
-            AddWaypointConnection(northEntry, midpointSE, Vector3.Distance(_northEntry, _midpointSE));
-            AddWaypointConnection(midpointSE, westExit, Vector3.Distance(_midpointSE, _westExit));
+            AddWaypointConnection(northEntry, midpointSE);
+            AddWaypointConnection(midpointSE, westExit);
 
             // Lane 3: South to West (left turn)
-            AddWaypointConnection(southEntry, midpointSW, Vector3.Distance(_southEntry, _midpointSW));
-            AddWaypointConnection(midpointSW, westExit, Vector3.Distance(_midpointSW, _westExit));
+            AddWaypointConnection(southEntry, midpointSW);
+            AddWaypointConnection(midpointSW, westExit);
 
             // Lane 4: South to North (straight through)
-            AddWaypointConnection(southEntry, northExit, Vector3.Distance(_southEntry, _northExit));
+            AddWaypointConnection(southEntry, northExit);
 
             // Lane 5: West to North (left turn)
-            AddWaypointConnection(westEntry, midpointNW, Vector3.Distance(_westEntry, _midpointNW));
-            AddWaypointConnection(midpointNW, northExit, Vector3.Distance(_midpointNW, _northExit));
+            AddWaypointConnection(westEntry, midpointNW);
+            AddWaypointConnection(midpointNW, northExit);
 
             // Lane 6: West to South (right turn)
-            AddWaypointConnection(westEntry, midpointNE, Vector3.Distance(_westEntry, _midpointNE));
-            AddWaypointConnection(midpointNE, southExit, Vector3.Distance(_midpointNE, _southExit));
+            AddWaypointConnection(westEntry, midpointNE);
+            AddWaypointConnection(midpointNE, southExit);
 
             trafficLight4.PedestiranOnlyTrafficLight = true;
         }
@@ -512,26 +331,26 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         else if (_hasEast && _hasSouth && _hasWest && !_hasNorth)
         {
             // Lane 1: East to West (straight through)
-            AddWaypointConnection(eastEntry, westExit, Vector3.Distance(_eastEntry, _westExit));
+            AddWaypointConnection(eastEntry, westExit);
 
             // Lane 2: East to South (right turn)
-            AddWaypointConnection(eastEntry, midpointSE, Vector3.Distance(_eastEntry, _midpointSE));
-            AddWaypointConnection(midpointSE, southExit, Vector3.Distance(_midpointSE, _southExit));
+            AddWaypointConnection(eastEntry, midpointSE);
+            AddWaypointConnection(midpointSE, southExit);
 
             // Lane 3: South to West (right turn)
-            AddWaypointConnection(southEntry, midpointSW, Vector3.Distance(_southEntry, _midpointSW));
-            AddWaypointConnection(midpointSW, westExit, Vector3.Distance(_midpointSW, _westExit));
+            AddWaypointConnection(southEntry, midpointSW);
+            AddWaypointConnection(midpointSW, westExit);
 
             // Lane 4: South to East (left turn)
-            AddWaypointConnection(southEntry, midpointNW, Vector3.Distance(_southEntry, _midpointNW));
-            AddWaypointConnection(midpointNW, eastExit, Vector3.Distance(_midpointNW, _eastExit));
+            AddWaypointConnection(southEntry, midpointNW);
+            AddWaypointConnection(midpointNW, eastExit);
 
             // Lane 5: West to East (straight through)
-            AddWaypointConnection(westEntry, eastExit, Vector3.Distance(_westEntry, _eastExit));
+            AddWaypointConnection(westEntry, eastExit);
 
             // Lane 6: West to South (right turn)
-            AddWaypointConnection(westEntry, midpointNE, Vector3.Distance(_westEntry, _midpointNE));
-            AddWaypointConnection(midpointNE, southExit, Vector3.Distance(_midpointNE, _southExit));
+            AddWaypointConnection(westEntry, midpointNE);
+            AddWaypointConnection(midpointNE, southExit);
 
             trafficLight2.PedestiranOnlyTrafficLight = true;
         }
@@ -546,7 +365,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         if (_hasEast) AddWaypoint(cell, eastExit);
     }
 
-    private void CreateCrossroadsWaypoints(GridCell cell)
+    protected override void CreateCrossroadsWaypoints(GridCell cell)
     {
         // Crossroads with all four directions
         if (_hasNorth && _hasSouth && _hasEast && _hasWest)
@@ -566,30 +385,30 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
             WaypointNode midpointSE = CreateAndAddWaypoint(cell, _midpointSE, WaypointType.Midpoint);
 
             // connect each entry waypoint to its oposite exit waypoint
-            AddWaypointConnection(northEntry, southExit, Vector3.Distance(_northEntry, _southExit));
-            AddWaypointConnection(southEntry, northExit, Vector3.Distance(_southEntry, _northExit));
-            AddWaypointConnection(westEntry, eastExit, Vector3.Distance(_westEntry, _eastExit));
-            AddWaypointConnection(eastEntry, westExit, Vector3.Distance(_eastEntry, _westExit));
+            AddWaypointConnection(northEntry, southExit);
+            AddWaypointConnection(southEntry, northExit);
+            AddWaypointConnection(westEntry, eastExit);
+            AddWaypointConnection(eastEntry, westExit);
 
             // connect each entry to its two possible midpoints
-            AddWaypointConnection(northEntry, midpointNE, Vector3.Distance(_northEntry, _midpointNE));
-            AddWaypointConnection(northEntry, midpointSE, Vector3.Distance(_northEntry, _midpointSE));
-            AddWaypointConnection(southEntry, midpointNW, Vector3.Distance(_southEntry, _midpointNW));
-            AddWaypointConnection(southEntry, midpointSW, Vector3.Distance(_southEntry, _midpointSW));
-            AddWaypointConnection(eastEntry, midpointSW, Vector3.Distance(_eastEntry, _midpointSW));
-            AddWaypointConnection(eastEntry, midpointSE, Vector3.Distance(_eastEntry, _midpointSE));
-            AddWaypointConnection(westEntry, midpointNW, Vector3.Distance(_westEntry, _midpointNW));
-            AddWaypointConnection(westEntry, midpointNE, Vector3.Distance(_westEntry, _midpointNE));
+            AddWaypointConnection(northEntry, midpointNE);
+            AddWaypointConnection(northEntry, midpointSE);
+            AddWaypointConnection(southEntry, midpointNW);
+            AddWaypointConnection(southEntry, midpointSW);
+            AddWaypointConnection(eastEntry, midpointSW);
+            AddWaypointConnection(eastEntry, midpointSE);
+            AddWaypointConnection(westEntry, midpointNW);
+            AddWaypointConnection(westEntry, midpointNE);
 
             // connect midpoints to their exit points
-            AddWaypointConnection(midpointNE, eastExit, Vector3.Distance(_midpointNE, _eastExit));
-            AddWaypointConnection(midpointSE, westExit, Vector3.Distance(_midpointSE, _westExit));
-            AddWaypointConnection(midpointNW, eastExit, Vector3.Distance(_midpointNW, _eastExit));
-            AddWaypointConnection(midpointSW, westExit, Vector3.Distance(_midpointSW, _westExit));
-            AddWaypointConnection(midpointSW, northExit, Vector3.Distance(_midpointSW, _northExit));
-            AddWaypointConnection(midpointSE, southExit, Vector3.Distance(_midpointSE, _southExit));
-            AddWaypointConnection(midpointNW, northExit, Vector3.Distance(_midpointNW, _northExit));
-            AddWaypointConnection(midpointNE, southExit, Vector3.Distance(_midpointNE, _southExit));
+            AddWaypointConnection(midpointNE, eastExit);
+            AddWaypointConnection(midpointSE, westExit);
+            AddWaypointConnection(midpointNW, eastExit);
+            AddWaypointConnection(midpointSW, westExit);
+            AddWaypointConnection(midpointSW, northExit);
+            AddWaypointConnection(midpointSE, southExit);
+            AddWaypointConnection(midpointNW, northExit);
+            AddWaypointConnection(midpointNE, southExit);
 
             // Trafflic light loaction waypoints
             Vector3 wpTopLeftLight = _cellCentre + new Vector3(-_halfCellSize + _halfPavementSize, 0, _halfCellSize - _halfPavementSize);
@@ -604,7 +423,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         }
     }
 
-    private void CreateDeadEndWaypoints(GridCell cell)
+    protected override void CreateDeadEndWaypoints(GridCell cell)
     {
         Debug.Log("Adding dead end waypoints");
         Vector3 wpEntry = Vector3.zero, wpMidpoint1 = Vector3.zero, wpUTurn = Vector3.zero, wpMidpoint2 = Vector3.zero, wpExit = Vector3.zero;
@@ -648,72 +467,30 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         midpoint2 = CreateAndAddWaypoint(cell, wpMidpoint2, WaypointType.Midpoint);
 
         // Connect entry to exit
-        AddWaypointConnection(entry, midpoint1, Vector3.Distance(wpEntry, wpMidpoint1));
-        AddWaypointConnection(midpoint1, uTurn, Vector3.Distance(wpMidpoint1, wpUTurn));
-        AddWaypointConnection(uTurn, midpoint2, Vector3.Distance(wpUTurn, wpMidpoint2));
-        AddWaypointConnection(midpoint2, exit, Vector3.Distance(wpMidpoint2, wpExit));
+        AddWaypointConnection(entry, midpoint1);
+        AddWaypointConnection(midpoint1, uTurn);
+        AddWaypointConnection(uTurn, midpoint2);
+        AddWaypointConnection(midpoint2, exit);
     }
 
-    public void ConnectAllCells()
+    protected override void ConnectWaypointsToNeighbour(List<WaypointNode> waypoints, GridCell neighbour)
     {
-        for (int x = 0; x < _gridWidth; x++)
-        {
-            for (int y = 0; y < _gridHeight; y++)
-            {
-                GridCell currentCell = GridManager.Instance.GetCell(x, y);
-
-                if (currentCell.CellType != CellType.Road) continue;
-
-                List<WaypointNode> cellWaypoints = _cellWaypoints[x, y];
-
-                if (cellWaypoints == null || cellWaypoints.Count == 0)
-                    continue;
-
-                ConnectToNeighboringCells(currentCell, cellWaypoints);
-            }
-        }
-    }
-
-    private void ConnectToNeighboringCells(GridCell cell, List<WaypointNode> waypoints)
-    {
-        // Check all four directions for neighboring roads
-        int[] dx = { 0, 0, -1, 1 };
-        int[] dz = { -1, 1, 0, 0 };
-
-        for (int i = 0; i < 4; i++)
-        {
-            int nx = cell.Position.x + dx[i];
-            int nz = cell.Position.z + dz[i];
-            if (nx >= 0 && nx < GridManager.Instance.GridWidth && nz >= 0 && nz < GridManager.Instance.GridHeight)
-            {
-                GridCell neighbor = GridManager.Instance.GetCell(nx, nz);
-                if (neighbor != null && neighbor.CellType == CellType.Road)
-                {
-                    // Connect waypoints to neighbor cell
-                    ConnectWaypointsToNeighbor(waypoints, neighbor);
-                }
-            }
-        }
-    }
-
-    private void ConnectWaypointsToNeighbor(List<WaypointNode> waypoints, GridCell neighbor)
-    {
-        List<WaypointNode> neighbourWaypoints = _cellWaypoints[neighbor.Position.x, neighbor.Position.z];
+        List<WaypointNode> neighbourWaypoints = _cellWaypoints[neighbour.Position.x, neighbour.Position.z];
 
         if (neighbourWaypoints == null || neighbourWaypoints.Count == 0)
             return;
 
         List<WaypointNode> cellExitWaypoints = new List<WaypointNode>();
-        List<WaypointNode> neighborEntryWaypoints = new List<WaypointNode>();
+        List<WaypointNode> neighbourEntryWaypoints = new List<WaypointNode>();
 
-        // Get exit waypoints from current cell and entry waypoints from neighbor
+        // Get exit waypoints from current cell and entry waypoints from neighbour
         cellExitWaypoints = waypoints.Where(w => w.Type == WaypointType.Exit).ToList();
-        neighborEntryWaypoints = neighbourWaypoints.Where(w => w.Type == WaypointType.Entry).ToList();
+        neighbourEntryWaypoints = neighbourWaypoints.Where(w => w.Type == WaypointType.Entry).ToList();
 
         // Connect exit waypoints to entry waypoints only if they are at the same position (or very close)
         foreach (WaypointNode exitWaypoint in cellExitWaypoints)
         {
-            foreach (WaypointNode entryWaypoint in neighborEntryWaypoints)
+            foreach (WaypointNode entryWaypoint in neighbourEntryWaypoints)
             {
                 // Check if the waypoints are at the same position (or very close)
                 float distance = Vector3.Distance(exitWaypoint.Position, entryWaypoint.Position);
@@ -725,24 +502,6 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
                 }
             }
         }
-    }
-
-    public List<WaypointNode> GetAllWaypoints()
-    {
-        return _allWaypoints.Values.ToList();
-    }
-
-    public List<WaypointNode> GetCellWaypoints(GridCell cell)
-    {
-        return _cellWaypoints[cell.Position.x, cell.Position.z];
-    }
-
-    public WaypointNode GetWaypointFromId(EntityId id)
-    {
-        if (_allWaypoints.ContainsKey(id))
-            return _allWaypoints[id];
-
-        return null;
     }
 
     #region Building waypoint setup
@@ -792,7 +551,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         }
 
         // find and connect the property exit waypoint, to the waypoints exiting the adjoing cell to allow the vehicle to exit the property in multiple different directions
-        List<WaypointNode> closestVehicleWaypoints = FindClosestVehicleNodesInCellFromPosition(cellCheckWaypoint.position, vehicleEntryExitPropertyWaypoint.Position, 3, WaypointType.Exit);
+        List<WaypointNode> closestVehicleWaypoints = FindClosestNodesInCellFromPosition(cellCheckWaypoint.position, vehicleEntryExitPropertyWaypoint.Position, 3, WaypointType.Exit);
 
         // connect the property entry/exit node to the Vehicle node on the road
         foreach (WaypointNode node in closestVehicleWaypoints)
@@ -801,7 +560,7 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         }
 
         //find and connect the entry points of the cell connecting to the property entry way to allow the vehicle to approach from any direction
-        closestVehicleWaypoints = FindClosestVehicleNodesInCellFromPosition(cellCheckWaypoint.position, vehicleEntryExitPropertyWaypoint.Position, 3, WaypointType.Entry);
+        closestVehicleWaypoints = FindClosestNodesInCellFromPosition(cellCheckWaypoint.position, vehicleEntryExitPropertyWaypoint.Position, 3, WaypointType.Entry);
 
         // connect the property entry/exit node to the Vehicle node on the road
         foreach (WaypointNode node in closestVehicleWaypoints)
@@ -849,14 +608,14 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         pumpNodes = pumpList.ToArray();
 
         // now we need to connect the road to the property entry
-        List<WaypointNode> closestVehicleWaypoints = FindClosestVehicleNodesInCellFromPosition(cellCheckEntry.position, propertyEntry.Position, 3, WaypointType.Entry);
+        List<WaypointNode> closestVehicleWaypoints = FindClosestNodesInCellFromPosition(cellCheckEntry.position, propertyEntry.Position, 3, WaypointType.Entry);
         foreach (WaypointNode node in closestVehicleWaypoints)
         {
             AddWaypointConnection(node, propertyEntry, 100f);
         }
 
         // now connect the property exit to the road
-        closestVehicleWaypoints = FindClosestVehicleNodesInCellFromPosition(cellCheckExit.position, propertyExit.Position, 3, WaypointType.Exit);
+        closestVehicleWaypoints = FindClosestNodesInCellFromPosition(cellCheckExit.position, propertyExit.Position, 3, WaypointType.Exit);
         foreach (WaypointNode node in closestVehicleWaypoints)
         {
             AddWaypointConnection(propertyExit, node, 100f);
@@ -951,79 +710,20 @@ public class RoadWaypointManager : MonoBehaviour, IWaypointNetwork, ISaveable
         bottomParkingSpotWaypoints = bottomParkingSpotList.ToArray();
 
         // now we need to connect the road to the property entry
-        List<WaypointNode> closestVehicleWaypoints = FindClosestVehicleNodesInCellFromPosition(cellCheckEntry.position, entryWaypoint.Position, 3, WaypointType.Entry);
+        List<WaypointNode> closestVehicleWaypoints = FindClosestNodesInCellFromPosition(cellCheckEntry.position, entryWaypoint.Position, 3, WaypointType.Entry);
         foreach (WaypointNode node in closestVehicleWaypoints)
         {
             AddWaypointConnection(node, entryWaypoint, 100f);
         }
 
         // now connect the property exit to the road
-        closestVehicleWaypoints = FindClosestVehicleNodesInCellFromPosition(cellCheckExit.position, exitWaypoint.Position, 3, WaypointType.Exit);
+        closestVehicleWaypoints = FindClosestNodesInCellFromPosition(cellCheckExit.position, exitWaypoint.Position, 3, WaypointType.Exit);
         foreach (WaypointNode node in closestVehicleWaypoints)
         {
             AddWaypointConnection(exitWaypoint, node, 100f);
         }
     }
     #endregion
-
-    private List<WaypointNode> FindClosestVehicleNodesInCellFromPosition(Vector3 cellCheckPosition, Vector3 position, int count, WaypointType type)
-    {
-        GridCell neighbour = GridManager.Instance.GetCellAtWorldPosition(cellCheckPosition);
-        List<WaypointNode> allNodes = GetCellWaypoints(neighbour);
-        List<WaypointNode> selectedNodes = new List<WaypointNode>();
-
-        if (neighbour != null)
-        {
-            foreach (WaypointNode node in allNodes)
-            {
-                if (node.Type != type) continue;
-                selectedNodes.Add(node);
-            }
-
-            // Sort nodes by distance
-            selectedNodes.Sort((a, b) =>
-            {
-                float distA = Utils.GetDistanceWithSetHeight(position, a.Position, 0f);
-                float distB = Utils.GetDistanceWithSetHeight(position, b.Position, 0f);
-                return distA.CompareTo(distB);
-            });
-
-            // Return up to 'count' nodes
-            int nodesToReturn = Mathf.Min(count, selectedNodes.Count);
-            return selectedNodes.GetRange(0, nodesToReturn);
-        }
-
-        return new List<WaypointNode>();
-    }
-
-    public WaypointNode GetWaypointNodeFromPositionInCell(GridCell cell, Vector3 position, float distance, WaypointType type)
-    {
-        List<WaypointNode> allNodes = GetCellWaypoints(cell);
-        if (allNodes == null || allNodes.Count == 0) return null;
-
-        List<WaypointNode> selectedNodes = new();
-
-        foreach (WaypointNode node in allNodes)
-        {
-            if (node.Type != type) continue;
-            selectedNodes.Add(node);
-        }
-
-        if (selectedNodes.Count > 0)
-        {
-            selectedNodes.Sort((a, b) =>
-            {
-                float distA = Utils.GetDistanceWithSetHeight(position, a.Position, 0f);
-                float distB = Utils.GetDistanceWithSetHeight(position, b.Position, 0f);
-                return distA.CompareTo(distB);
-            });
-
-            if (Vector3.Distance(selectedNodes.First().Position, position) < distance)
-                return selectedNodes.First();
-        }
-
-        return null;
-    }
 
     public void PopulateSaveData(GameSaveData saveData)
     {

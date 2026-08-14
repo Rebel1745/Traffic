@@ -176,7 +176,7 @@ public class TrafficLightPlacementHandler : MonoBehaviour, IPlacementHandler
         TrafficLightSubState subState = SimulationManager.Instance.CurrentState.TrafficLightSubState;
 
         // Filter waypoints by type and substate
-        return RoadWaypointManager.Instance.GetCellWaypoints(cell).FindAll(w =>
+        return VehicleWaypointManager.Instance.GetCellWaypoints(cell).FindAll(w =>
         {
             if (w.Type != WaypointType.TrafficLightLocation)
                 return false;

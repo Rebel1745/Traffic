@@ -22,7 +22,8 @@ public class WalkToWaypointGoal : Goal
         else
         {
             Debug.LogWarning($"[{agent.gameObject.name}] No path found for goal: {GoalName}");
-            // Handle failure (retry, pick new goal, etc.)
+            path = new() { agent.Mover.CurrentWaypoint, _target };
+            agent.Mover.SetPath(path);
         }
     }
 

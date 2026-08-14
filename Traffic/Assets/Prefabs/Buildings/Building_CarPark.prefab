@@ -43,7 +43,7 @@ GameObject:
   m_Component:
   - component: {fileID: 411804142949277449}
   m_Layer: 10
-  m_Name: VehicleEntryCheck
+  m_Name: EntryCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -62,7 +62,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 8286726936648121536}
+  m_Father: {fileID: 1050435265414733924}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &108887975653600995
 GameObject:
@@ -301,8 +301,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 411804142949277449}
-  - {fileID: 354647648520397851}
   - {fileID: 1032158137776705211}
   - {fileID: 4426809155598252588}
   - {fileID: 3600315047429237351}
@@ -319,7 +317,7 @@ GameObject:
   m_Component:
   - component: {fileID: 354647648520397851}
   m_Layer: 10
-  m_Name: VehicleExitCheck
+  m_Name: ExitCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -338,7 +336,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 8286726936648121536}
+  m_Father: {fileID: 1050435265414733924}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &823616356694929932
 GameObject:
@@ -909,6 +907,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 411804142949277449}
+  - {fileID: 354647648520397851}
   - {fileID: 8286726936648121536}
   - {fileID: 9072255468815382923}
   m_Father: {fileID: 8163725275749009566}

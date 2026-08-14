@@ -9,6 +9,7 @@ public class BuildingHouse : BuildingBase
     [SerializeField] private Transform[] _entryExitVehicleWaypointPositions;
     [SerializeField] private Transform[] _doorToVehicleWaypointPositions;
     [SerializeField] private Transform[] _propertyEntryToDoorWaypointPositions;
+    [SerializeField] private Transform _pedestrianEntryExitWaypointPosition;
 
     [Header("Vehicle Waypoints")]
     [SerializeField] private Transform[] _parkingSpotWaypointPositions;
@@ -74,6 +75,7 @@ public class BuildingHouse : BuildingBase
             _propertyEntryToDoorWaypointPositions,
             _entryExitVehicleWaypointPositions,
             _doorToVehicleWaypointPositions,
+            _pedestrianEntryExitWaypointPosition,
             out _insideBuildingWaypoint,
             out _doorWaypoint,
             out _entryExitPropertyWaypoint,
@@ -83,7 +85,7 @@ public class BuildingHouse : BuildingBase
 
     private void InitialiseVehicleWaypoints()
     {
-        RoadWaypointManager.Instance.AddHouseVehicleWaypoints(
+        VehicleWaypointManager.Instance.AddHouseVehicleWaypoints(
             _cell,
             _parkingSpotWaypointPositions,
             _vehicleEntryToParkedWaypointPositions,

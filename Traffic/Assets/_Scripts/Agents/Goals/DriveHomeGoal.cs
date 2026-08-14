@@ -28,7 +28,7 @@ public class DriveHomeGoal : Goal
 
         if (!homeSpotId.IsValid) Debug.LogError("HomeSpot not found");
 
-        WaypointNode homeNode = RoadWaypointManager.Instance.GetWaypointFromId(homeSpotId);
+        WaypointNode homeNode = VehicleWaypointManager.Instance.GetWaypointFromId(homeSpotId);
 
         agent.AddGoalAfterCurrent(new DriveToWaypointGoal(homeNode, "Drive home"));
         agent.OnMovementFinished();

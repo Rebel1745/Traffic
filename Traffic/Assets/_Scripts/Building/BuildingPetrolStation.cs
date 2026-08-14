@@ -38,7 +38,7 @@ public class BuildingPetrolStation : BuildingBase
 
     private void InitialiseVehicleWaypoints()
     {
-        RoadWaypointManager.Instance.AddPetrolStationVehicleWaypoints(
+        VehicleWaypointManager.Instance.AddPetrolStationVehicleWaypoints(
             _cell,
             _propertyEntry,
             _pumps,

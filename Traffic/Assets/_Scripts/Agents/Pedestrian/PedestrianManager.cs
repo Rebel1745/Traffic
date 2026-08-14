@@ -132,12 +132,16 @@ public class PedestrianManager : MonoBehaviour
     #region Goals and Target Stuff
     public void GoToRandomWaypoint(AgentController agent)
     {
-        WaypointNode randomNode = GetRandomWaypoint(agent, WaypointType.PedestrianWalkway);
+        WaypointNode randomNode = GetRandomPedestrianWaypoint(WaypointType.PedestrianWalkway);
+        if (randomNode == null)
+        {
+            Debug.LogError($"No random location found {PedestrianWaypointManager.Instance.GetAllWaypoints().Count}");
+            return;
+        }
+
         string goalName = "Walk to random node at " + randomNode.Position;
 
-        if (randomNode != null)
-            agent.AddGoal(new WalkToWaypointGoal(randomNode, goalName));
-        else Debug.LogError("No random location found");
+        agent.AddGoal(new WalkToWaypointGoal(randomNode, goalName));
     }
 
     public WaypointNode GetRandomWaypoint(AgentController agent, WaypointType type)

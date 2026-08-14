@@ -69,7 +69,7 @@ public class BuildingCarPark : BuildingBase
 
     private void InitialiseVehicleWaypoints()
     {
-        RoadWaypointManager.Instance.AddCarParkVehicleWaypoints(
+        VehicleWaypointManager.Instance.AddCarParkVehicleWaypoints(
             _cell,
             _cellCheckEntry,
             _entryPosition,
@@ -100,6 +100,8 @@ public class BuildingCarPark : BuildingBase
             _bottomAlightPositions,
             _bottomPedestrianRoutePositions,
             _pedestrianExitPosition,
+            _cellCheckEntry,
+            _cellCheckExit,
             out _pedestrianEntryWaypoint,
             out _topAlightWaypoints,
             out _topPedestrianRouteWaypoints,

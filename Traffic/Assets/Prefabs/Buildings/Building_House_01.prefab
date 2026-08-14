@@ -118,6 +118,7 @@ MonoBehaviour:
   _doorToVehicleWaypointPositions:
   - {fileID: 8078884104543125158}
   _propertyEntryToDoorWaypointPositions: []
+  _pedestrianEntryExitWaypointPosition: {fileID: 3970786678472056150}
   _parkingSpotWaypointPositions:
   - {fileID: 4579101568455517717}
   - {fileID: 576607627611016680}
@@ -902,6 +903,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4015021430888286544}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6515450661753850520
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3970786678472056150}
+  m_Layer: 10
+  m_Name: PedestrianCellCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3970786678472056150
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6515450661753850520}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 3.74, y: 0, z: 11.53}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4015021430888286544}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6997262819662888588
 GameObject:
   m_ObjectHideFlags: 0
@@ -1081,6 +1113,7 @@ Transform:
   - {fileID: 7336757360554075283}
   - {fileID: 1794109714881016473}
   - {fileID: 459489294760044187}
+  - {fileID: 3970786678472056150}
   m_Father: {fileID: 7508084599152268499}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8746536197856814599
