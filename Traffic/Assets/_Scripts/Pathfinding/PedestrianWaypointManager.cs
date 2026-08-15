@@ -717,95 +717,104 @@ public class PedestrianWaypointManager : WaypointManagerBase, ISaveable
 
     public void PopulateSaveData(GameSaveData saveData)
     {
-        // var waypointData = new WaypointSaveData();
+        var waypointData = new WaypointSaveData();
 
-        // foreach (var node in _allWaypoints)
-        // {
-        //     var nodeData = new WaypointNodeSaveData
-        //     {
-        //         Id = node.Id,
-        //         X = node.Position.x,
-        //         Z = node.Position.z,
-        //         Type = node.Type,
-        //         NetworkType = node.NetworkType,
-        //         ParentCellX = node.ParentCell.Position.x,
-        //         ParentCellZ = node.ParentCell.Position.z,
-        //         PairedCrossingWaypointId = node.PairedCrossingWaypoint?.Id,
-        //         LaneNodeForTrafficLightId = node.LaneNodeForTrafficLight?.Id,
-        //         LightPosition = node.LightPosition
-        //     };
+        foreach (var node in _allWaypoints.Values)
+        {
+            var nodeData = new WaypointNodeSaveData
+            {
+                Id = node.Id.ToString(),
+                X = node.Position.x,
+                Z = node.Position.z,
+                Type = node.Type,
+                NetworkType = node.NetworkType,
+                ParentCellX = node.ParentCell.Position.x,
+                ParentCellZ = node.ParentCell.Position.z,
+                PairedCrossingWaypointId = node.PairedCrossingWaypoint?.Id.ToString(),
+                LaneNodeForTrafficLightId = node.LaneNodeForTrafficLight?.Id.ToString(),
+                LightPosition = node.LightPosition
+            };
 
-        //     foreach (var connection in node.Connections)
-        //     {
-        //         nodeData.Connections.Add(new WaypointConnectionSaveData
-        //         {
-        //             TargetNodeId = connection.TargetWaypoint.Id,
-        //             Cost = connection.Cost
-        //         });
-        //     }
+            foreach (var connection in node.Connections)
+            {
+                nodeData.Connections.Add(new WaypointConnectionSaveData
+                {
+                    TargetNodeId = connection.Key.Id.ToString(),
+                    Cost = connection.Value
+                });
+            }
 
-        //     waypointData.Nodes.Add(nodeData);
-        // }
+            waypointData.Nodes.Add(nodeData);
+        }
 
-        // saveData.PedestrianWaypoints = waypointData;
+        saveData.PedestrianWaypoints = waypointData;
     }
 
     public void LoadFromSaveData(GameSaveData saveData)
     {
-        // if (saveData.PedestrianWaypoints == null)
-        // {
-        //     Debug.LogWarning("[PedestrianWaypointManager] No waypoint data in save file.");
-        //     return;
-        // }
+        if (saveData.PedestrianWaypoints == null)
+        {
+            Debug.LogWarning("[PedestrianWaypointManager] No waypoint data in save file.");
+            return;
+        }
 
-        // _allWaypoints.Clear();
-        // var nodeLookup = new Dictionary<string, WaypointNode>();
+        _allWaypoints = new();
+        _cellWaypoints = new List<WaypointNode>[_gridWidth, _gridHeight];
 
-        // // First pass — create all nodes
-        // foreach (var nodeData in saveData.PedestrianWaypoints.Nodes)
-        // {
-        //     // Retrieve the parent cell from the grid
-        //     var parentCell = GridManager.Instance.GetCell(nodeData.ParentCellX, nodeData.ParentCellZ);
-        //     if (parentCell == null)
-        //     {
-        //         Debug.LogWarning($"[PedestrianWaypointManager] Parent cell ({nodeData.ParentCellX}, {nodeData.ParentCellZ}) not found for node {nodeData.Id}.");
-        //         continue;
-        //     }
+        var nodeLookup = new Dictionary<string, WaypointNode>();
+        int connectionCount = 0;
 
-        //     var node = new WaypointNode(
-        //         new Vector3(nodeData.X, 0f, nodeData.Z),
-        //         parentCell,
-        //         nodeData.Type,
-        //         nodeData.NetworkType
-        //     );
+        // First pass — create all nodes
+        foreach (var nodeData in saveData.PedestrianWaypoints.Nodes)
+        {
+            // Retrieve the parent cell from the grid
+            var parentCell = GridManager.Instance.GetCell(nodeData.ParentCellX, nodeData.ParentCellZ);
+            if (parentCell == null)
+            {
+                Debug.LogWarning($"[PedestrianWaypointManager] Parent cell ({nodeData.ParentCellX}, {nodeData.ParentCellZ}) not found for node {nodeData.Id}.");
+                continue;
+            }
 
-        //     // Restore the saved ID rather than using the new GUID generated in the constructor
-        //     node.Id = nodeData.Id;
+            if (_cellWaypoints[parentCell.Position.x, parentCell.Position.z] == null)
+            {
+                _cellWaypoints[parentCell.Position.x, parentCell.Position.z] = new List<WaypointNode>();
+            }
 
-        //     _allWaypoints.Add(node);
-        //     nodeLookup[node.Id] = node;
-        // }
+            var node = CreateWaypoint(
+                parentCell,
+                new Vector3(nodeData.X, 0f, nodeData.Z),
+                nodeData.Type,
+                nodeData.NetworkType
+            );
 
-        // // Second pass — restore connections
-        // foreach (var nodeData in saveData.PedestrianWaypoints.Nodes)
-        // {
-        //     if (!nodeLookup.TryGetValue(nodeData.Id, out var node))
-        //         continue;
+            // Restore the saved ID rather than using the new GUID generated in the constructor
+            node.Id = EntityId.FromString(nodeData.Id);
 
-        //     foreach (var connectionData in nodeData.Connections)
-        //     {
-        //         if (nodeLookup.TryGetValue(connectionData.TargetNodeId, out var targetNode))
-        //         {
-        //             node.Connections.Add(new WaypointConnection(targetNode, connectionData.Cost));
-        //         }
-        //         else
-        //         {
-        //             Debug.LogWarning($"[WaypointManager] Target node {connectionData.TargetNodeId} not found for connection.");
-        //         }
-        //     }
-        // }
+            AddWaypoint(parentCell, node);
+            nodeLookup[node.Id.ToString()] = node;
+        }
 
-        // Debug.Log($"[WaypointManager] Loaded {_allWaypoints.Count} pedestrian waypoint nodes.");
+        // Second pass — restore connections
+        foreach (var nodeData in saveData.PedestrianWaypoints.Nodes)
+        {
+            if (!nodeLookup.TryGetValue(nodeData.Id, out var node))
+                continue;
+
+            foreach (var connectionData in nodeData.Connections)
+            {
+                if (nodeLookup.TryGetValue(connectionData.TargetNodeId, out var targetNode))
+                {
+                    AddWaypointConnection(node, targetNode, connectionData.Cost);
+                    connectionCount++;
+                }
+                else
+                {
+                    Debug.LogWarning($"[WaypointManager] Target node {connectionData.TargetNodeId} not found for connection.");
+                }
+            }
+        }
+
+        Debug.Log($"[PedestrianWaypointManager] Loaded {_allWaypoints.Count} pedestrian waypoint nodes and {connectionCount} connections.");
     }
 
     private void OnDrawGizmos()

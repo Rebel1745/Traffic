@@ -77,7 +77,6 @@ public class VehicleWaypointManager : WaypointManagerBase, ISaveable
 
     protected override void CreateStraightWaypoints(GridCell cell)
     {
-        Debug.Log("Adding straight waypoints");
         if (_hasNorth && _hasSouth) // Vertical road
         {
             // Lane going North (traffic flows from South to North)
@@ -425,7 +424,6 @@ public class VehicleWaypointManager : WaypointManagerBase, ISaveable
 
     protected override void CreateDeadEndWaypoints(GridCell cell)
     {
-        Debug.Log("Adding dead end waypoints");
         Vector3 wpEntry = Vector3.zero, wpMidpoint1 = Vector3.zero, wpUTurn = Vector3.zero, wpMidpoint2 = Vector3.zero, wpExit = Vector3.zero;
         WaypointNode entry = null, midpoint1 = null, uTurn = null, midpoint2 = null, exit = null;
 
@@ -771,9 +769,8 @@ public class VehicleWaypointManager : WaypointManagerBase, ISaveable
         _allWaypoints = new();
         _cellWaypoints = new List<WaypointNode>[_gridWidth, _gridHeight];
 
-        int connectionCount = 0;
-
         var nodeLookup = new Dictionary<string, WaypointNode>();
+        int connectionCount = 0;
 
         // First pass — create all nodes
         foreach (var nodeData in saveData.VehicleWaypoints.Nodes)

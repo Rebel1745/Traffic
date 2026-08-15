@@ -58,10 +58,8 @@ public abstract class WaypointManagerBase : MonoBehaviour
             Debug.Log($"New waypoint {type.ToString()} at {position} is already present with type {existing.Type} at {position}");
         }
 
-        //Vector3 randOffset = new(Random.Range(-0.5f, 0.5f), 0f, Random.Range(-0.5f, 0.5f));
-        Vector3 randOffset = Vector3.zero;
         // create the waypoint
-        WaypointNode newNode = CreateWaypoint(cell, position + randOffset, type, networkType);
+        WaypointNode newNode = CreateWaypoint(cell, position, type, networkType);
 
         // add the waypoint
         AddWaypoint(cell, newNode);
@@ -132,8 +130,6 @@ public abstract class WaypointManagerBase : MonoBehaviour
                     }
                 }
             }
-
-            // we have updated the neighbour, this might not be one that has previously been updated, flag it as such
         }
     }
 
@@ -160,7 +156,6 @@ public abstract class WaypointManagerBase : MonoBehaviour
                 currentCell = grid[x, y];
                 if (currentCell.CellType == CellType.Empty && currentCell.IsUpdated)
                 {
-                    Debug.Log($"Cell {x}, {y} is now empty, removing waypoints");
                     RemoveCellWaypoints(currentCell);
                 }
             }
@@ -176,7 +171,6 @@ public abstract class WaypointManagerBase : MonoBehaviour
 
                 if (currentCell.IsUpdated)
                 {
-                    Debug.Log($"Working waypoints for cell {x}, {y}");
                     RemoveCellWaypoints(currentCell);
                     CreateAndConnectWaypoints(currentCell);
                 }
