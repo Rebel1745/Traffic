@@ -46,8 +46,7 @@ public class BuildingCarPark : BuildingBase
 
     public override void InitialiseBuilding(EntityId entityId, GridCell cell)
     {
-        Id = entityId;
-        _cell = cell;
+        LoadBuilding(entityId, cell);
 
         // Validate waypoint counts
         if (_entryRoutePositions.Length != _topParkingSpotPositions.Length)
@@ -65,6 +64,12 @@ public class BuildingCarPark : BuildingBase
         InitialisePedestrianWaypoints();
 
         SetupRelationships();
+    }
+
+    public override void LoadBuilding(EntityId entityId, GridCell cell)
+    {
+        Id = entityId;
+        _cell = cell;
     }
 
     private void InitialiseVehicleWaypoints()

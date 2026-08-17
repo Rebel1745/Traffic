@@ -15,6 +15,7 @@ public abstract class BuildingBase : MonoBehaviour, ISelectableObject
     [SerializeField] private int _buildingZCells = 2; // Z axis
     public int BuildingZCells => _buildingZCells;
     protected GridCell _cell;
+    public GridCell Cell => _cell;
     [SerializeField] protected string _buildingName;
     public string BuildingName => _buildingName;
 
@@ -26,6 +27,7 @@ public abstract class BuildingBase : MonoBehaviour, ISelectableObject
     public Vector3 CameraRotation => _cameraRotation;
 
     public abstract void InitialiseBuilding(EntityId entityId, GridCell cell);
+    public abstract void LoadBuilding(EntityId entityId, GridCell cell);
 
     public MeshRenderer GetFoundationRenderer() => _foundationRenderer;
 

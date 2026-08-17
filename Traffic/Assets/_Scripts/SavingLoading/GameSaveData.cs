@@ -9,4 +9,5 @@ public class GameSaveData
     public WaypointSaveData VehicleWaypoints;
     public WaypointSaveData PedestrianWaypoints;
     public TrafficLightsSaveData TrafficLights;
+    public BuildingsSaveData Buildings;
 }

@@ -114,8 +114,12 @@ public class TrafficLightPlacementHandler : MonoBehaviour, IPlacementHandler
             return;
 
         List<WaypointNode> validWaypoints = GetValidWaypointsForSubState(cell);
+
         if (validWaypoints.Count == 0)
+        {
+            Debug.LogWarning("No valid waypoints found for traffic lights");
             return;
+        }
 
         WaypointNode lastWaypoint = null;
 

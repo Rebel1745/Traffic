@@ -133,7 +133,10 @@ public class BuildingPlacementHandler : MonoBehaviour, IPlacementHandler
             }
         }
 
-        BuildingManager.Instance.PlaceAndRegisterBuilding(_buildingPrefab, GridManager.Instance.WorldToGridPosition(position), _buildingXCells, _buildingZCells);
+        EntityId newId = EntityId.New();
+        BuildingBase bb = BuildingManager.Instance.PlaceAndRegisterBuilding(newId, _buildingPrefab, GridManager.Instance.WorldToGridPosition(position), _buildingXCells, _buildingZCells);
+
+        bb.InitialiseBuilding(newId, GridManager.Instance.GetCellAtWorldPosition(position));
     }
 
     private System.Collections.IEnumerator CreatePreviewMesh()

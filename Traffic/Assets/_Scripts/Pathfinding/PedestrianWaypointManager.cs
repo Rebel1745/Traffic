@@ -37,6 +37,7 @@ public class PedestrianWaypointManager : WaypointManagerBase, ISaveable
 
     private void OnDestroy()
     {
+        SaveManager.Instance.UnregisterSaveable(this);
         VehicleWaypointManager.Instance.OnRoadWaypointsUpdated -= RoadWaypointsUpdated;
     }
 

@@ -38,6 +38,7 @@ public class VehicleWaypointManager : WaypointManagerBase, ISaveable
 
     private void OnDestroy()
     {
+        SaveManager.Instance.UnregisterSaveable(this);
         RoadMeshRenderer.Instance.OnRoadMeshUpdated -= RoadMeshUpdated;
     }
 

@@ -7,7 +7,7 @@ public class TrafficLightGroupController : MonoBehaviour
 {
     [Header("Group Settings")]
     [SerializeField] private TrafficLightGroupType _groupType = TrafficLightGroupType.Junction;
-    public string Id { get; set; }
+    public EntityId Id { get; set; }
 
     // Exposed for UI integration
     public TrafficLightGroupType GroupType
@@ -42,7 +42,7 @@ public class TrafficLightGroupController : MonoBehaviour
 
     public void SetupGroup(TrafficLightGroupType type)
     {
-        Id = System.Guid.NewGuid().ToString();
+        Id = EntityId.New();
         GroupType = type;
     }
 

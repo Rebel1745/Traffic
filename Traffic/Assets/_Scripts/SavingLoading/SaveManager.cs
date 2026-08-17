@@ -16,7 +16,8 @@ public class SaveManager : MonoBehaviour
         Grid = 0,
         VehicleWaypoints = 1,
         PedestrianWaypoints = 2,
-        TrafficLights = 3
+        TrafficLights = 3,
+        Buildings = 4
     }
 
     private string SaveFilePath => Path.Combine(Application.persistentDataPath, SaveFileName);
@@ -70,6 +71,7 @@ public class SaveManager : MonoBehaviour
         LoadByKey(saveData, "VehicleWaypoints");
         LoadByKey(saveData, "PedestrianWaypoints");
         LoadByKey(saveData, "TrafficLights");
+        LoadByKey(saveData, "Buildings");
 
         Debug.Log("[SaveManager] Loaded successfully.");
     }

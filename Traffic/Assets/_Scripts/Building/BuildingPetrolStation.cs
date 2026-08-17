@@ -36,6 +36,12 @@ public class BuildingPetrolStation : BuildingBase
         SetupRelationships();
     }
 
+    public override void LoadBuilding(EntityId entityId, GridCell cell)
+    {
+        Id = entityId;
+        _cell = cell;
+    }
+
     private void InitialiseVehicleWaypoints()
     {
         VehicleWaypointManager.Instance.AddPetrolStationVehicleWaypoints(

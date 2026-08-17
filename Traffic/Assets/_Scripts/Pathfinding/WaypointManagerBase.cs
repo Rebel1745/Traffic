@@ -36,7 +36,7 @@ public abstract class WaypointManagerBase : MonoBehaviour
 
     protected WaypointNode CreateWaypoint(GridCell cell, Vector3 position, WaypointType type, WaypointNetworkType networkType = WaypointNetworkType.Vehicle, WaypointNode laneNode = null, RoadDirection lightPos = RoadDirection.None)
     {
-        return new(position, cell, type, networkType);
+        return new(position, cell, type, networkType, laneNode: laneNode, lightPos: lightPos);
     }
 
     protected void AddWaypoint(GridCell cell, WaypointNode waypoint)
@@ -59,7 +59,7 @@ public abstract class WaypointManagerBase : MonoBehaviour
         }
 
         // create the waypoint
-        WaypointNode newNode = CreateWaypoint(cell, position, type, networkType);
+        WaypointNode newNode = CreateWaypoint(cell, position, type, networkType, laneNode: laneNode, lightPos: lightPos);
 
         // add the waypoint
         AddWaypoint(cell, newNode);
@@ -86,15 +86,11 @@ public abstract class WaypointManagerBase : MonoBehaviour
         List<WaypointNode> cellWaypoints = GetCellWaypoints(cell);
         if (cellWaypoints == null || cellWaypoints.Count == 0) return;
 
-        Debug.Log($"Removing {cellWaypoints.Count} waypoints from {_allWaypoints.Count}");
-
         // remove waypoints from cell in _allWaypoints
         foreach (WaypointNode node in cellWaypoints)
         {
             _allWaypoints.Remove(node.Id);
         }
-
-        Debug.Log($"{_allWaypoints.Count} remain");
 
         // remove cell from _cellWaypoints
         _cellWaypoints[cell.Position.x, cell.Position.z].Clear();
@@ -111,8 +107,6 @@ public abstract class WaypointManagerBase : MonoBehaviour
 
         List<WaypointNode> neighbourWaypoints;
 
-        Debug.Log($"Cell at {cell.Position.x}, {cell.Position.z} has {neighbours.Count} neighbours");
-
         // remove each 
         foreach (GridCell gc in neighbours)
         {
@@ -125,7 +119,6 @@ public abstract class WaypointManagerBase : MonoBehaviour
                 {
                     if (neighbourNode.HasConnection(cellNode))
                     {
-                        Debug.Log($"Removing connection to cell {cellNode.ParentCell.Position.x}, {cellNode.ParentCell.Position.z}");
                         neighbourNode.RemoveConnection(cellNode);
                     }
                 }
@@ -280,6 +273,13 @@ public abstract class WaypointManagerBase : MonoBehaviour
             return _allWaypoints[id];
 
         return null;
+    }
+
+    public WaypointNode GetWaypointFromId(string id)
+    {
+        EntityId entityId = EntityId.FromString(id);
+
+        return GetWaypointFromId(entityId);
     }
 
     protected List<WaypointNode> FindClosestNodesInCellFromPosition(Vector3 cellCheckPosition, Vector3 position, int count, WaypointType type)
