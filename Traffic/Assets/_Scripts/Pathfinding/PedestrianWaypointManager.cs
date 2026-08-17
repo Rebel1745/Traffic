@@ -718,11 +718,11 @@ public class PedestrianWaypointManager : WaypointManagerBase, ISaveable
 
     public void PopulateSaveData(GameSaveData saveData)
     {
-        var waypointData = new WaypointSaveData();
+        WaypointSaveData waypointData = new();
 
-        foreach (var node in _allWaypoints.Values)
+        foreach (WaypointNode node in _allWaypoints.Values)
         {
-            var nodeData = new WaypointNodeSaveData
+            WaypointNodeSaveData nodeData = new()
             {
                 Id = node.Id.ToString(),
                 X = node.Position.x,

@@ -10,4 +10,7 @@ public class GameSaveData
     public WaypointSaveData PedestrianWaypoints;
     public TrafficLightsSaveData TrafficLights;
     public BuildingsSaveData Buildings;
+    public PedestrianSaveData Pedestrians;
+    public VehicleSaveData Vehicles;
+    public List<RelationshipSaveData> Relationships;
 }

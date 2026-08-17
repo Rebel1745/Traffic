@@ -23,8 +23,6 @@ public class GridManager : MonoBehaviour, ISaveable
 
     public static event Action OnRoadGridUpdated;
 
-    private bool _subscribedToSaveManager = false;
-
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -37,35 +35,13 @@ public class GridManager : MonoBehaviour, ISaveable
 
     private void Start()
     {
+        SaveManager.Instance.RegisterSaveable(this);
         InitialiseGrid();
     }
 
-    private void Update()
+    private void OnDestroy()
     {
-        if (!_subscribedToSaveManager)
-            TryToSubscribeToSaveManager();
-    }
-
-    private void OnEnable()
-    {
-        TryToSubscribeToSaveManager();
-    }
-
-    private void OnDisable()
-    {
-        if (SaveManager.Instance != null)
-        {
-            SaveManager.Instance.UnregisterSaveable(this);
-            _subscribedToSaveManager = false;
-        }
-    }
-
-    private void TryToSubscribeToSaveManager()
-    {
-        if (SaveManager.Instance == null) return;
-
-        SaveManager.Instance.RegisterSaveable(this);
-        _subscribedToSaveManager = true;
+        SaveManager.Instance.UnregisterSaveable(this);
     }
 
     private void InitialiseGrid()

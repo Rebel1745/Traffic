@@ -2,9 +2,11 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class PedestrianManager : MonoBehaviour
+public class PedestrianManager : MonoBehaviour, ISaveable
 {
     public static PedestrianManager Instance { get; private set; }
+
+    public string SaveKey => "Pedestrians";
 
     [SerializeField] private GameObject[] _pedestrianPrefabs;
 
@@ -20,15 +22,15 @@ public class PedestrianManager : MonoBehaviour
         Instance = this;
     }
 
-    private void OnEnable()
+    private void Start()
     {
-        // Subscribe to input events
+        SaveManager.Instance.RegisterSaveable(this);
         InputManager.OnLeftClickPressed += HandleLeftClickPressed;
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
-        // Unsubscribe from input events
+        SaveManager.Instance.UnregisterSaveable(this);
         InputManager.OnLeftClickPressed -= HandleLeftClickPressed;
     }
 
@@ -248,6 +250,16 @@ public class PedestrianManager : MonoBehaviour
     public void ReParentPedestrian(AgentController ac)
     {
         ac.transform.SetParent(transform);
+    }
+
+    public void PopulateSaveData(GameSaveData saveData)
+    {
+
+    }
+
+    public void LoadFromSaveData(GameSaveData saveData)
+    {
+
     }
 
     #endregion

@@ -2,9 +2,11 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class RelationshipManager : MonoBehaviour
+public class RelationshipManager : MonoBehaviour, ISaveable
 {
     public static RelationshipManager Instance { get; private set; }
+
+    public string SaveKey => "Relationships";
 
     // Forward relationships: Source -> Targets (e.g., Building -> Residents)
     private Dictionary<RelationshipType, Dictionary<EntityId, List<EntityId>>> _forwardMaps = new();
@@ -20,6 +22,16 @@ public class RelationshipManager : MonoBehaviour
             return;
         }
         Instance = this;
+    }
+
+    private void Start()
+    {
+        SaveManager.Instance.RegisterSaveable(this);
+    }
+
+    private void OnDestroy()
+    {
+        SaveManager.Instance.UnregisterSaveable(this);
     }
 
     public void AddRelationship(RelationshipType type, EntityId source, EntityId target)
@@ -133,4 +145,54 @@ public class RelationshipManager : MonoBehaviour
 
     public List<EntityId> GetBuildingFromParkingSpot(EntityId parkingSpotId)
         => GetTargets(RelationshipType.BuildingParkingSpot, parkingSpotId, reverse: true);
+
+    public void PopulateSaveData(GameSaveData saveData)
+    {
+        saveData.Relationships = new();
+
+        foreach (var kvp in _forwardMaps)
+        {
+            RelationshipType type = kvp.Key;
+            var sourceMap = kvp.Value;
+
+            foreach (var sourceEntry in sourceMap)
+            {
+                EntityId sourceId = sourceEntry.Key;
+                List<EntityId> targets = sourceEntry.Value;
+
+                RelationshipSaveData data = new()
+                {
+                    Type = type.Name, // Store string for serialization
+                    SourceId = sourceId.ToString(),
+                    TargetIds = targets.Select(t => t.ToString()).ToList()
+                };
+
+                saveData.Relationships.Add(data);
+            }
+        }
+    }
+
+    public void LoadFromSaveData(GameSaveData saveData)
+    {
+        _forwardMaps = new();
+        _reverseMaps = new();
+
+        foreach (var data in saveData.Relationships)
+        {
+            RelationshipType type = RelationshipType.FromName(data.Type);
+            EntityId sourceId = EntityId.FromString(data.SourceId);
+
+            // 3. Add each relationship one by one
+            // This function will update BOTH Forward AND Reverse maps
+            foreach (var targetIdStr in data.TargetIds)
+            {
+                EntityId targetId = EntityId.FromString(targetIdStr);
+
+                if (sourceId.IsValid && targetId.IsValid)
+                {
+                    AddRelationship(type, sourceId, targetId);
+                }
+            }
+        }
+    }
 }

@@ -1,8 +1,39 @@
+using UnityEngine;
+using System.Collections.Generic;
+
 public struct RelationshipType
 {
     public string Name; // e.g., "Resident", "ParkedAt", "WorksAt"
+    public static readonly RelationshipType None = new RelationshipType("");
 
-    public RelationshipType(string name) => Name = name;
+    private static readonly Dictionary<string, RelationshipType> _registry = new();
+
+    public RelationshipType(string name)
+    {
+        Name = name;
+        // Register itself immediately upon creation
+        if (!string.IsNullOrEmpty(name))
+        {
+            // Check if already registered to avoid Overwrite errors if static fields are reloaded
+            if (!_registry.ContainsKey(name))
+            {
+                _registry[name] = this;
+            }
+        }
+    }
+
+    public static RelationshipType FromName(string name)
+    {
+        if (_registry.TryGetValue(name, out var type))
+            return type;
+
+        Debug.LogWarning($"Unknown relationship type: '{name}'");
+        return None;
+    }
+
+    // Standard Equals/GetHashCode
+    public override bool Equals(object obj) => obj is RelationshipType other && Name == other.Name;
+    public override int GetHashCode() => Name?.GetHashCode() ?? 0;
 
     public static readonly RelationshipType Resident = new("Resident"); // person -> building
     public static readonly RelationshipType Driver = new("Driver"); // person -> vehicle

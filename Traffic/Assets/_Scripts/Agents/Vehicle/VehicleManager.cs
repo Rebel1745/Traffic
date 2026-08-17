@@ -2,9 +2,11 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class VehicleManager : MonoBehaviour
+public class VehicleManager : MonoBehaviour, ISaveable
 {
     public static VehicleManager Instance { get; private set; }
+
+    public string SaveKey => "Vehicles";
 
     [SerializeField] private GameObject[] _vehiclePrefabs;
 
@@ -20,15 +22,15 @@ public class VehicleManager : MonoBehaviour
         Instance = this;
     }
 
-    private void OnEnable()
+    private void Start()
     {
-        // Subscribe to input events
+        SaveManager.Instance.RegisterSaveable(this);
         InputManager.OnLeftClickPressed += HandleLeftClickPressed;
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
-        // Unsubscribe from input events
+        SaveManager.Instance.UnregisterSaveable(this);
         InputManager.OnLeftClickPressed -= HandleLeftClickPressed;
     }
 
@@ -176,4 +178,14 @@ public class VehicleManager : MonoBehaviour
 
     public EntityId GetVehiclesHomeSpotId(EntityId vehicleId)
         => RelationshipManager.Instance.GetHomeParkingSpotForVehicle(vehicleId).FirstOrDefault();
+
+    public void PopulateSaveData(GameSaveData saveData)
+    {
+
+    }
+
+    public void LoadFromSaveData(GameSaveData saveData)
+    {
+
+    }
 }
