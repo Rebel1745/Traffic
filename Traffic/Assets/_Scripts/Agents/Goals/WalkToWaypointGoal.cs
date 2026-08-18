@@ -1,11 +1,14 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.IO;
 
 public class WalkToWaypointGoal : Goal
 {
     private WaypointNode _target;
 
-    public WalkToWaypointGoal(WaypointNode target, string goalName)
+    public override string GoalType => "WalkToWaypoint";
+
+    public WalkToWaypointGoal(WaypointNode target, string goalName = "Walking to waypoint")
     {
         GoalName = goalName;
         _target = target;
@@ -30,5 +33,11 @@ public class WalkToWaypointGoal : Goal
     public override void OnArrived(AgentController agent)
     {
 
+    }
+
+    public override string SaveData()
+    {
+        WalkToWaypointGoalSaveData data = new() { TargetId = _target.Id.ToString() };
+        return JsonUtility.ToJson(data);
     }
 }

@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class WalkToAndEnterVehicleGoal : Goal
 {
+    public override string GoalType => "WalkToAndEnterVehicle";
+
     private AgentController _agent;
     private AgentController _vehicle;
     private VehicleMovement _vm;
@@ -97,5 +99,16 @@ public class WalkToAndEnterVehicleGoal : Goal
     {
         _vm.OnArrivedAtDestination -= OnVehicleArrived;
         WalkToVehicle();
+    }
+
+    public override string SaveData()
+    {
+        if (_vehicle != null)
+        {
+            WalkToAndEnterVehicleGoalSaveData data = new() { VehicleId = _vehicle.Id.ToString() };
+            return JsonUtility.ToJson(data);
+        }
+
+        return "";
     }
 }

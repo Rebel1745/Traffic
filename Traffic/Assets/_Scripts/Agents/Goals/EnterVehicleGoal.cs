@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class EnterVehicleGoal : Goal
 {
+    public override string GoalType => "EnterVehicle";
+
     private AgentController _vehicle;
     private PedestrianMovement _pm;
 
@@ -32,5 +34,11 @@ public class EnterVehicleGoal : Goal
         agent.transform.parent = _vehicle.transform;
         agent.ShowHideAgent(false);
         _pm.SetCurrentVehicle(_vehicle);
+    }
+
+    public override string SaveData()
+    {
+        EnterVehicleGoalSaveData data = new() { VehicleId = _vehicle.Id.ToString() };
+        return JsonUtility.ToJson(data);
     }
 }

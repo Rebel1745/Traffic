@@ -3,6 +3,8 @@ using System.Collections;
 
 public class WaitGoal : Goal
 {
+    public override string GoalType => "Wait";
+
     private float _waitTime = 0;
 
     public WaitGoal(float waitTime)
@@ -24,5 +26,11 @@ public class WaitGoal : Goal
     {
         yield return new WaitForSeconds(_waitTime);
         agent.OnMovementFinished();
+    }
+
+    public override string SaveData()
+    {
+        WaitGoalSaveData data = new() { WaitTime = _waitTime };
+        return JsonUtility.ToJson(data);
     }
 }

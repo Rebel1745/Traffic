@@ -168,6 +168,9 @@ public class VehicleManager : MonoBehaviour, ISaveable
     public AgentController GetVehicle(EntityId entityId)
         => _allVehicles[entityId];
 
+    public AgentController GetVehicle(string id)
+        => GetVehicle(EntityId.FromString(id));
+
     public EntityId GetVehiclesHomeSpotId(EntityId vehicleId)
         => RelationshipManager.Instance.GetHomeParkingSpotForVehicle(vehicleId).FirstOrDefault();
 

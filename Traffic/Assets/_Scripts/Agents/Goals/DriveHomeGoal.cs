@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class DriveHomeGoal : Goal
 {
+    public override string GoalType => "DriveHome";
+
     public DriveHomeGoal(string goalName = "Drive home")
     {
         GoalName = goalName;
@@ -37,5 +39,10 @@ public class DriveHomeGoal : Goal
     public override void OnArrived(AgentController agent)
     {
 
+    }
+
+    public override string SaveData()
+    {
+        return "";
     }
 }

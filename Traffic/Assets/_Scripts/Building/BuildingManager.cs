@@ -70,9 +70,10 @@ public class BuildingManager : MonoBehaviour, ISaveable
     }
 
     public BuildingBase GetBuilding(EntityId entityId)
-    {
-        return _allBuildings[entityId];
-    }
+        => _allBuildings[entityId];
+
+    public BuildingBase GetBuilding(string id)
+        => GetBuilding(EntityId.FromString(id));
 
     public void GetBuildingPrefabDetailsFromSimulationState(out GameObject prefab, out int xCells, out int zCells)
     {

@@ -263,7 +263,8 @@ public class PedestrianManager : MonoBehaviour, ISaveable
                 LastName = pd.LastName,
                 CurrentVehicleId = pm.CurrentVehicle?.Id.ToString(),
                 CurrentWaypointId = pm.CurrentWaypoint?.Id.ToString(),
-                TargetWaypointId = pm.TargetWaypoint?.Id.ToString()
+                TargetWaypointId = pm.TargetWaypoint?.Id.ToString(),
+                Goals = agent.SaveQueueToJson()
             };
 
             saveData.Pedestrians.Add(pedestrian);
@@ -320,6 +321,9 @@ public class PedestrianManager : MonoBehaviour, ISaveable
                     pm.SetCurrentVehicle(vehicle);
                 }
             }
+
+            // load the goals
+            person.LoadQueue(p.Goals);
         }
     }
 

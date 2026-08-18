@@ -146,6 +146,95 @@ public class AgentController : MonoBehaviour, ISelectableObject
     {
         _agentModel.SetActive(show);
     }
+
+    public List<GoalSaveData> SaveQueueToJson()
+    {
+        List<GoalSaveData> goalDataList = new();
+
+        foreach (var goal in _goalQueue)
+        {
+            GoalSaveData data = new GoalSaveData
+            {
+                GoalType = goal.GoalType,
+                Json = goal.SaveData()
+            };
+            goalDataList.Add(data);
+        }
+
+        return goalDataList;
+    }
+
+    public void LoadQueue(List<GoalSaveData> json)
+    {
+        _goalQueue.Clear();
+
+        AgentController vehicle;
+        WaypointNode targetNode;
+
+        foreach (GoalSaveData data in json)
+        {
+            Goal newGoal = null;
+
+            switch (data.GoalType)
+            {
+                case "DriveHome":
+                    newGoal = new DriveHomeGoal();
+                    break;
+                case "DriveToAssignedPump":
+                    DriveToAssignedPumpGoalSaveData pumpData = JsonUtility.FromJson<DriveToAssignedPumpGoalSaveData>(data.Json);
+                    BuildingPetrolStation petrolStation = BuildingManager.Instance.GetBuilding(pumpData.PetrolStationId) as BuildingPetrolStation;
+                    newGoal = new DriveToAssignedPumpGoal(petrolStation);
+                    break;
+                case "DriveToWaypoint":
+                    DriveToWaypointGoalSaveData driveData = JsonUtility.FromJson<DriveToWaypointGoalSaveData>(data.Json);
+                    targetNode = VehicleWaypointManager.Instance.GetWaypointFromId(driveData.TargetId);
+                    newGoal = new DriveToWaypointGoal(targetNode, targetNode.Position.ToString());
+                    break;
+                case "EnterVehicle":
+                    EnterVehicleGoalSaveData vehicleData = JsonUtility.FromJson<EnterVehicleGoalSaveData>(data.Json);
+                    vehicle = VehicleManager.Instance.GetVehicle(vehicleData.VehicleId);
+                    newGoal = new EnterVehicleGoal(vehicle);
+                    break;
+                case "ExitCarPark":
+                    newGoal = new ExitCarParkGoal();
+                    break;
+                case "ExitVehicle":
+                    newGoal = new ExitVehicleGoal();
+                    break;
+                case "ParkInCarPark":
+                    ParkInCarParkGoalSaveData carParkData = JsonUtility.FromJson<ParkInCarParkGoalSaveData>(data.Json);
+                    BuildingCarPark carPark = BuildingManager.Instance.GetBuilding(carParkData.CarParkId) as BuildingCarPark;
+                    newGoal = new ParkInCarParkGoal(carPark);
+                    break;
+                case "Wait":
+                    WaitGoalSaveData waitData = JsonUtility.FromJson<WaitGoalSaveData>(data.Json);
+                    newGoal = new WaitGoal(waitData.WaitTime);
+                    break;
+                case "WalkToAndEnterVehicle":
+                    if (data.Json != "")
+                    {
+                        WalkToAndEnterVehicleGoalSaveData walkToData = JsonUtility.FromJson<WalkToAndEnterVehicleGoalSaveData>(data.Json);
+                        vehicle = VehicleManager.Instance.GetVehicle(walkToData.VehicleId);
+                        newGoal = new WalkToAndEnterVehicleGoal(vehicle: vehicle);
+                    }
+                    else newGoal = new WalkToAndEnterVehicleGoal();
+                    break;
+                case "WalkToFrontDoor":
+                    newGoal = new WalkToFrontDoorGoal();
+                    break;
+                case "WalkToWaypoint":
+                    WalkToWaypointGoalSaveData waypoint = JsonUtility.FromJson<WalkToWaypointGoalSaveData>(data.Json);
+                    targetNode = PedestrianWaypointManager.Instance.GetWaypointFromId(waypoint.TargetId);
+                    newGoal = new WalkToWaypointGoal(targetNode);
+                    break;
+            }
+
+            if (newGoal != null)
+            {
+                AddGoal(newGoal);
+            }
+        }
+    }
 }
 
 public enum AgentType

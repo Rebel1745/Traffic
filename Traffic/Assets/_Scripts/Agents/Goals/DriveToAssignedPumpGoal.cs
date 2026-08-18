@@ -3,12 +3,14 @@ using UnityEngine;
 
 public class DriveToAssignedPumpGoal : Goal
 {
+    public override string GoalType => "DriveToAssignedPump";
+
     private AgentController _vehicle;
     private VehicleMovement _vm;
     private AgentController _agent;
     private BuildingPetrolStation _petrolStation;
 
-    public DriveToAssignedPumpGoal(BuildingPetrolStation petrolStation, string goalName)
+    public DriveToAssignedPumpGoal(BuildingPetrolStation petrolStation, string goalName = "Drive to petrol station")
     {
         GoalName = goalName;
         _petrolStation = petrolStation;
@@ -57,5 +59,11 @@ public class DriveToAssignedPumpGoal : Goal
         _vehicle.transform.eulerAngles = new Vector3(0, Utils.SnapToClosestCardinalDirection(_vehicle.transform.eulerAngles.y), 0);
 
         if (_agent != _vehicle) _agent.OnMovementFinished();
+    }
+
+    public override string SaveData()
+    {
+        DriveToAssignedPumpGoalSaveData data = new() { PetrolStationId = _petrolStation.Id.ToString() };
+        return JsonUtility.ToJson(data);
     }
 }

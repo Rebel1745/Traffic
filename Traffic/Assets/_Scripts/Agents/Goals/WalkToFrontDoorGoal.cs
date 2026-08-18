@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class WalkToFrontDoorGoal : Goal
 {
+    public override string GoalType => "WalkToFrontDoor";
+
     private WaypointNode _target;
 
     public WalkToFrontDoorGoal(string goalName = "Walk to front door")
@@ -26,5 +28,10 @@ public class WalkToFrontDoorGoal : Goal
     {
         agent.AddGoalAfterCurrent(new WalkToWaypointGoal(_target, "Walking to home waypoint"));
 
+    }
+
+    public override string SaveData()
+    {
+        return "";
     }
 }

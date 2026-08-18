@@ -3,12 +3,14 @@ using System.Collections.Generic;
 
 public class DriveToWaypointGoal : Goal
 {
+    public override string GoalType => "DriveToWaypoint";
+
     private AgentController _vehicle;
     private VehicleMovement _vm;
     private WaypointNode _target;
     private AgentController _agent;
 
-    public DriveToWaypointGoal(WaypointNode target, string goalName)
+    public DriveToWaypointGoal(WaypointNode target, string goalName = "Drive to waypoint")
     {
         GoalName = goalName;
         _target = target;
@@ -46,5 +48,11 @@ public class DriveToWaypointGoal : Goal
     {
         //OnArrived(_vehicle);
         if (_agent != _vehicle) _agent.OnMovementFinished();
+    }
+
+    public override string SaveData()
+    {
+        DriveToWaypointGoalSaveData data = new() { TargetId = _target.Id.ToString() };
+        return JsonUtility.ToJson(data);
     }
 }

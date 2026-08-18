@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class ExitVehicleGoal : Goal
 {
+    public override string GoalType => "ExitVehicle";
+
     private VehicleMovement _vm;
     private PedestrianMovement _pm;
 
@@ -42,5 +44,10 @@ public class ExitVehicleGoal : Goal
     public override void OnArrived(AgentController agent)
     {
         _pm.SetCurrentVehicle(null);
+    }
+
+    public override string SaveData()
+    {
+        return "";
     }
 }

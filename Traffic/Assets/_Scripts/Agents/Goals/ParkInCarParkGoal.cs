@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class ParkInCarParkGoal : Goal
 {
+    public override string GoalType => "ParkInCarPark";
+
     private AgentController _vehicle;
     private VehicleMovement _vm;
     private AgentController _agent;
@@ -52,5 +54,11 @@ public class ParkInCarParkGoal : Goal
     {
         //OnArrived(_vehicle);
         if (_agent != _vehicle) _agent.OnMovementFinished();
+    }
+
+    public override string SaveData()
+    {
+        ParkInCarParkGoalSaveData data = new() { CarParkId = _carPark.Id.ToString() };
+        return JsonUtility.ToJson(data);
     }
 }

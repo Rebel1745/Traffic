@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class ExitCarParkGoal : Goal
 {
+    public override string GoalType => "ExitCarPark";
+
     private AgentController _agent;
     private WaypointNode _parkingSpot;
     private BuildingCarPark _carPark;
@@ -77,4 +79,9 @@ public class ExitCarParkGoal : Goal
     //     _carPark.SetParkingSpotOccupation(_parkingSpot, false);
     //     _agent.OnMovementFinished();
     // }
+
+    public override string SaveData()
+    {
+        return "";
+    }
 }
