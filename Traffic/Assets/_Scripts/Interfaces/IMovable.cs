@@ -7,7 +7,7 @@ public interface IMovable
     event Action OnArrivedAtDestination;
 
     // setup the movement details
-    void Initialise(WaypointNode spawnWaypoint);
+    void Initialise(WaypointNode spawnWaypoint, WaypointNode targetWaypoint);
 
     // Action: Start moving along a list of waypoints
     void SetPath(List<WaypointNode> path);
@@ -17,4 +17,5 @@ public interface IMovable
 
     // Property: Get current waypoint (used for pathfinding start points)
     WaypointNode CurrentWaypoint { get; }
+    WaypointNode TargetWaypoint { get; }
 }

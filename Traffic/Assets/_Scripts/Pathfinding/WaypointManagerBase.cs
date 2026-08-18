@@ -51,18 +51,19 @@ public abstract class WaypointManagerBase : MonoBehaviour
 
     protected WaypointNode CreateAndAddWaypoint(GridCell cell, Vector3 position, WaypointType type, WaypointNetworkType networkType = WaypointNetworkType.Vehicle, WaypointNode laneNode = null, RoadDirection lightPos = RoadDirection.None)
     {
-        // check to see if we have this waypoint already
-        WaypointNode existing = GetWaypointNodeFromPositionInCell(cell, position, 0.1f, type);
-        if (existing != null)
+        // check to see if we have this waypoint already, if we have we can just return it
+        WaypointNode newNode = GetWaypointNodeFromPositionInCell(cell, position, 0.1f, type);
+        if (newNode != null)
         {
-            Debug.Log($"New waypoint {type.ToString()} at {position} is already present with type {existing.Type} at {position}");
+            Debug.Log($"New waypoint {type.ToString()} at {position} is already present with type {newNode.Type} at {position}");
         }
-
-        // create the waypoint
-        WaypointNode newNode = CreateWaypoint(cell, position, type, networkType, laneNode: laneNode, lightPos: lightPos);
-
-        // add the waypoint
-        AddWaypoint(cell, newNode);
+        else
+        {
+            // create the waypoint
+            newNode = CreateWaypoint(cell, position, type, networkType, laneNode: laneNode, lightPos: lightPos);
+            // add the waypoint
+            AddWaypoint(cell, newNode);
+        }
 
         return newNode;
     }

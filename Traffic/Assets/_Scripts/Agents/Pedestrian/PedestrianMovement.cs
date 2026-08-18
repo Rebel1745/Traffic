@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
-using System.IO;
+using System.Linq;
 
 public class PedestrianMovement : MonoBehaviour, IMovable
 {
@@ -26,6 +26,8 @@ public class PedestrianMovement : MonoBehaviour, IMovable
 
     private WaypointNode _currentWaypoint;
     public WaypointNode CurrentWaypoint => _currentWaypoint;
+    private WaypointNode _targetWaypoint;
+    public WaypointNode TargetWaypoint => _targetWaypoint;
 
     public event Action OnArrivedAtDestination;
 
@@ -48,12 +50,20 @@ public class PedestrianMovement : MonoBehaviour, IMovable
         MoveToNextWaypoint();
     }
 
-    public void Initialise(WaypointNode spawnWaypoint)
+    public void Initialise(WaypointNode spawnWaypoint, WaypointNode targetWaypoint)
     {
+        // if (targetWaypoint != null)
+        // {
+        //     List<WaypointNode> path = AStarPathfinder.FindPath(spawnWaypoint, targetWaypoint);
+        //     SetPath(path);
+        //     return;
+        // }
+
         _currentPath = new()
         {
             spawnWaypoint
         };
+
         _currentWaypointIndex = 0;
         _currentWaypoint = spawnWaypoint;
         _isMoving = false;
@@ -72,13 +82,16 @@ public class PedestrianMovement : MonoBehaviour, IMovable
         }
 
         _currentPath = new List<WaypointNode>(path);
+        _currentWaypoint = path.First();
         _currentWaypointIndex = 0;
         _isMoving = true;
+        _targetWaypoint = path.Last();
     }
 
     public void Stop(bool forceStop = false)
     {
         _isMoving = false;
+        _targetWaypoint = null;
         transform.rotation = Quaternion.LookRotation(Vector3.back);
 
         if (!forceStop)

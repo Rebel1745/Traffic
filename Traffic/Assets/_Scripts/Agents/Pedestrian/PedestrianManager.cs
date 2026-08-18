@@ -62,16 +62,11 @@ public class PedestrianManager : MonoBehaviour, ISaveable
         // PedestrianSpawner.Instance.SpawnPedestrian(startWaypoint, targetWaypoint);
     }
 
-    private AgentController AddAndRegisterPerson()
-    {
-        WaypointNode randomWaypoint = GetRandomPedestrianWaypoint(WaypointType.None);
-        return AddAndRegisterPerson(randomWaypoint, randomWaypoint.Position);
-    }
-
-    public AgentController AddAndRegisterPerson(WaypointNode spawnWaypoint, Vector3 spawnPosition)
+    public AgentController AddAndRegisterPerson(EntityId id, WaypointNode spawnWaypoint, Vector3 spawnPosition, WaypointNode targetWaypoint)
     {
         // 1. Generate the ID
-        EntityId newId = EntityId.New();
+        if (id.Equals(EntityId.None))
+            id = EntityId.New();
 
         // 2. Instantiate the GameObject
         // You can use Object.Instantiate with a prefab
@@ -84,10 +79,10 @@ public class PedestrianManager : MonoBehaviour, ISaveable
         AgentController pc = pedestrian.GetComponent<AgentController>();
 
         // 3. Assign the ID to the controller
-        pc.Initialise(AgentType.Person, newId, spawnWaypoint);
+        pc.Initialise(AgentType.Person, id, spawnWaypoint, targetWaypoint);
 
         // 4. Register in the dictionary
-        _allPedestrians[newId] = pc;
+        _allPedestrians[id] = pc;
 
         // 5. Hook into the Destroy event to auto-cleanup
         // (See Step C below)
@@ -254,12 +249,78 @@ public class PedestrianManager : MonoBehaviour, ISaveable
 
     public void PopulateSaveData(GameSaveData saveData)
     {
+        saveData.Pedestrians = new();
 
+        foreach (AgentController agent in _allPedestrians.Values)
+        {
+            PedestrianMovement pm = agent.GetComponent<PedestrianMovement>();
+            PedestrianData pd = agent.GetComponent<PedestrianData>();
+
+            PedestrianSaveData pedestrian = new()
+            {
+                Id = agent.Id.ToString(),
+                FirstName = pd.FirstName,
+                LastName = pd.LastName,
+                CurrentVehicleId = pm.CurrentVehicle?.Id.ToString(),
+                CurrentWaypointId = pm.CurrentWaypoint?.Id.ToString(),
+                TargetWaypointId = pm.TargetWaypoint?.Id.ToString()
+            };
+
+            saveData.Pedestrians.Add(pedestrian);
+        }
     }
 
     public void LoadFromSaveData(GameSaveData saveData)
     {
+        if (saveData.Pedestrians == null)
+        {
+            Debug.LogWarning("[PedestrianManager] No Pedestrian data in save file. ");
+            return;
+        }
 
+        // clear and delete all Pedestrian game objects from the world
+        _allPedestrians.Clear();
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            Destroy(transform.GetChild(i).gameObject);
+        }
+
+        foreach (PedestrianSaveData p in saveData.Pedestrians)
+        {
+            EntityId pId = EntityId.FromString(p.Id);
+            WaypointNode currentWaypoint = PedestrianWaypointManager.Instance.GetWaypointFromId(p.CurrentWaypointId);
+
+            if (currentWaypoint == null)
+            {
+                // one reason could be that we are in a car and thus have a vehicle waypoint
+                currentWaypoint = VehicleWaypointManager.Instance.GetWaypointFromId(p.CurrentWaypointId);
+
+                if (currentWaypoint == null)
+                {
+                    Debug.LogError($"We don't seem to have a valid waypoint for person {p.Id}. But why?");
+                }
+            }
+
+            WaypointNode targetWaypoint = PedestrianWaypointManager.Instance.GetWaypointFromId(p.TargetWaypointId);
+
+            AgentController person = AddAndRegisterPerson(pId, currentWaypoint, currentWaypoint.Position, targetWaypoint);
+            PedestrianData pd = person.GetComponent<PedestrianData>();
+            PedestrianMovement pm = person.GetComponent<PedestrianMovement>();
+
+            pd.SetNames(p.FirstName, p.LastName);
+
+            if (p.CurrentVehicleId != "")
+            {
+                AgentController vehicle = VehicleManager.Instance.GetVehicle(EntityId.FromString(p.CurrentVehicleId));
+
+                if (vehicle.Id.IsValid)
+                {
+                    person.transform.parent = vehicle.transform;
+                    person.ShowHideAgent(false);
+                    pm.SetCurrentVehicle(vehicle);
+                }
+            }
+        }
     }
 
     #endregion

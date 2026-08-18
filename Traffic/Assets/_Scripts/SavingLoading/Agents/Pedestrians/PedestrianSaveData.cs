@@ -1,16 +1,12 @@
 using UnityEngine;
 
-public class PedestrianSaveData : MonoBehaviour
+[System.Serializable]
+public class PedestrianSaveData
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public string Id;
+    public string FirstName;
+    public string LastName;
+    public string CurrentVehicleId;
+    public string CurrentWaypointId;
+    public string TargetWaypointId;
 }

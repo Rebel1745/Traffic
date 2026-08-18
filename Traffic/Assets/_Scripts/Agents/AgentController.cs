@@ -37,11 +37,11 @@ public class AgentController : MonoBehaviour, ISelectableObject
         _mover.OnArrivedAtDestination += OnMovementFinished;
     }
 
-    public void Initialise(AgentType type, EntityId id, WaypointNode startWaypoint)
+    public void Initialise(AgentType type, EntityId id, WaypointNode startWaypoint, WaypointNode targetWaypoint)
     {
         Id = id;
         _agentType = type;
-        _mover.Initialise(startWaypoint);
+        _mover.Initialise(startWaypoint, targetWaypoint);
     }
 
     public void OnMovementFinished()

@@ -1,16 +1,9 @@
 using UnityEngine;
 
-public class VehicleSaveData : MonoBehaviour
+[System.Serializable]
+public class VehicleSaveData
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public string Id;
+    public string CurrentWaypointId;
+    public string TargetWaypointId;
 }

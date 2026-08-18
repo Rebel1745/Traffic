@@ -28,12 +28,17 @@ public class BuildingHouse : BuildingBase
 
     // Waypoint references (populated during initialization)
     private WaypointNode _insideBuildingWaypoint;
+    public WaypointNode InsideBuildingWaypoint => _insideBuildingWaypoint;
     private WaypointNode _doorWaypoint;
     public WaypointNode DoorWaypoint => _doorWaypoint;
     private WaypointNode _entryExitPropertyWaypoint;
+    public WaypointNode EntryExitPropertyWaypoint => _entryExitPropertyWaypoint;
     private WaypointNode[] _entryExitVehicleWaypoints;
+    public WaypointNode[] EntryExitVehicleWaypoints => _entryExitVehicleWaypoints;
     private WaypointNode[] _parkingSpotWaypoints;
+    public WaypointNode[] ParkingSpotWaypoint => _parkingSpotWaypoints;
     private WaypointNode _vehicleEntryExitPropertyWaypoint;
+    public WaypointNode VehicleEntryExitPropertyWaypoint => _vehicleEntryExitPropertyWaypoint;
 
     private int MaximumOccupancy => _maximumOccupancy;
     private int MaximumVehicleOccupancy => _maximumVehicleOccupancy;
@@ -46,7 +51,8 @@ public class BuildingHouse : BuildingBase
 
     public override void InitialiseBuilding(EntityId entityId, GridCell cell)
     {
-        LoadBuilding(entityId, cell);
+        Id = entityId;
+        _cell = cell;
 
         // Validate waypoint counts
         if (_entryExitVehicleWaypointPositions.Length != _parkingSpotWaypointPositions.Length)
@@ -68,6 +74,10 @@ public class BuildingHouse : BuildingBase
     {
         Id = entityId;
         _cell = cell;
+
+        // initialising the waypoints here won't create more, but it will update the references to the ones we already have
+        InitialisePedestrianWaypoints();
+        InitialiseVehicleWaypoints();
     }
 
     private void InitialisePedestrianWaypoints()
@@ -129,22 +139,6 @@ public class BuildingHouse : BuildingBase
         if (_currentOccupancy >= MaximumOccupancy) return;
 
         AddPersonAndVehicleToBuilding();
-
-        // // Add resident
-        // AgentController person = AddPersonToBuilding();
-
-        // // Add vehicle
-        // AgentController vehicle = AddVehicleToBuilding();
-
-        // // Link person to vehicle
-        // if (person != null && vehicle != null)
-        // {
-        //     RelationshipManager.Instance.AddRelationship(
-        //         RelationshipType.Driver,
-        //         person.Id,
-        //         vehicle.Id
-        //     );
-        // }
     }
 
     public AgentController AddPersonToBuilding()
@@ -152,7 +146,7 @@ public class BuildingHouse : BuildingBase
         if (_currentOccupancy >= MaximumOccupancy) return null;
 
         Vector3 spawnPosition = GetSpawnPositionForPerson(_doorWaypoint.Position);
-        AgentController person = PedestrianManager.Instance.AddAndRegisterPerson(_doorWaypoint, spawnPosition);
+        AgentController person = PedestrianManager.Instance.AddAndRegisterPerson(EntityId.None, _doorWaypoint, spawnPosition, null);
 
         RelationshipManager.Instance.AddRelationship(
             RelationshipType.Resident,
@@ -169,7 +163,7 @@ public class BuildingHouse : BuildingBase
         if (_currentVehicleOccupancy >= MaximumVehicleOccupancy) return null;
 
         WaypointNode parkingSpot = _parkingSpotWaypoints[_currentVehicleOccupancy];
-        AgentController vehicle = VehicleManager.Instance.AddAndRegisterVehicle(parkingSpot);
+        AgentController vehicle = VehicleManager.Instance.AddAndRegisterVehicle(EntityId.None, parkingSpot, null);
 
         RelationshipManager.Instance.AddRelationship(
             RelationshipType.HomeBuilding,

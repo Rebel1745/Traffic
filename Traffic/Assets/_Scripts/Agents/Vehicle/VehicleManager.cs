@@ -62,34 +62,26 @@ public class VehicleManager : MonoBehaviour, ISaveable
         // VehicleSpawner.Instance.SpawnVehicle(startWaypoint, targetWaypoint);
     }
 
-    private AgentController AddAndRegisterVehicle()
-    {
-        return AddAndRegisterVehicle(GetRandomVehicleWaypoint(WaypointType.None));
-    }
-
-    public AgentController AddAndRegisterVehicle(WaypointNode spawnWaypoint)
+    public AgentController AddAndRegisterVehicle(EntityId id, WaypointNode spawnWaypoint, WaypointNode targetWaypoint)
     {
         // 1. Generate the ID
-        EntityId newId = EntityId.New();
+        if (id.Equals(EntityId.None))
+            id = EntityId.New();
 
         // 2. Instantiate the GameObject
         // You can use Object.Instantiate with a prefab
         GameObject vehiclePrefab = _vehiclePrefabs[Random.Range(0, _vehiclePrefabs.Length)];
         Vector3 spawnLocation = Utils.GetVectorWithSetHeight(spawnWaypoint.Position, 0.2f);
-        //Vector3 lookDirection = (Utils.GetVectorWithSetHeight(Camera.main.transform.position, 0.2f) - spawnLocation).normalized;
         GameObject vehicle = Instantiate(vehiclePrefab, spawnLocation, Quaternion.identity, transform);
         Vector3 lookDirection = Vector3.back;
         vehicle.transform.rotation = Quaternion.LookRotation(lookDirection);
         AgentController vc = vehicle.GetComponent<AgentController>();
 
         // 3. Assign the ID to the controller
-        vc.Initialise(AgentType.Vehicle, newId, spawnWaypoint);
+        vc.Initialise(AgentType.Vehicle, id, spawnWaypoint, targetWaypoint);
 
         // 4. Register in the dictionary
-        _allVehicles[newId] = vc;
-
-        // 5. Hook into the Destroy event to auto-cleanup
-        // (See Step C below)
+        _allVehicles[id] = vc;
 
         return vc;
     }
@@ -181,11 +173,45 @@ public class VehicleManager : MonoBehaviour, ISaveable
 
     public void PopulateSaveData(GameSaveData saveData)
     {
+        saveData.Vehicles = new();
 
+        foreach (AgentController agent in _allVehicles.Values)
+        {
+            VehicleMovement vm = agent.GetComponent<VehicleMovement>();
+
+            VehicleSaveData vehicle = new()
+            {
+                Id = agent.Id.ToString(),
+                CurrentWaypointId = vm.CurrentWaypoint?.Id.ToString(),
+                TargetWaypointId = vm.TargetWaypoint?.Id.ToString()
+            };
+
+            saveData.Vehicles.Add(vehicle);
+        }
     }
 
     public void LoadFromSaveData(GameSaveData saveData)
     {
+        if (saveData.Vehicles == null)
+        {
+            Debug.LogWarning("[VehicleManager] No Vehicle data in save file.");
+            return;
+        }
 
+        // clear and delete all Vehicle game objects from the world
+        _allVehicles.Clear();
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            Destroy(transform.GetChild(i).gameObject);
+        }
+
+        foreach (VehicleSaveData v in saveData.Vehicles)
+        {
+            EntityId vId = EntityId.FromString(v.Id);
+            WaypointNode currentWaypoint = VehicleWaypointManager.Instance.GetWaypointFromId(v.CurrentWaypointId);
+            WaypointNode targetWaypoint = VehicleWaypointManager.Instance.GetWaypointFromId(v.TargetWaypointId);
+
+            AddAndRegisterVehicle(vId, currentWaypoint, targetWaypoint);
+        }
     }
 }

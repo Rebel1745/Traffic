@@ -40,6 +40,9 @@ public class BuildingPetrolStation : BuildingBase
     {
         Id = entityId;
         _cell = cell;
+
+        InitialiseVehicleWaypoints();
+        InitialisePedestrianWaypoints();
     }
 
     private void InitialiseVehicleWaypoints()

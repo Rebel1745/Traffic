@@ -25,6 +25,8 @@ public class VehicleMovement : MonoBehaviour, IMovable
 
     private WaypointNode _currentWaypoint;
     public WaypointNode CurrentWaypoint => _currentWaypoint;
+    private WaypointNode _targetWaypoint;
+    public WaypointNode TargetWaypoint => _targetWaypoint;
 
     public event Action OnArrivedAtDestination;
 
@@ -43,8 +45,15 @@ public class VehicleMovement : MonoBehaviour, IMovable
         MoveTowardsNextWaypoint();
     }
 
-    public void Initialise(WaypointNode spawnWaypoint)
+    public void Initialise(WaypointNode spawnWaypoint, WaypointNode targetWaypoint)
     {
+        if (targetWaypoint != null)
+        {
+            List<WaypointNode> path = AStarPathfinder.FindPath(spawnWaypoint, targetWaypoint);
+            SetPath(path);
+            return;
+        }
+
         _currentPath = new()
         {
             spawnWaypoint
@@ -72,8 +81,10 @@ public class VehicleMovement : MonoBehaviour, IMovable
         }
 
         _currentPath = new List<WaypointNode>(path);
+        _currentWaypoint = path.First();
         _currentWaypointIndex = 0;
         _isMoving = true;
+        _targetWaypoint = path.Last();
 
         GetNextWaypointWithTrafficLight();
     }
@@ -156,6 +167,7 @@ public class VehicleMovement : MonoBehaviour, IMovable
     public void Stop(bool forceStop = false)
     {
         _currentWaypoint = _currentPath.Last();
+        _targetWaypoint = null;
 
         // if we have just parked, flip the car
         if (_currentWaypoint.Type == WaypointType.VehicleParking)
