@@ -8,8 +8,8 @@ public abstract class BuildingBase : MonoBehaviour, ISelectableObject
 
     [Header("Building Details")]
     public EntityId Id { get; protected set; }
-    [SerializeField] private BuildingType _buildingType;
-    public BuildingType BuildingType => _buildingType;
+    [SerializeField] private BuildingSubState _buildingType;
+    public BuildingSubState BuildingType => _buildingType;
     [SerializeField] private int _buildingXCells = 2;  // X axis
     public int BuildingXCells => _buildingXCells;
     [SerializeField] private int _buildingZCells = 2; // Z axis
@@ -36,12 +36,4 @@ public abstract class BuildingBase : MonoBehaviour, ISelectableObject
         if (_isSelectable)
             UIManager.Instance.LoadBuildingDetails(this);
     }
-}
-
-public enum BuildingType
-{
-    None,
-    House,
-    PetrolStation,
-    CarPark
 }

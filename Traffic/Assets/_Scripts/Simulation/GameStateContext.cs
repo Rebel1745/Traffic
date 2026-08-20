@@ -53,7 +53,17 @@ public enum PedestrianSubState
 public enum BuildingSubState
 {
     None,
+    Bakery,
+    Bar,
+    CarPark,
+    ChickenShop,
+    CoffeeShop,
+    DrugStore,
+    FastFood,
+    GiftShop,
     House,
+    MusicShop,
     PetrolStation,
-    CarPark
+    PizzaShop,
+    Restaurant
 }

@@ -190,7 +190,7 @@ public class PedestrianManager : MonoBehaviour, ISaveable
 
     public void DriveToPetrolStationAndHome(AgentController agent)
     {
-        List<EntityId> petrolStations = BuildingManager.Instance.GetBuildingsByType(BuildingType.PetrolStation);
+        List<EntityId> petrolStations = BuildingManager.Instance.GetBuildingsByType(BuildingSubState.PetrolStation);
 
         if (petrolStations.Count == 0) Debug.LogError("No petrol stations found");
 
@@ -210,7 +210,7 @@ public class PedestrianManager : MonoBehaviour, ISaveable
 
     public void DriveToCarParkAndWalkAround(AgentController agent)
     {
-        List<EntityId> carParks = BuildingManager.Instance.GetBuildingsByType(BuildingType.CarPark);
+        List<EntityId> carParks = BuildingManager.Instance.GetBuildingsByType(BuildingSubState.CarPark);
 
         if (carParks.Count == 0) Debug.LogError("No car parks found");
 

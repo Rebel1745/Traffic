@@ -9,9 +9,19 @@ public class BuildingManager : MonoBehaviour, ISaveable
     public string SaveKey => "Buildings";
 
     [Header("Building Prefabs")]
-    [SerializeField] private GameObject _housePrefab;
-    [SerializeField] private GameObject _petrolStationPrefab;
+    [SerializeField] private GameObject _bakeryPrefab;
+    [SerializeField] private GameObject _barPrefab;
     [SerializeField] private GameObject _carParkPrefab;
+    [SerializeField] private GameObject _chickenShopPrefab;
+    [SerializeField] private GameObject _coffeeShopPrefab;
+    [SerializeField] private GameObject _drugStorePrefab;
+    [SerializeField] private GameObject _fastFoodPrefab;
+    [SerializeField] private GameObject _giftShopPrefab;
+    [SerializeField] private GameObject _housePrefab;
+    [SerializeField] private GameObject _musicShopPrefab;
+    [SerializeField] private GameObject _petrolStationPrefab;
+    [SerializeField] private GameObject _pizzaShopPrefab;
+    [SerializeField] private GameObject _restaurantPrefab;
 
     private Dictionary<EntityId, BuildingBase> _allBuildings = new();
 
@@ -79,9 +89,19 @@ public class BuildingManager : MonoBehaviour, ISaveable
     {
         prefab = SimulationManager.Instance.CurrentState.BuildingSubState switch
         {
-            BuildingSubState.House => _housePrefab,
-            BuildingSubState.PetrolStation => _petrolStationPrefab,
+            BuildingSubState.Bakery => _bakeryPrefab,
+            BuildingSubState.Bar => _barPrefab,
             BuildingSubState.CarPark => _carParkPrefab,
+            BuildingSubState.ChickenShop => _chickenShopPrefab,
+            BuildingSubState.CoffeeShop => _coffeeShopPrefab,
+            BuildingSubState.DrugStore => _drugStorePrefab,
+            BuildingSubState.FastFood => _fastFoodPrefab,
+            BuildingSubState.GiftShop => _giftShopPrefab,
+            BuildingSubState.House => _housePrefab,
+            BuildingSubState.MusicShop => _musicShopPrefab,
+            BuildingSubState.PetrolStation => _petrolStationPrefab,
+            BuildingSubState.PizzaShop => _pizzaShopPrefab,
+            BuildingSubState.Restaurant => _restaurantPrefab,
             _ => _housePrefab
         };
 
@@ -90,7 +110,7 @@ public class BuildingManager : MonoBehaviour, ISaveable
         zCells = bb.BuildingZCells;
     }
 
-    public List<EntityId> GetBuildingsByType(BuildingType type)
+    public List<EntityId> GetBuildingsByType(BuildingSubState type)
     {
         return _allBuildings.Values
         .Where(building => building.BuildingType == type)
@@ -135,7 +155,7 @@ public class BuildingManager : MonoBehaviour, ISaveable
         BuildingPetrolStation currentPetrolStation;
 
         // get all the houses
-        List<EntityId> houses = GetBuildingsByType(BuildingType.House);
+        List<EntityId> houses = GetBuildingsByType(BuildingSubState.House);
         foreach (EntityId id in houses)
         {
             currentBuilding = GetBuilding(id);
@@ -155,7 +175,7 @@ public class BuildingManager : MonoBehaviour, ISaveable
         }
 
         // get all the car parks
-        List<EntityId> carParks = GetBuildingsByType(BuildingType.CarPark);
+        List<EntityId> carParks = GetBuildingsByType(BuildingSubState.CarPark);
         foreach (EntityId id in carParks)
         {
             currentBuilding = GetBuilding(id);
@@ -175,7 +195,7 @@ public class BuildingManager : MonoBehaviour, ISaveable
         }
 
         // get all the petrol stations
-        List<EntityId> petrolStations = GetBuildingsByType(BuildingType.PetrolStation);
+        List<EntityId> petrolStations = GetBuildingsByType(BuildingSubState.PetrolStation);
         foreach (EntityId id in petrolStations)
         {
             currentBuilding = GetBuilding(id);

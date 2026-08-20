@@ -118,7 +118,7 @@ public class VehicleManager : MonoBehaviour, ISaveable
 
     public void GoToRandomCarParkingSpace(AgentController agent)
     {
-        List<EntityId> carParks = BuildingManager.Instance.GetBuildingsByType(BuildingType.CarPark);
+        List<EntityId> carParks = BuildingManager.Instance.GetBuildingsByType(BuildingSubState.CarPark);
 
         if (carParks.Count == 0) Debug.LogError("No car parks found!");
 

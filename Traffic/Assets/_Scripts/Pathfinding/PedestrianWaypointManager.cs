@@ -695,6 +695,34 @@ public class PedestrianWaypointManager : WaypointManagerBase, ISaveable
         alightWaypoints = alightWaypointList.ToArray();
         fillUpWaypoints = fillUpWaypointList.ToArray();
     }
+
+    public void AddStoreRoadsidePedestrianWaypoints(
+        GridCell cell,
+        Transform insideBuilding,
+        Transform buildingEntrance,
+        Transform propertyEntrance,
+        Transform checkCell,
+        out WaypointNode insideBuildingWaypoint,
+        out WaypointNode buildingEntranceWaypoint,
+        out WaypointNode propertyEntranceWaypoint
+    )
+    {
+        insideBuildingWaypoint = CreateAndAddWaypoint(cell, insideBuilding.position, WaypointType.InsideBuilding, WaypointNetworkType.Pedestrian);
+        buildingEntranceWaypoint = CreateAndAddWaypoint(cell, buildingEntrance.position, WaypointType.BuildingDoor, WaypointNetworkType.Pedestrian);
+        propertyEntranceWaypoint = CreateAndAddWaypoint(cell, propertyEntrance.position, WaypointType.PropertyEntryExit, WaypointNetworkType.Pedestrian);
+
+        AddWaypointConnection(insideBuildingWaypoint, buildingEntranceWaypoint, cost: 0.1f, twoWay: true);
+        AddWaypointConnection(buildingEntranceWaypoint, propertyEntranceWaypoint, cost: 0.1f, twoWay: true);
+
+        // find the closest pedestrian walkway node to the entry node position to allow the person to walk from the property into the world
+        List<WaypointNode> closestPedestrianWaypoints = FindClosestNodesInCellFromPosition(checkCell.position, propertyEntranceWaypoint.Position, 2, WaypointType.PedestrianWalkway);
+
+        // connect the property entry/exit node to the pedestrian walkway on the pavement
+        foreach (WaypointNode node in closestPedestrianWaypoints)
+        {
+            AddWaypointConnection(propertyEntranceWaypoint, node, twoWay: true);
+        }
+    }
     #endregion
 
     public WaypointNode GetWaypointNodeFromPositionInCell(GridCell cell, Vector3 position)
