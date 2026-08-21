@@ -550,7 +550,7 @@ public class VehicleWaypointManager : WaypointManagerBase, ISaveable
         }
 
         // find and connect the property exit waypoint, to the waypoints exiting the adjoing cell to allow the vehicle to exit the property in multiple different directions
-        List<WaypointNode> closestVehicleWaypoints = FindClosestNodesInCellFromPosition(cellCheckWaypoint.position, vehicleEntryExitPropertyWaypoint.Position, 3, WaypointType.Exit);
+        List<WaypointNode> closestVehicleWaypoints = FindClosestNodesInCellFromPosition(cellCheckWaypoint.position, vehicleEntryExitPropertyWaypoint.Position, 3, new() { WaypointType.Exit });
 
         // connect the property entry/exit node to the Vehicle node on the road
         foreach (WaypointNode node in closestVehicleWaypoints)
@@ -559,7 +559,7 @@ public class VehicleWaypointManager : WaypointManagerBase, ISaveable
         }
 
         //find and connect the entry points of the cell connecting to the property entry way to allow the vehicle to approach from any direction
-        closestVehicleWaypoints = FindClosestNodesInCellFromPosition(cellCheckWaypoint.position, vehicleEntryExitPropertyWaypoint.Position, 3, WaypointType.Entry);
+        closestVehicleWaypoints = FindClosestNodesInCellFromPosition(cellCheckWaypoint.position, vehicleEntryExitPropertyWaypoint.Position, 3, new() { WaypointType.Entry });
 
         // connect the property entry/exit node to the Vehicle node on the road
         foreach (WaypointNode node in closestVehicleWaypoints)
@@ -607,14 +607,14 @@ public class VehicleWaypointManager : WaypointManagerBase, ISaveable
         pumpNodes = pumpList.ToArray();
 
         // now we need to connect the road to the property entry
-        List<WaypointNode> closestVehicleWaypoints = FindClosestNodesInCellFromPosition(cellCheckEntry.position, propertyEntry.Position, 3, WaypointType.Entry);
+        List<WaypointNode> closestVehicleWaypoints = FindClosestNodesInCellFromPosition(cellCheckEntry.position, propertyEntry.Position, 3, new() { WaypointType.Entry });
         foreach (WaypointNode node in closestVehicleWaypoints)
         {
             AddWaypointConnection(node, propertyEntry, 100f);
         }
 
         // now connect the property exit to the road
-        closestVehicleWaypoints = FindClosestNodesInCellFromPosition(cellCheckExit.position, propertyExit.Position, 3, WaypointType.Exit);
+        closestVehicleWaypoints = FindClosestNodesInCellFromPosition(cellCheckExit.position, propertyExit.Position, 3, new() { WaypointType.Exit });
         foreach (WaypointNode node in closestVehicleWaypoints)
         {
             AddWaypointConnection(propertyExit, node, 100f);
@@ -709,14 +709,14 @@ public class VehicleWaypointManager : WaypointManagerBase, ISaveable
         bottomParkingSpotWaypoints = bottomParkingSpotList.ToArray();
 
         // now we need to connect the road to the property entry
-        List<WaypointNode> closestVehicleWaypoints = FindClosestNodesInCellFromPosition(cellCheckEntry.position, entryWaypoint.Position, 3, WaypointType.Entry);
+        List<WaypointNode> closestVehicleWaypoints = FindClosestNodesInCellFromPosition(cellCheckEntry.position, entryWaypoint.Position, 3, new() { WaypointType.Entry });
         foreach (WaypointNode node in closestVehicleWaypoints)
         {
             AddWaypointConnection(node, entryWaypoint, 100f);
         }
 
         // now connect the property exit to the road
-        closestVehicleWaypoints = FindClosestNodesInCellFromPosition(cellCheckExit.position, exitWaypoint.Position, 3, WaypointType.Exit);
+        closestVehicleWaypoints = FindClosestNodesInCellFromPosition(cellCheckExit.position, exitWaypoint.Position, 3, new() { WaypointType.Exit });
         foreach (WaypointNode node in closestVehicleWaypoints)
         {
             AddWaypointConnection(exitWaypoint, node, 100f);

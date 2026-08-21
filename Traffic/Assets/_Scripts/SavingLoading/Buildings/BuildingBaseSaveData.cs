@@ -4,6 +4,7 @@ using UnityEngine;
 public class BuildingBaseSaveData
 {
     public string Id;
+    public BuildingSubState BuildingType;
     public string BuildingName;
     public int CellX;
     public int CellZ;

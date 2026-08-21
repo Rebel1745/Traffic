@@ -340,7 +340,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6eed9ce3d7441f44833d0e807c1939e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PedestrianMovement
-  _moveSpeed: 1
+  _moveSpeed: 10
   _rotationSpeed: 10
   _waypointReachThreshold: 0.1
 --- !u!114 &8566163807536734251

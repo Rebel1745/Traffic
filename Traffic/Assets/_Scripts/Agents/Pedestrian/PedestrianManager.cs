@@ -179,6 +179,25 @@ public class PedestrianManager : MonoBehaviour, ISaveable
         return homeNode;
     }
 
+    public void GoToStore(AgentController agent)
+    {
+        EntityId id = BuildingManager.Instance.GetBuildingsByType(BuildingSubState.Restaurant).First();
+        if (!id.IsValid)
+        {
+            Debug.Log("Store id not found");
+            return;
+        }
+
+        BuildingStoreRoadside bb = BuildingManager.Instance.GetBuilding(id) as BuildingStoreRoadside;
+        if (bb == null)
+        {
+            Debug.Log("Store not found");
+            return;
+        }
+
+        agent.AddGoal(new WalkToWaypointGoal(bb.InsideBuildingWaypoint));
+    }
+
     public void GoOnADriveAndComeHome(AgentController agent)
     {
         agent.AddGoal(new WalkToAndEnterVehicleGoal());

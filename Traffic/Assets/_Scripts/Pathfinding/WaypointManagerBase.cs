@@ -283,7 +283,7 @@ public abstract class WaypointManagerBase : MonoBehaviour
         return GetWaypointFromId(entityId);
     }
 
-    protected List<WaypointNode> FindClosestNodesInCellFromPosition(Vector3 cellCheckPosition, Vector3 position, int count, WaypointType type)
+    protected List<WaypointNode> FindClosestNodesInCellFromPosition(Vector3 cellCheckPosition, Vector3 position, int count, List<WaypointType> types)
     {
         GridCell neighbour = GridManager.Instance.GetCellAtWorldPosition(cellCheckPosition);
         List<WaypointNode> allNodes = GetCellWaypoints(neighbour);
@@ -293,7 +293,7 @@ public abstract class WaypointManagerBase : MonoBehaviour
         {
             foreach (WaypointNode node in allNodes)
             {
-                if (node.Type != type) continue;
+                if (!types.Contains(node.Type)) continue;
                 selectedNodes.Add(node);
             }
 

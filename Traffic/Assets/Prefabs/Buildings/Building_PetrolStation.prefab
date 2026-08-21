@@ -465,7 +465,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildingPetrolStation
   _buildingRenderer: {fileID: 259312279778116380}
   _foundationRenderer: {fileID: 5066857194494075345}
-  _buildingType: 2
+  _buildingType: 11
   _buildingXCells: 1
   _buildingZCells: 2
   _buildingName: Petrol Station

@@ -144,26 +144,39 @@ public class BuildingManager : MonoBehaviour, ISaveable
     {
         BuildingsSaveData buildings = new()
         {
-            Houses = new(),
+            Bakeries = new(),
+            Bars = new(),
             CarParks = new(),
-            PetrolStations = new()
+            ChickenShops = new(),
+            CoffeeShops = new(),
+            DrugStores = new(),
+            FastFoodShops = new(),
+            GiftShops = new(),
+            Houses = new(),
+            MusicShops = new(),
+            PetrolStations = new(),
+            PizzaShops = new(),
+            Restaurants = new()
         };
 
+        List<EntityId> buildingList;
         BuildingBase currentBuilding;
-        BuildingHouse currentHouse;
         BuildingCarPark currentCarPark;
+        BuildingHouse currentHouse;
         BuildingPetrolStation currentPetrolStation;
+        BuildingStoreRoadside currentStore;
 
-        // get all the houses
-        List<EntityId> houses = GetBuildingsByType(BuildingSubState.House);
-        foreach (EntityId id in houses)
+        // get all the bakeries
+        buildingList = GetBuildingsByType(BuildingSubState.Bakery);
+        foreach (EntityId id in buildingList)
         {
             currentBuilding = GetBuilding(id);
-            currentHouse = currentBuilding as BuildingHouse;
+            currentStore = currentBuilding as BuildingStoreRoadside;
 
-            BuildingHouseSaveData houseSaveData = new()
+            BuildingStoreRoadsideSaveData storeSaveData = new()
             {
                 Id = currentBuilding.Id.ToString(),
+                BuildingType = currentBuilding.BuildingType,
                 BuildingName = currentBuilding.BuildingName,
                 CellX = currentBuilding.Cell.Position.x,
                 CellZ = currentBuilding.Cell.Position.z,
@@ -171,12 +184,33 @@ public class BuildingManager : MonoBehaviour, ISaveable
                 WidthZ = currentBuilding.BuildingZCells
             };
 
-            buildings.Houses.Add(houseSaveData);
+            buildings.Bakeries.Add(storeSaveData);
+        }
+
+        // get all the bars
+        buildingList = GetBuildingsByType(BuildingSubState.Bar);
+        foreach (EntityId id in buildingList)
+        {
+            currentBuilding = GetBuilding(id);
+            currentStore = currentBuilding as BuildingStoreRoadside;
+
+            BuildingStoreRoadsideSaveData storeSaveData = new()
+            {
+                Id = currentBuilding.Id.ToString(),
+                BuildingType = currentBuilding.BuildingType,
+                BuildingName = currentBuilding.BuildingName,
+                CellX = currentBuilding.Cell.Position.x,
+                CellZ = currentBuilding.Cell.Position.z,
+                WidthX = currentBuilding.BuildingXCells,
+                WidthZ = currentBuilding.BuildingZCells
+            };
+
+            buildings.Bars.Add(storeSaveData);
         }
 
         // get all the car parks
-        List<EntityId> carParks = GetBuildingsByType(BuildingSubState.CarPark);
-        foreach (EntityId id in carParks)
+        buildingList = GetBuildingsByType(BuildingSubState.CarPark);
+        foreach (EntityId id in buildingList)
         {
             currentBuilding = GetBuilding(id);
             currentCarPark = currentBuilding as BuildingCarPark;
@@ -184,6 +218,7 @@ public class BuildingManager : MonoBehaviour, ISaveable
             BuildingCarParkSaveData carParkSaveData = new()
             {
                 Id = currentBuilding.Id.ToString(),
+                BuildingType = currentBuilding.BuildingType,
                 BuildingName = currentBuilding.BuildingName,
                 CellX = currentBuilding.Cell.Position.x,
                 CellZ = currentBuilding.Cell.Position.z,
@@ -194,9 +229,156 @@ public class BuildingManager : MonoBehaviour, ISaveable
             buildings.CarParks.Add(carParkSaveData);
         }
 
+        // get all the chicken shops
+        buildingList = GetBuildingsByType(BuildingSubState.ChickenShop);
+        foreach (EntityId id in buildingList)
+        {
+            currentBuilding = GetBuilding(id);
+            currentStore = currentBuilding as BuildingStoreRoadside;
+
+            BuildingStoreRoadsideSaveData storeSaveData = new()
+            {
+                Id = currentBuilding.Id.ToString(),
+                BuildingType = currentBuilding.BuildingType,
+                BuildingName = currentBuilding.BuildingName,
+                CellX = currentBuilding.Cell.Position.x,
+                CellZ = currentBuilding.Cell.Position.z,
+                WidthX = currentBuilding.BuildingXCells,
+                WidthZ = currentBuilding.BuildingZCells
+            };
+
+            buildings.ChickenShops.Add(storeSaveData);
+        }
+
+        // get all the CoffeeShops
+        buildingList = GetBuildingsByType(BuildingSubState.CoffeeShop);
+        foreach (EntityId id in buildingList)
+        {
+            currentBuilding = GetBuilding(id);
+            currentStore = currentBuilding as BuildingStoreRoadside;
+
+            BuildingStoreRoadsideSaveData storeSaveData = new()
+            {
+                Id = currentBuilding.Id.ToString(),
+                BuildingType = currentBuilding.BuildingType,
+                BuildingName = currentBuilding.BuildingName,
+                CellX = currentBuilding.Cell.Position.x,
+                CellZ = currentBuilding.Cell.Position.z,
+                WidthX = currentBuilding.BuildingXCells,
+                WidthZ = currentBuilding.BuildingZCells
+            };
+
+            buildings.CoffeeShops.Add(storeSaveData);
+        }
+
+        // get all the DrugStores
+        buildingList = GetBuildingsByType(BuildingSubState.DrugStore);
+        foreach (EntityId id in buildingList)
+        {
+            currentBuilding = GetBuilding(id);
+            currentStore = currentBuilding as BuildingStoreRoadside;
+
+            BuildingStoreRoadsideSaveData storeSaveData = new()
+            {
+                Id = currentBuilding.Id.ToString(),
+                BuildingType = currentBuilding.BuildingType,
+                BuildingName = currentBuilding.BuildingName,
+                CellX = currentBuilding.Cell.Position.x,
+                CellZ = currentBuilding.Cell.Position.z,
+                WidthX = currentBuilding.BuildingXCells,
+                WidthZ = currentBuilding.BuildingZCells
+            };
+
+            buildings.DrugStores.Add(storeSaveData);
+        }
+
+        // get all the FastFood shops
+        buildingList = GetBuildingsByType(BuildingSubState.FastFood);
+        foreach (EntityId id in buildingList)
+        {
+            currentBuilding = GetBuilding(id);
+            currentStore = currentBuilding as BuildingStoreRoadside;
+
+            BuildingStoreRoadsideSaveData storeSaveData = new()
+            {
+                Id = currentBuilding.Id.ToString(),
+                BuildingType = currentBuilding.BuildingType,
+                BuildingName = currentBuilding.BuildingName,
+                CellX = currentBuilding.Cell.Position.x,
+                CellZ = currentBuilding.Cell.Position.z,
+                WidthX = currentBuilding.BuildingXCells,
+                WidthZ = currentBuilding.BuildingZCells
+            };
+
+            buildings.FastFoodShops.Add(storeSaveData);
+        }
+
+        // get all the GiftShops
+        buildingList = GetBuildingsByType(BuildingSubState.GiftShop);
+        foreach (EntityId id in buildingList)
+        {
+            currentBuilding = GetBuilding(id);
+            currentStore = currentBuilding as BuildingStoreRoadside;
+
+            BuildingStoreRoadsideSaveData storeSaveData = new()
+            {
+                Id = currentBuilding.Id.ToString(),
+                BuildingType = currentBuilding.BuildingType,
+                BuildingName = currentBuilding.BuildingName,
+                CellX = currentBuilding.Cell.Position.x,
+                CellZ = currentBuilding.Cell.Position.z,
+                WidthX = currentBuilding.BuildingXCells,
+                WidthZ = currentBuilding.BuildingZCells
+            };
+
+            buildings.GiftShops.Add(storeSaveData);
+        }
+
+        // get all the houses
+        buildingList = GetBuildingsByType(BuildingSubState.House);
+        foreach (EntityId id in buildingList)
+        {
+            currentBuilding = GetBuilding(id);
+            currentHouse = currentBuilding as BuildingHouse;
+
+            BuildingHouseSaveData houseSaveData = new()
+            {
+                Id = currentBuilding.Id.ToString(),
+                BuildingType = currentBuilding.BuildingType,
+                BuildingName = currentBuilding.BuildingName,
+                CellX = currentBuilding.Cell.Position.x,
+                CellZ = currentBuilding.Cell.Position.z,
+                WidthX = currentBuilding.BuildingXCells,
+                WidthZ = currentBuilding.BuildingZCells
+            };
+
+            buildings.Houses.Add(houseSaveData);
+        }
+
+        // get all the MusicShops
+        buildingList = GetBuildingsByType(BuildingSubState.MusicShop);
+        foreach (EntityId id in buildingList)
+        {
+            currentBuilding = GetBuilding(id);
+            currentStore = currentBuilding as BuildingStoreRoadside;
+
+            BuildingStoreRoadsideSaveData storeSaveData = new()
+            {
+                Id = currentBuilding.Id.ToString(),
+                BuildingType = currentBuilding.BuildingType,
+                BuildingName = currentBuilding.BuildingName,
+                CellX = currentBuilding.Cell.Position.x,
+                CellZ = currentBuilding.Cell.Position.z,
+                WidthX = currentBuilding.BuildingXCells,
+                WidthZ = currentBuilding.BuildingZCells
+            };
+
+            buildings.MusicShops.Add(storeSaveData);
+        }
+
         // get all the petrol stations
-        List<EntityId> petrolStations = GetBuildingsByType(BuildingSubState.PetrolStation);
-        foreach (EntityId id in petrolStations)
+        buildingList = GetBuildingsByType(BuildingSubState.PetrolStation);
+        foreach (EntityId id in buildingList)
         {
             currentBuilding = GetBuilding(id);
             currentPetrolStation = currentBuilding as BuildingPetrolStation;
@@ -204,6 +386,7 @@ public class BuildingManager : MonoBehaviour, ISaveable
             BuildingPetrolStationSaveData petrolStationSaveData = new()
             {
                 Id = currentBuilding.Id.ToString(),
+                BuildingType = currentBuilding.BuildingType,
                 BuildingName = currentBuilding.BuildingName,
                 CellX = currentBuilding.Cell.Position.x,
                 CellZ = currentBuilding.Cell.Position.z,
@@ -212,6 +395,48 @@ public class BuildingManager : MonoBehaviour, ISaveable
             };
 
             buildings.PetrolStations.Add(petrolStationSaveData);
+        }
+
+        // get all the PizzaShops
+        buildingList = GetBuildingsByType(BuildingSubState.PizzaShop);
+        foreach (EntityId id in buildingList)
+        {
+            currentBuilding = GetBuilding(id);
+            currentStore = currentBuilding as BuildingStoreRoadside;
+
+            BuildingStoreRoadsideSaveData storeSaveData = new()
+            {
+                Id = currentBuilding.Id.ToString(),
+                BuildingType = currentBuilding.BuildingType,
+                BuildingName = currentBuilding.BuildingName,
+                CellX = currentBuilding.Cell.Position.x,
+                CellZ = currentBuilding.Cell.Position.z,
+                WidthX = currentBuilding.BuildingXCells,
+                WidthZ = currentBuilding.BuildingZCells
+            };
+
+            buildings.PizzaShops.Add(storeSaveData);
+        }
+
+        // get all the Restaurants
+        buildingList = GetBuildingsByType(BuildingSubState.Restaurant);
+        foreach (EntityId id in buildingList)
+        {
+            currentBuilding = GetBuilding(id);
+            currentStore = currentBuilding as BuildingStoreRoadside;
+
+            BuildingStoreRoadsideSaveData storeSaveData = new()
+            {
+                Id = currentBuilding.Id.ToString(),
+                BuildingType = currentBuilding.BuildingType,
+                BuildingName = currentBuilding.BuildingName,
+                CellX = currentBuilding.Cell.Position.x,
+                CellZ = currentBuilding.Cell.Position.z,
+                WidthX = currentBuilding.BuildingXCells,
+                WidthZ = currentBuilding.BuildingZCells
+            };
+
+            buildings.Restaurants.Add(storeSaveData);
         }
 
         saveData.Buildings = buildings;
@@ -232,18 +457,26 @@ public class BuildingManager : MonoBehaviour, ISaveable
             Destroy(transform.GetChild(i).gameObject);
         }
 
-        // load houses
-        foreach (BuildingHouseSaveData house in saveData.Buildings.Houses)
+        foreach (BuildingStoreRoadsideSaveData store in saveData.Buildings.Bakeries)
         {
-            Vector3Int firstCell = new(house.CellX, 0, house.CellZ);
-            EntityId houseId = EntityId.FromString(house.Id);
+            Vector3Int firstCell = new(store.CellX, 0, store.CellZ);
+            EntityId storeId = EntityId.FromString(store.Id);
 
-            BuildingBase newBuilding = PlaceAndRegisterBuilding(houseId, _housePrefab, firstCell, house.WidthX, house.WidthZ);
-            newBuilding.LoadBuilding(houseId, GridManager.Instance.GetCell(firstCell));
-            newBuilding.name = house.BuildingName;
+            BuildingBase newBuilding = PlaceAndRegisterBuilding(storeId, _bakeryPrefab, firstCell, store.WidthX, store.WidthZ);
+            newBuilding.LoadBuilding(storeId, GridManager.Instance.GetCell(firstCell));
+            newBuilding.name = store.BuildingName;
         }
 
-        // load car parks
+        foreach (BuildingStoreRoadsideSaveData store in saveData.Buildings.Bars)
+        {
+            Vector3Int firstCell = new(store.CellX, 0, store.CellZ);
+            EntityId storeId = EntityId.FromString(store.Id);
+
+            BuildingBase newBuilding = PlaceAndRegisterBuilding(storeId, _barPrefab, firstCell, store.WidthX, store.WidthZ);
+            newBuilding.LoadBuilding(storeId, GridManager.Instance.GetCell(firstCell));
+            newBuilding.name = store.BuildingName;
+        }
+
         foreach (BuildingCarParkSaveData carPark in saveData.Buildings.CarParks)
         {
             Vector3Int firstCell = new(carPark.CellX, 0, carPark.CellZ);
@@ -254,7 +487,76 @@ public class BuildingManager : MonoBehaviour, ISaveable
             newBuilding.name = carPark.BuildingName;
         }
 
-        // load petrol stations
+        foreach (BuildingStoreRoadsideSaveData store in saveData.Buildings.ChickenShops)
+        {
+            Vector3Int firstCell = new(store.CellX, 0, store.CellZ);
+            EntityId storeId = EntityId.FromString(store.Id);
+
+            BuildingBase newBuilding = PlaceAndRegisterBuilding(storeId, _chickenShopPrefab, firstCell, store.WidthX, store.WidthZ);
+            newBuilding.LoadBuilding(storeId, GridManager.Instance.GetCell(firstCell));
+            newBuilding.name = store.BuildingName;
+        }
+
+        foreach (BuildingStoreRoadsideSaveData store in saveData.Buildings.CoffeeShops)
+        {
+            Vector3Int firstCell = new(store.CellX, 0, store.CellZ);
+            EntityId storeId = EntityId.FromString(store.Id);
+
+            BuildingBase newBuilding = PlaceAndRegisterBuilding(storeId, _coffeeShopPrefab, firstCell, store.WidthX, store.WidthZ);
+            newBuilding.LoadBuilding(storeId, GridManager.Instance.GetCell(firstCell));
+            newBuilding.name = store.BuildingName;
+        }
+
+        foreach (BuildingStoreRoadsideSaveData store in saveData.Buildings.DrugStores)
+        {
+            Vector3Int firstCell = new(store.CellX, 0, store.CellZ);
+            EntityId storeId = EntityId.FromString(store.Id);
+
+            BuildingBase newBuilding = PlaceAndRegisterBuilding(storeId, _drugStorePrefab, firstCell, store.WidthX, store.WidthZ);
+            newBuilding.LoadBuilding(storeId, GridManager.Instance.GetCell(firstCell));
+            newBuilding.name = store.BuildingName;
+        }
+
+        foreach (BuildingStoreRoadsideSaveData store in saveData.Buildings.FastFoodShops)
+        {
+            Vector3Int firstCell = new(store.CellX, 0, store.CellZ);
+            EntityId storeId = EntityId.FromString(store.Id);
+
+            BuildingBase newBuilding = PlaceAndRegisterBuilding(storeId, _fastFoodPrefab, firstCell, store.WidthX, store.WidthZ);
+            newBuilding.LoadBuilding(storeId, GridManager.Instance.GetCell(firstCell));
+            newBuilding.name = store.BuildingName;
+        }
+
+        foreach (BuildingStoreRoadsideSaveData store in saveData.Buildings.GiftShops)
+        {
+            Vector3Int firstCell = new(store.CellX, 0, store.CellZ);
+            EntityId storeId = EntityId.FromString(store.Id);
+
+            BuildingBase newBuilding = PlaceAndRegisterBuilding(storeId, _giftShopPrefab, firstCell, store.WidthX, store.WidthZ);
+            newBuilding.LoadBuilding(storeId, GridManager.Instance.GetCell(firstCell));
+            newBuilding.name = store.BuildingName;
+        }
+
+        foreach (BuildingHouseSaveData house in saveData.Buildings.Houses)
+        {
+            Vector3Int firstCell = new(house.CellX, 0, house.CellZ);
+            EntityId houseId = EntityId.FromString(house.Id);
+
+            BuildingBase newBuilding = PlaceAndRegisterBuilding(houseId, _housePrefab, firstCell, house.WidthX, house.WidthZ);
+            newBuilding.LoadBuilding(houseId, GridManager.Instance.GetCell(firstCell));
+            newBuilding.name = house.BuildingName;
+        }
+
+        foreach (BuildingStoreRoadsideSaveData store in saveData.Buildings.MusicShops)
+        {
+            Vector3Int firstCell = new(store.CellX, 0, store.CellZ);
+            EntityId storeId = EntityId.FromString(store.Id);
+
+            BuildingBase newBuilding = PlaceAndRegisterBuilding(storeId, _musicShopPrefab, firstCell, store.WidthX, store.WidthZ);
+            newBuilding.LoadBuilding(storeId, GridManager.Instance.GetCell(firstCell));
+            newBuilding.name = store.BuildingName;
+        }
+
         foreach (BuildingPetrolStationSaveData petrolStation in saveData.Buildings.PetrolStations)
         {
             Vector3Int firstCell = new(petrolStation.CellX, 0, petrolStation.CellZ);
@@ -265,6 +567,24 @@ public class BuildingManager : MonoBehaviour, ISaveable
             newBuilding.name = petrolStation.BuildingName;
         }
 
-        Debug.Log($"[BuildingManager] Loaded {saveData.Buildings.Houses.Count} houses, {saveData.Buildings.CarParks.Count} car parks, and {saveData.Buildings.PetrolStations.Count} petrol stations.");
+        foreach (BuildingStoreRoadsideSaveData store in saveData.Buildings.PizzaShops)
+        {
+            Vector3Int firstCell = new(store.CellX, 0, store.CellZ);
+            EntityId storeId = EntityId.FromString(store.Id);
+
+            BuildingBase newBuilding = PlaceAndRegisterBuilding(storeId, _pizzaShopPrefab, firstCell, store.WidthX, store.WidthZ);
+            newBuilding.LoadBuilding(storeId, GridManager.Instance.GetCell(firstCell));
+            newBuilding.name = store.BuildingName;
+        }
+
+        foreach (BuildingStoreRoadsideSaveData store in saveData.Buildings.Restaurants)
+        {
+            Vector3Int firstCell = new(store.CellX, 0, store.CellZ);
+            EntityId storeId = EntityId.FromString(store.Id);
+
+            BuildingBase newBuilding = PlaceAndRegisterBuilding(storeId, _restaurantPrefab, firstCell, store.WidthX, store.WidthZ);
+            newBuilding.LoadBuilding(storeId, GridManager.Instance.GetCell(firstCell));
+            newBuilding.name = store.BuildingName;
+        }
     }
 }

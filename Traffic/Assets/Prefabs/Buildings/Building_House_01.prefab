@@ -101,7 +101,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildingHouse
   _buildingRenderer: {fileID: 6633993774056098461}
   _foundationRenderer: {fileID: 5013279444769424418}
-  _buildingType: 1
+  _buildingType: 9
   _buildingXCells: 2
   _buildingZCells: 2
   _buildingName: House

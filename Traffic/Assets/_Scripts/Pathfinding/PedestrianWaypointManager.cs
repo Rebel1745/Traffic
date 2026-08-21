@@ -512,7 +512,7 @@ public class PedestrianWaypointManager : WaypointManagerBase, ISaveable
         AddWaypointConnection(currentNode, previousNode, twoWay: true);
 
         // find the closest pedestrian walkway node to the entry/exit nodes position to allow the person to walk from the property into the world
-        List<WaypointNode> closestPedestrianWaypoints = FindClosestNodesInCellFromPosition(entryExitCellCheck.position, entryExitPropertyWaypoint.Position, 2, WaypointType.PedestrianWalkway);
+        List<WaypointNode> closestPedestrianWaypoints = FindClosestNodesInCellFromPosition(entryExitCellCheck.position, entryExitPropertyWaypoint.Position, 2, new() { WaypointType.PedestrianWalkway, WaypointType.PedestrianRoadCrossing });
 
         // connect the property entry/exit node to the pedestrian walkway on the pavement
         foreach (WaypointNode node in closestPedestrianWaypoints)
@@ -615,7 +615,7 @@ public class PedestrianWaypointManager : WaypointManagerBase, ISaveable
         AddWaypointConnection(previousNode, exit, twoWay: true, cost: 0.1f);
 
         // find the closest pedestrian walkway node to the entry node position to allow the person to walk from the property into the world
-        List<WaypointNode> closestPedestrianWaypoints = FindClosestNodesInCellFromPosition(entryCheck.position, entry.Position, 2, WaypointType.PedestrianWalkway);
+        List<WaypointNode> closestPedestrianWaypoints = FindClosestNodesInCellFromPosition(entryCheck.position, entry.Position, 2, new() { WaypointType.PedestrianWalkway, WaypointType.PedestrianRoadCrossing });
 
         // connect the property entry/exit node to the pedestrian walkway on the pavement
         foreach (WaypointNode node in closestPedestrianWaypoints)
@@ -624,7 +624,7 @@ public class PedestrianWaypointManager : WaypointManagerBase, ISaveable
         }
 
         // do the same for the exit waypoint
-        closestPedestrianWaypoints = FindClosestNodesInCellFromPosition(exitCheck.position, exit.Position, 2, WaypointType.PedestrianWalkway);
+        closestPedestrianWaypoints = FindClosestNodesInCellFromPosition(exitCheck.position, exit.Position, 2, new() { WaypointType.PedestrianWalkway, WaypointType.PedestrianRoadCrossing });
 
         // connect the property entry/exit node to the pedestrian walkway on the pavement
         foreach (WaypointNode node in closestPedestrianWaypoints)
@@ -715,7 +715,7 @@ public class PedestrianWaypointManager : WaypointManagerBase, ISaveable
         AddWaypointConnection(buildingEntranceWaypoint, propertyEntranceWaypoint, cost: 0.1f, twoWay: true);
 
         // find the closest pedestrian walkway node to the entry node position to allow the person to walk from the property into the world
-        List<WaypointNode> closestPedestrianWaypoints = FindClosestNodesInCellFromPosition(checkCell.position, propertyEntranceWaypoint.Position, 2, WaypointType.PedestrianWalkway);
+        List<WaypointNode> closestPedestrianWaypoints = FindClosestNodesInCellFromPosition(checkCell.position, propertyEntranceWaypoint.Position, 2, new() { WaypointType.PedestrianWalkway, WaypointType.PedestrianRoadCrossing });
 
         // connect the property entry/exit node to the pedestrian walkway on the pavement
         foreach (WaypointNode node in closestPedestrianWaypoints)
