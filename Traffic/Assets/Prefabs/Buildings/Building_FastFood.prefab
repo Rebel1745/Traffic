@@ -115,7 +115,7 @@ MonoBehaviour:
   _buildingType: 7
   _buildingXCells: 2
   _buildingZCells: 2
-  _buildingName: Bar
+  _buildingName: Fast Food Shop
   _isSelectable: 0
   _cameraFocusOffset: {x: 0, y: 0, z: 0}
   _cameraRotation: {x: 45, y: 0, z: 0}
