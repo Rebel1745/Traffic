@@ -113,6 +113,7 @@ MonoBehaviour:
   _buildingRenderer: {fileID: 0}
   _foundationRenderer: {fileID: 5066857194494075345}
   _buildingType: 10
+  _buildingFunction: 6
   _buildingXCells: 2
   _buildingZCells: 2
   _buildingName: Music Shop

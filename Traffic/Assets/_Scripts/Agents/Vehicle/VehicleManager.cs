@@ -62,7 +62,7 @@ public class VehicleManager : MonoBehaviour, ISaveable
         // VehicleSpawner.Instance.SpawnVehicle(startWaypoint, targetWaypoint);
     }
 
-    public AgentController AddAndRegisterVehicle(EntityId id, WaypointNode spawnWaypoint, WaypointNode targetWaypoint)
+    public AgentController AddAndRegisterVehicle(EntityId id, WaypointNode spawnWaypoint)
     {
         // 1. Generate the ID
         if (id.Equals(EntityId.None))
@@ -78,7 +78,7 @@ public class VehicleManager : MonoBehaviour, ISaveable
         AgentController vc = vehicle.GetComponent<AgentController>();
 
         // 3. Assign the ID to the controller
-        vc.Initialise(AgentType.Vehicle, id, spawnWaypoint, targetWaypoint);
+        vc.Initialise(AgentType.Vehicle, id, spawnWaypoint);
 
         // 4. Register in the dictionary
         _allVehicles[id] = vc;
@@ -185,8 +185,7 @@ public class VehicleManager : MonoBehaviour, ISaveable
             VehicleSaveData vehicle = new()
             {
                 Id = agent.Id.ToString(),
-                CurrentWaypointId = vm.CurrentWaypoint?.Id.ToString(),
-                TargetWaypointId = vm.TargetWaypoint?.Id.ToString()
+                CurrentWaypointId = vm.CurrentWaypoint?.Id.ToString()
             };
 
             saveData.Vehicles.Add(vehicle);
@@ -212,9 +211,8 @@ public class VehicleManager : MonoBehaviour, ISaveable
         {
             EntityId vId = EntityId.FromString(v.Id);
             WaypointNode currentWaypoint = VehicleWaypointManager.Instance.GetWaypointFromId(v.CurrentWaypointId);
-            WaypointNode targetWaypoint = VehicleWaypointManager.Instance.GetWaypointFromId(v.TargetWaypointId);
 
-            AddAndRegisterVehicle(vId, currentWaypoint, targetWaypoint);
+            AddAndRegisterVehicle(vId, currentWaypoint);
         }
     }
 }

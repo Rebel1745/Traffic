@@ -269,6 +269,7 @@ GameObject:
   - component: {fileID: 6308337097913130179}
   - component: {fileID: 5850076945027939214}
   - component: {fileID: 8566163807536734251}
+  - component: {fileID: 1412520978132683845}
   m_Layer: 9
   m_Name: Agent normal man a
   m_TagString: Untagged
@@ -357,6 +358,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PedestrianData
   _firstName: John
   _lastName: Doe
+--- !u!114 &1412520978132683845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2550749243947844532}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d208fb0a4646694f9f0891ed3f0d8c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PedestrianBrain
 --- !u!1 &2967529522850779170
 GameObject:
   m_ObjectHideFlags: 0

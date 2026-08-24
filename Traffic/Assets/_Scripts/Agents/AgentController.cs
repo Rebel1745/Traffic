@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using Unity.VisualScripting;
 
 public class AgentController : MonoBehaviour, ISelectableObject
 {
@@ -16,7 +17,9 @@ public class AgentController : MonoBehaviour, ISelectableObject
 
     private IMovable _mover;
     public IMovable Mover => _mover;
-    //private Queue<Goal> _goalQueue = new Queue<Goal>();
+
+    private IAgentBrain _brain;
+    public IAgentBrain Brain => _brain;
 
     private LinkedList<Goal> _goalQueue = new LinkedList<Goal>();
     private Goal _currentGoal; // Track the active goal separately
@@ -35,13 +38,21 @@ public class AgentController : MonoBehaviour, ISelectableObject
 
         // Subscribe to the movement completion event
         _mover.OnArrivedAtDestination += OnMovementFinished;
+
+        _brain = GetComponent<IAgentBrain>();
+
+        if (_brain == null)
+        {
+            Debug.LogError($"[{gameObject.name}] AgentController requires a component implementing IAgentBrain!");
+            return;
+        }
     }
 
-    public void Initialise(AgentType type, EntityId id, WaypointNode startWaypoint, WaypointNode targetWaypoint)
+    public void Initialise(AgentType type, EntityId id, WaypointNode startWaypoint)
     {
         Id = id;
         _agentType = type;
-        _mover.Initialise(startWaypoint, targetWaypoint);
+        _mover.Initialise(startWaypoint);
     }
 
     public void OnMovementFinished()
@@ -68,6 +79,7 @@ public class AgentController : MonoBehaviour, ISelectableObject
         {
             _currentGoal = null;
             _currentNode = null;
+            _brain.DecideNextAction(this);
         }
     }
 
@@ -118,6 +130,17 @@ public class AgentController : MonoBehaviour, ISelectableObject
         // Add the new goal and start it
         _goalQueue.AddFirst(goal);
         StartGoal(goal);
+    }
+
+    public void SetGoalList(LinkedList<Goal> goals)
+    {
+        _goalQueue = goals;
+
+        if (goals != null && goals.Count > 0)
+        {
+            Goal nextGoal = _goalQueue.First.Value;
+            StartGoal(nextGoal);
+        }
     }
 
     private void StartGoal(Goal goal)

@@ -45,15 +45,8 @@ public class VehicleMovement : MonoBehaviour, IMovable
         MoveTowardsNextWaypoint();
     }
 
-    public void Initialise(WaypointNode spawnWaypoint, WaypointNode targetWaypoint)
+    public void Initialise(WaypointNode spawnWaypoint)
     {
-        if (targetWaypoint != null)
-        {
-            List<WaypointNode> path = AStarPathfinder.FindPath(spawnWaypoint, targetWaypoint);
-            SetPath(path);
-            return;
-        }
-
         _currentPath = new()
         {
             spawnWaypoint

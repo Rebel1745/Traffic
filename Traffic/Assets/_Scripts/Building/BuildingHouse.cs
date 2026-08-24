@@ -146,7 +146,7 @@ public class BuildingHouse : BuildingBase
         if (_currentOccupancy >= MaximumOccupancy) return null;
 
         Vector3 spawnPosition = GetSpawnPositionForPerson(_doorWaypoint.Position);
-        AgentController person = PedestrianManager.Instance.AddAndRegisterPerson(EntityId.None, _doorWaypoint, spawnPosition, null);
+        AgentController person = PedestrianManager.Instance.AddAndRegisterPerson(EntityId.None, _doorWaypoint, spawnPosition);
 
         RelationshipManager.Instance.AddRelationship(
             RelationshipType.Resident,
@@ -163,7 +163,7 @@ public class BuildingHouse : BuildingBase
         if (_currentVehicleOccupancy >= MaximumVehicleOccupancy) return null;
 
         WaypointNode parkingSpot = _parkingSpotWaypoints[_currentVehicleOccupancy];
-        AgentController vehicle = VehicleManager.Instance.AddAndRegisterVehicle(EntityId.None, parkingSpot, null);
+        AgentController vehicle = VehicleManager.Instance.AddAndRegisterVehicle(EntityId.None, parkingSpot);
 
         RelationshipManager.Instance.AddRelationship(
             RelationshipType.HomeBuilding,

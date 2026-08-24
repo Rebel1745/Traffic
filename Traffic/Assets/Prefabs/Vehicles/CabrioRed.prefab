@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 5778664568805257347}
   - component: {fileID: 6344175343307415636}
   - component: {fileID: 9027829699864493445}
+  - component: {fileID: -2939228163726025798}
   m_Layer: 8
   m_Name: CabrioRed
   m_TagString: Untagged
@@ -132,6 +133,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5579a09dc34228447ad190be08378389, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AgentController
+  _agentModel: {fileID: 0}
   _cameraFocusOffset: {x: 0, y: -1.75, z: 1.75}
   _cameraRotation: {x: 45, y: 0, z: 0}
 --- !u!114 &6344175343307415636
@@ -166,3 +168,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VehicleData
   _vehicleName: Red Car
+--- !u!114 &-2939228163726025798
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3215883299989028941}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84f700fc4bbb6c34288db48b69f9d38e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VehicleBrain

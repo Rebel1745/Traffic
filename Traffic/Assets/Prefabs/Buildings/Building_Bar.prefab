@@ -113,6 +113,7 @@ MonoBehaviour:
   _buildingRenderer: {fileID: 6453065269249113804}
   _foundationRenderer: {fileID: 5066857194494075345}
   _buildingType: 2
+  _buildingFunction: 2
   _buildingXCells: 2
   _buildingZCells: 2
   _buildingName: Bar

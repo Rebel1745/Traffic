@@ -7,7 +7,7 @@ public interface IMovable
     event Action OnArrivedAtDestination;
 
     // setup the movement details
-    void Initialise(WaypointNode spawnWaypoint, WaypointNode targetWaypoint);
+    void Initialise(WaypointNode spawnWaypoint);
 
     // Action: Start moving along a list of waypoints
     void SetPath(List<WaypointNode> path);

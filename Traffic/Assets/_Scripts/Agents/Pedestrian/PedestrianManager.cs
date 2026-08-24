@@ -62,7 +62,7 @@ public class PedestrianManager : MonoBehaviour, ISaveable
         // PedestrianSpawner.Instance.SpawnPedestrian(startWaypoint, targetWaypoint);
     }
 
-    public AgentController AddAndRegisterPerson(EntityId id, WaypointNode spawnWaypoint, Vector3 spawnPosition, WaypointNode targetWaypoint)
+    public AgentController AddAndRegisterPerson(EntityId id, WaypointNode spawnWaypoint, Vector3 spawnPosition)
     {
         // 1. Generate the ID
         if (id.Equals(EntityId.None))
@@ -79,7 +79,7 @@ public class PedestrianManager : MonoBehaviour, ISaveable
         AgentController pc = pedestrian.GetComponent<AgentController>();
 
         // 3. Assign the ID to the controller
-        pc.Initialise(AgentType.Person, id, spawnWaypoint, targetWaypoint);
+        pc.Initialise(AgentType.Person, id, spawnWaypoint);
 
         // 4. Register in the dictionary
         _allPedestrians[id] = pc;
@@ -282,7 +282,6 @@ public class PedestrianManager : MonoBehaviour, ISaveable
                 LastName = pd.LastName,
                 CurrentVehicleId = pm.CurrentVehicle?.Id.ToString(),
                 CurrentWaypointId = pm.CurrentWaypoint?.Id.ToString(),
-                TargetWaypointId = pm.TargetWaypoint?.Id.ToString(),
                 Goals = agent.SaveQueueToJson()
             };
 
@@ -321,9 +320,7 @@ public class PedestrianManager : MonoBehaviour, ISaveable
                 }
             }
 
-            WaypointNode targetWaypoint = PedestrianWaypointManager.Instance.GetWaypointFromId(p.TargetWaypointId);
-
-            AgentController person = AddAndRegisterPerson(pId, currentWaypoint, currentWaypoint.Position, targetWaypoint);
+            AgentController person = AddAndRegisterPerson(pId, currentWaypoint, currentWaypoint.Position);
             PedestrianData pd = person.GetComponent<PedestrianData>();
             PedestrianMovement pm = person.GetComponent<PedestrianMovement>();
 

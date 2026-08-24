@@ -10,6 +10,8 @@ public abstract class BuildingBase : MonoBehaviour, ISelectableObject
     public EntityId Id { get; protected set; }
     [SerializeField] private BuildingSubState _buildingType;
     public BuildingSubState BuildingType => _buildingType;
+    [SerializeField] private BuildingFunction _buildingFunction;
+    public BuildingFunction BuildingFunction => _buildingFunction;
     [SerializeField] private int _buildingXCells = 2;  // X axis
     public int BuildingXCells => _buildingXCells;
     [SerializeField] private int _buildingZCells = 2; // Z axis

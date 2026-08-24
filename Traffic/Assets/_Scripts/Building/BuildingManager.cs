@@ -118,6 +118,14 @@ public class BuildingManager : MonoBehaviour, ISaveable
         .ToList();
     }
 
+    public List<EntityId> GetBuildingsByFunction(BuildingFunction function)
+    {
+        return _allBuildings.Values
+        .Where(building => building.BuildingFunction == function)
+        .Select(building => building.Id)
+        .ToList();
+    }
+
     public EntityId GetClosestBuildingToPosition(List<EntityId> buildings, Vector3 position)
     {
         EntityId closestId = buildings[0];
@@ -587,4 +595,15 @@ public class BuildingManager : MonoBehaviour, ISaveable
             newBuilding.name = store.BuildingName;
         }
     }
+}
+
+public enum BuildingFunction
+{
+    None,
+    CarPark,
+    Drink,
+    Food,
+    PetrolStation,
+    Residential,
+    Store
 }
