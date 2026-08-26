@@ -84,9 +84,6 @@ public class PedestrianManager : MonoBehaviour, ISaveable
         // 4. Register in the dictionary
         _allPedestrians[id] = pc;
 
-        // 5. Hook into the Destroy event to auto-cleanup
-        // (See Step C below)
-
         return pc;
     }
 

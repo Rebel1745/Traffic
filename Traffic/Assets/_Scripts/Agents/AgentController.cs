@@ -1,7 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System;
-using Unity.VisualScripting;
 
 public class AgentController : MonoBehaviour, ISelectableObject
 {
@@ -53,6 +51,8 @@ public class AgentController : MonoBehaviour, ISelectableObject
         Id = id;
         _agentType = type;
         _mover.Initialise(startWaypoint);
+        //_brain.DecideNextAction(this);
+        AddGoal(new WaitGoal(Random.Range(3f, 8f)));
     }
 
     public void OnMovementFinished()
@@ -134,6 +134,7 @@ public class AgentController : MonoBehaviour, ISelectableObject
 
     public void SetGoalList(LinkedList<Goal> goals)
     {
+        Debug.Log($"Setting goal list {goals.Count}");
         _goalQueue = goals;
 
         if (goals != null && goals.Count > 0)

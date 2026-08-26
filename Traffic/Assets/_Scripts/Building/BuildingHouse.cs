@@ -27,8 +27,6 @@ public class BuildingHouse : BuildingBase
     private int _currentVehicleOccupancy = 0;
 
     // Waypoint references (populated during initialization)
-    private WaypointNode _insideBuildingWaypoint;
-    public WaypointNode InsideBuildingWaypoint => _insideBuildingWaypoint;
     private WaypointNode _doorWaypoint;
     public WaypointNode DoorWaypoint => _doorWaypoint;
     private WaypointNode _entryExitPropertyWaypoint;

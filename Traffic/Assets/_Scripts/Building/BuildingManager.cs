@@ -148,6 +148,7 @@ public class BuildingManager : MonoBehaviour, ISaveable
         return closestId;
     }
 
+    #region Save/Loading
     public void PopulateSaveData(GameSaveData saveData)
     {
         BuildingsSaveData buildings = new()
@@ -595,6 +596,7 @@ public class BuildingManager : MonoBehaviour, ISaveable
             newBuilding.name = store.BuildingName;
         }
     }
+    #endregion
 }
 
 public enum BuildingFunction

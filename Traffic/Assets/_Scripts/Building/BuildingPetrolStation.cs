@@ -18,8 +18,6 @@ public class BuildingPetrolStation : BuildingBase
     [SerializeField] private Transform _frontDoorPosition;
     [SerializeField] private Transform _pointBeforeFrontDoorPosition; // the point the path to store of each pump converges
     [SerializeField] private PedestrianPumpDetails[] _pedestrianPumps;
-    private WaypointNode _insideBuildingWaypoint;
-    public WaypointNode InsideBuildingWaypoint => _insideBuildingWaypoint;
     private WaypointNode[] _alightWaypoints;
     private WaypointNode[] _fillUpWaypoints;
 

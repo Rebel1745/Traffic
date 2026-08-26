@@ -20,6 +20,8 @@ public abstract class BuildingBase : MonoBehaviour, ISelectableObject
     public GridCell Cell => _cell;
     [SerializeField] protected string _buildingName;
     public string BuildingName => _buildingName;
+    protected WaypointNode _insideBuildingWaypoint;
+    public WaypointNode InsideBuildingWaypoint => _insideBuildingWaypoint;
 
     [Header("Selectable Settings")]
     [SerializeField] private bool _isSelectable = false;

@@ -7,8 +7,6 @@ public class BuildingStoreRoadside : BuildingBase
     [SerializeField] private Transform _propertyEntrancePosition;
     [SerializeField] private Transform _checkCellPosition;
 
-    private WaypointNode _insideBuildingWaypoint;
-    public WaypointNode InsideBuildingWaypoint => _insideBuildingWaypoint;
     private WaypointNode _buildingEntranceWaypoint;
     public WaypointNode BuildingEntranceWaypoint => _buildingEntranceWaypoint;
     private WaypointNode _propertyEntranceWaypoint;
