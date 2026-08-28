@@ -120,16 +120,20 @@ public class AgentController : MonoBehaviour, ISelectableObject
     public void InterruptAndAddGoal(Goal goal)
     {
         Debug.Log($"{gameObject.name} Interrupting to: {goal.GoalName}");
+        ClearGoalQueue();
 
+        // Add the new goal and start it
+        _goalQueue.AddFirst(goal);
+        StartGoal(goal);
+    }
+
+    public void ClearGoalQueue()
+    {
         // Stop current movement immediately
         _mover.Stop(true);
 
         // Clear all pending goals (Dance, Wait, etc. are gone)
         _goalQueue.Clear();
-
-        // Add the new goal and start it
-        _goalQueue.AddFirst(goal);
-        StartGoal(goal);
     }
 
     public void SetGoalList(LinkedList<Goal> goals)

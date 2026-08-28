@@ -26,12 +26,51 @@ public class PedestrianManager : MonoBehaviour, ISaveable
     {
         SaveManager.Instance.RegisterSaveable(this);
         InputManager.OnLeftClickPressed += HandleLeftClickPressed;
+        PedestrianWaypointManager.Instance.OnPedestrianWaypointsUpdated += OnPedestrianWaypointsUpdated;
     }
 
     private void OnDestroy()
     {
         SaveManager.Instance.UnregisterSaveable(this);
         InputManager.OnLeftClickPressed -= HandleLeftClickPressed;
+        PedestrianWaypointManager.Instance.OnPedestrianWaypointsUpdated -= OnPedestrianWaypointsUpdated;
+    }
+
+    private void OnPedestrianWaypointsUpdated()
+    {
+        // the road has changed, lets see if we can still go where we want to go
+        foreach (AgentController pedestrian in _allPedestrians.Values)
+        {
+            // do we actually have a destination? If not we don't need to do anything
+            if (pedestrian.Mover.TargetWaypoint == null) return;
+
+            // check to see if a path exists between the target and destination
+            List<WaypointNode> path = AStarPathfinder.FindPath(pedestrian.Mover.CurrentWaypoint, pedestrian.Mover.TargetWaypoint);
+            if (path != null && path.Count > 0)
+            {
+                Debug.Log("Updating walking path");
+                pedestrian.Mover.SetPath(path);
+                return;
+            }
+
+            // we can't make it to our destination, change it to home
+            EntityId homeId = RelationshipManager.Instance.GetHomeBuildingsForPerson(pedestrian.Id).First();
+            if (homeId.IsValid)
+            {
+                // lets go home
+                path = AStarPathfinder.FindPath(pedestrian.Mover.CurrentWaypoint, PedestrianWaypointManager.Instance.GetWaypointFromId(homeId));
+                if (path != null && path.Count > 0)
+                {
+                    Debug.Log("Can't get to our destination, walking home");
+                    GoHome(pedestrian);
+                    return;
+                }
+            }
+
+            // we can't make it home, what do we do? For now just throw an error
+            // TODO: decide what to do with a lost person, maybe teleport home?
+            Debug.LogError("We can't get to our destination, or get home. We are lost, without our string to guide us.");
+        }
     }
 
     private void HandleLeftClickPressed(Vector2 screenPosition)
@@ -39,27 +78,6 @@ public class PedestrianManager : MonoBehaviour, ISaveable
         // Only spawn Pedestrians when simulation is running
         if (SimulationManager.Instance.CurrentState.SimulationState != SimulationState.Pedestrians)
             return;
-
-        //AddAndRegisterPerson();
-
-        // Get a random valid spawn location
-        // WaypointNode startWaypoint = GetRandomPedestrianWaypoint(WaypointType.PedestrianWalkway);
-        // //WaypointNode startWaypoint = GetRandomPedestrianWaypoint(WaypointType.InsideBuilding);
-        // if (startWaypoint == null)
-        // {
-        //     Debug.LogError("No valid spawn location found!");
-        //     return;
-        // }
-
-        // // Get a random valid target
-        // WaypointNode targetWaypoint = FindValidTarget(startWaypoint);
-        // if (targetWaypoint == null)
-        // {
-        //     Debug.LogError("No valid target found for spawn location!");
-        //     return;
-        // }
-
-        // PedestrianSpawner.Instance.SpawnPedestrian(startWaypoint, targetWaypoint);
     }
 
     public AgentController AddAndRegisterPerson(EntityId id, WaypointNode spawnWaypoint, Vector3 spawnPosition)
@@ -204,6 +222,17 @@ public class PedestrianManager : MonoBehaviour, ISaveable
         agent.AddGoal(new WalkToFrontDoorGoal());
     }
 
+    public void DriveHome(AgentController agent)
+    {
+        agent.ClearGoalQueue();
+
+        if (agent.GetComponent<PedestrianMovement>().CurrentVehicle == null)
+            agent.AddGoal(new WalkToAndEnterVehicleGoal());
+        agent.AddGoal(new DriveHomeGoal());
+        agent.AddGoal(new ExitVehicleGoal());
+        agent.AddGoal(new WalkToFrontDoorGoal());
+    }
+
     public void DriveToPetrolStationAndHome(AgentController agent)
     {
         List<EntityId> petrolStations = BuildingManager.Instance.GetBuildingsByType(BuildingSubState.PetrolStation);
@@ -257,6 +286,9 @@ public class PedestrianManager : MonoBehaviour, ISaveable
 
     public EntityId GetHomeBuilding(EntityId personId)
         => RelationshipManager.Instance.GetHomeBuildingsForPerson(personId).FirstOrDefault();
+
+    public AgentController GetPersonFromId(EntityId id)
+        => _allPedestrians[id];
 
     public void ReParentPedestrian(AgentController ac)
     {

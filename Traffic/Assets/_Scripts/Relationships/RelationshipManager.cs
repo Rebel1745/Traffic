@@ -140,6 +140,9 @@ public class RelationshipManager : MonoBehaviour, ISaveable
     public List<EntityId> GetVehiclesForPerson(EntityId personId)
         => GetTargets(RelationshipType.Driver, personId, reverse: false);
 
+    public List<EntityId> GetPersonForVehicle(EntityId vehicleId)
+        => GetTargets(RelationshipType.Driver, vehicleId, reverse: true);
+
     public List<EntityId> GetAlightForParkingSpot(EntityId parkingSpotId)
         => GetTargets(RelationshipType.AlightsAt, parkingSpotId, reverse: false);
 

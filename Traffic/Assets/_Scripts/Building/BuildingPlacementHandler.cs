@@ -28,12 +28,6 @@ public class BuildingPlacementHandler : MonoBehaviour, IPlacementHandler
         _cellSize = GridManager.Instance.CellSize;
         _pavementMaterial = RoadMeshRenderer.Instance.GetPavementMaterial();
         _pavementHeight = RoadMeshRenderer.Instance.GetPavementHeight();
-
-        // BuildingManager.Instance.GetBuildingPrefabDetailsFromSimulationState(out _buildingPrefab, out _buildingXCells, out _buildingZCells);
-
-        // CreatePreviewMesh();
-        // _previewInstance.SetActive(true);
-
     }
 
     public void OnExit()

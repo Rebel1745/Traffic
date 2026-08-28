@@ -1,6 +1,6 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using UnityEngine;
 
 public class PedestrianWaypointManager : WaypointManagerBase, ISaveable
@@ -16,6 +16,8 @@ public class PedestrianWaypointManager : WaypointManagerBase, ISaveable
     private Vector3 _southEastFromSouth, _southEastFromEast;
 
     private Vector3 _midpointNW, _midpointNE, _midpointSW, _midpointSE;
+
+    public event Action OnPedestrianWaypointsUpdated;
 
     private void Awake()
     {
@@ -51,6 +53,8 @@ public class PedestrianWaypointManager : WaypointManagerBase, ISaveable
         base.GenerateWaypoints();
 
         GridManager.Instance.ResetUpdated();
+
+        OnPedestrianWaypointsUpdated?.Invoke();
     }
 
     protected override void CalculateEntryExitAndMidpointsForCell(GridCell cell)

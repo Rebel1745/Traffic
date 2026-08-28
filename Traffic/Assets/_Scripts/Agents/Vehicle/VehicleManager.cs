@@ -26,12 +26,52 @@ public class VehicleManager : MonoBehaviour, ISaveable
     {
         SaveManager.Instance.RegisterSaveable(this);
         InputManager.OnLeftClickPressed += HandleLeftClickPressed;
+        VehicleWaypointManager.Instance.OnRoadWaypointsUpdated += OnRoadWaypointsUpdated;
     }
 
     private void OnDestroy()
     {
         SaveManager.Instance.UnregisterSaveable(this);
         InputManager.OnLeftClickPressed -= HandleLeftClickPressed;
+        VehicleWaypointManager.Instance.OnRoadWaypointsUpdated -= OnRoadWaypointsUpdated;
+    }
+
+    private void OnRoadWaypointsUpdated()
+    {
+        // the road has changed, lets see if we can still go where we want to go
+        foreach (AgentController vehicle in _allVehicles.Values)
+        {
+            // do we actually have a destination? If not we don't need to do anything
+            if (vehicle.Mover.TargetWaypoint == null) return;
+
+            // check to see if a path exists between the target and destination
+            List<WaypointNode> path = AStarPathfinder.FindPath(vehicle.Mover.CurrentWaypoint, vehicle.Mover.TargetWaypoint);
+            if (path != null && path.Count > 0)
+            {
+                Debug.Log("Updating driving path");
+                vehicle.Mover.SetPath(path);
+                return;
+            }
+
+            // we can't make it to our destination, change it to home
+            EntityId homeId = RelationshipManager.Instance.GetHomeParkingSpotForVehicle(vehicle.Id).First();
+            if (homeId.IsValid)
+            {
+                // lets go home
+                path = AStarPathfinder.FindPath(vehicle.Mover.CurrentWaypoint, VehicleWaypointManager.Instance.GetWaypointFromId(homeId));
+                if (path != null && path.Count > 0)
+                {
+                    Debug.Log("Can't reach our destination, driving home");
+                    AgentController person = PedestrianManager.Instance.GetPersonFromId(RelationshipManager.Instance.GetPersonForVehicle(vehicle.Id).First());
+                    PedestrianManager.Instance.DriveHome(person);
+                    return;
+                }
+            }
+
+            // we can't make it home, what do we do? For now just throw an error
+            // TODO: decide what to do with an abandoned vehicle, maybe teleport home?
+            Debug.LogError("We can't get to our destination, or get home. We are lost, without our string to guide us.");
+        }
     }
 
     private void HandleLeftClickPressed(Vector2 screenPosition)
