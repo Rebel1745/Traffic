@@ -126,6 +126,25 @@ public class VehicleManager : MonoBehaviour, ISaveable
         return vc;
     }
 
+    public void RemoveVehicle(EntityId id)
+    {
+        RelationshipManager.Instance.RemoveAllRelationships(id);
+
+        _allVehicles.Remove(id);
+    }
+
+    public void RemoveVehicles(List<EntityId> vehicles)
+    {
+        foreach (EntityId id in vehicles)
+            RemoveVehicle(id);
+    }
+
+    public void RemoveAllVehicles()
+    {
+        foreach (EntityId id in _allVehicles.Keys)
+            RemoveVehicle(id);
+    }
+
     public void GoToRandomWaypoint(AgentController agent)
     {
         VehicleMovement pm = agent.GetComponent<VehicleMovement>();

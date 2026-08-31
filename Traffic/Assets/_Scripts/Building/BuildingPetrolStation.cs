@@ -84,6 +84,14 @@ public class BuildingPetrolStation : BuildingBase
         }
     }
 
+    public override void RemoveRelationships()
+    {
+        base.RemoveRelationships();
+
+        foreach (WaypointNode node in _pumpWaypoints)
+            RelationshipManager.Instance.RemoveAllRelationships(node.Id);
+    }
+
     public void GetNextAvailablePump(out WaypointNode pumpWaypoint, out WaypointNode alightWaypoint, out WaypointNode fillUpWaypoint)
     {
         int nextPump = _nextPumpIndex;

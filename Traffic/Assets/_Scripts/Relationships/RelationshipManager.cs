@@ -127,13 +127,15 @@ public class RelationshipManager : MonoBehaviour, ISaveable
     }
 
     // Forward: Building -> People
-    public List<EntityId> GetResidentsForBuilding(EntityId buildingId)
+    public List<EntityId> GetPedestriansForBuilding(EntityId buildingId)
         => GetTargets(RelationshipType.Resident, buildingId, reverse: false);
 
     // Reverse: Person -> Building
     public List<EntityId> GetHomeBuildingsForPerson(EntityId personId)
         => GetTargets(RelationshipType.Resident, personId, reverse: true);
 
+    public List<EntityId> GetVehiclesForBuilding(EntityId buildingId)
+        => GetTargets(RelationshipType.HomeBuilding, buildingId, reverse: false);
     public List<EntityId> GetHomeParkingSpotForVehicle(EntityId vehicleId)
         => GetTargets(RelationshipType.HomeParkingSpot, vehicleId, reverse: false);
 

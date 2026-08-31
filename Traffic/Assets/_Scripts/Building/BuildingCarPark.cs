@@ -147,6 +147,14 @@ public class BuildingCarPark : BuildingBase
         }
     }
 
+    public override void RemoveRelationships()
+    {
+        base.RemoveRelationships();
+
+        foreach (WaypointNode node in _allParkingSpotWaypointList)
+            RelationshipManager.Instance.RemoveAllRelationships(node.Id);
+    }
+
     private void SetupParkingSpots()
     {
         _allParkingSpotWaypointList = new();

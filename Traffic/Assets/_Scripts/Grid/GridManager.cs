@@ -355,12 +355,13 @@ public class GridManager : MonoBehaviour, ISaveable
     }
 
     // Cell modification
-    public void SetCellType(Vector3Int position, CellType type)
+    public void SetCellType(Vector3Int position, CellType type, Vector3Int? controlCellPosition = null)
     {
         if (IsValidGridPosition(position))
         {
             _grid[position.x, position.z].CellType = type;
             _grid[position.x, position.z].IsUpdated = true;
+            _grid[position.x, position.z].ControlCellPosition = controlCellPosition ?? position;
         }
     }
 

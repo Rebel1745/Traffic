@@ -32,6 +32,10 @@ public abstract class BuildingBase : MonoBehaviour, ISelectableObject
 
     public abstract void InitialiseBuilding(EntityId entityId, GridCell cell);
     public abstract void LoadBuilding(EntityId entityId, GridCell cell);
+    public virtual void RemoveRelationships()
+    {
+        RelationshipManager.Instance.RemoveAllRelationships(Id);
+    }
 
     public MeshRenderer GetFoundationRenderer() => _foundationRenderer;
 

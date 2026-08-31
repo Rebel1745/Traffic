@@ -10,6 +10,7 @@ public class GridCell
     public Vector2[] CustomUVs;
     public bool HasTrafficLights;
     public bool IsUpdated;
+    public Vector3Int ControlCellPosition; // for structures that take up more than one cell but only have details saved in a single cell
 
     public void SetCustomUVs(Vector2[] customUVs)
     {

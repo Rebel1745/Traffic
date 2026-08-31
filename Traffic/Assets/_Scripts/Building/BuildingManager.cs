@@ -79,6 +79,42 @@ public class BuildingManager : MonoBehaviour, ISaveable
         return bc;
     }
 
+    public void RemoveBuilding(EntityId id)
+    {
+        // remove vehicles
+        List<EntityId> vehicles = RelationshipManager.Instance.GetVehiclesForBuilding(id);
+        if (vehicles.Count > 0)
+            VehicleManager.Instance.RemoveVehicles(vehicles);
+
+        // remove people
+        List<EntityId> pedestrians = RelationshipManager.Instance.GetPedestriansForBuilding(id);
+        if (pedestrians.Count > 0)
+            PedestrianManager.Instance.RemovePedestrians(pedestrians);
+
+        BuildingBase bb = _allBuildings[id];
+
+        // remove building relationships
+        bb.RemoveRelationships();
+
+        // remove building model
+        Destroy(bb.transform.parent.gameObject);
+
+        // remove from buildings list
+        _allBuildings.Remove(id);
+    }
+
+    public void RemoveBuildings(List<EntityId> buildings)
+    {
+        foreach (EntityId id in buildings)
+            RemoveBuilding(id);
+    }
+
+    public void RemoveAllBuildings()
+    {
+        foreach (EntityId id in _allBuildings.Keys)
+            RemoveBuilding(id);
+    }
+
     public BuildingBase GetBuilding(EntityId entityId)
         => _allBuildings[entityId];
 
@@ -146,6 +182,19 @@ public class BuildingManager : MonoBehaviour, ISaveable
         }
 
         return closestId;
+    }
+
+    public EntityId GetBuildingFromGridCell(GridCell cell)
+    {
+        EntityId building = EntityId.None;
+
+        foreach (BuildingBase bb in _allBuildings.Values)
+        {
+            if (bb.Cell == cell)
+                return bb.Id;
+        }
+
+        return building;
     }
 
     #region Save/Loading

@@ -68,8 +68,11 @@ public class BuildingPlacementHandler : MonoBehaviour, IPlacementHandler
 
     public void OnRightClickPressed(Vector3 hitPoint)
     {
-        // Cancel placement or delete? For now, just cancel.
-        // Or if you want to delete buildings, check if mouse is over an existing building.
+        GridCell clickedCell = GridManager.Instance.GetCellAtWorldPosition(hitPoint);
+
+        EntityId building = BuildingManager.Instance.GetBuildingFromGridCell(clickedCell);
+
+        BuildingManager.Instance.RemoveBuilding(building);
     }
 
     public void OnMouseMoved(Vector3 hitPoint)
@@ -114,15 +117,17 @@ public class BuildingPlacementHandler : MonoBehaviour, IPlacementHandler
 
     private void PlaceBuilding(Vector3 position)
     {
-        // 1. Mark cells in GridManager
+        Vector3Int controlPos = GridManager.Instance.WorldToGridPosition(new Vector3(position.x, 0, position.z));
+
         for (int x = 0; x < _buildingXCells; x++)
         {
             for (int z = 0; z < _buildingZCells; z++)
             {
                 Vector3Int pos = GridManager.Instance.WorldToGridPosition(new Vector3(position.x + x, 0, position.z + z));
+
                 if (GridManager.Instance.IsValidGridPosition(pos))
                 {
-                    GridManager.Instance.SetCellType(pos, CellType.Building);
+                    GridManager.Instance.SetCellType(pos, CellType.Building, controlPos);
                 }
             }
         }

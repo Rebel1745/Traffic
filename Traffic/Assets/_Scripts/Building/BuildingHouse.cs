@@ -132,6 +132,17 @@ public class BuildingHouse : BuildingBase
         }
     }
 
+    public override void RemoveRelationships()
+    {
+        base.RemoveRelationships();
+
+        // remove the alights at relationships
+        foreach (WaypointNode node in _parkingSpotWaypoints)
+            RelationshipManager.Instance.RemoveAllRelationships(node.Id);
+
+        // no need to remove the parking spot -> building relationships, that should be covered by the base building removal
+    }
+
     public void PopulateBuilding()
     {
         if (_currentOccupancy >= MaximumOccupancy) return;

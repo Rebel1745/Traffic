@@ -19,6 +19,7 @@ public class SelectedBuildingDetailsUI : MonoBehaviour
     [SerializeField] private Button _addPersonToBuildingButton;
     [SerializeField] private Button _addVehicleToBuildingButton;
     [SerializeField] private Button _addPersonAndVehicleToBuildingButton;
+    [SerializeField] private Button _deleteBuildingButton;
 
     public void LoadBuilding(BuildingBase building)
     {
@@ -39,6 +40,9 @@ public class SelectedBuildingDetailsUI : MonoBehaviour
 
         _addPersonAndVehicleToBuildingButton.onClick.RemoveAllListeners();
         _addPersonAndVehicleToBuildingButton.onClick.AddListener(OnAddPersonAndVehicleToBuilding);
+
+        _deleteBuildingButton.onClick.RemoveAllListeners();
+        _deleteBuildingButton.onClick.AddListener(OnDeleteBuilding);
     }
 
     public void OnEditBuildingNameClicked()
@@ -82,5 +86,10 @@ public class SelectedBuildingDetailsUI : MonoBehaviour
     {
         if (_buildingBase is BuildingHouse house)
             house.AddPersonAndVehicleToBuilding();
+    }
+
+    private void OnDeleteBuilding()
+    {
+        BuildingManager.Instance.RemoveBuilding(_buildingBase.Id);
     }
 }

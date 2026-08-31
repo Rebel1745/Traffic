@@ -105,6 +105,25 @@ public class PedestrianManager : MonoBehaviour, ISaveable
         return pc;
     }
 
+    public void RemovePedestrian(EntityId id)
+    {
+        RelationshipManager.Instance.RemoveAllRelationships(id);
+
+        _allPedestrians.Remove(id);
+    }
+
+    public void RemovePedestrians(List<EntityId> pedestrians)
+    {
+        foreach (EntityId id in pedestrians)
+            RemovePedestrian(id);
+    }
+
+    public void RemoveAllPedestrians()
+    {
+        foreach (EntityId id in _allPedestrians.Keys)
+            RemovePedestrian(id);
+    }
+
     public WaypointNode FindValidTarget(WaypointNode startWaypoint, WaypointType type = WaypointType.None, int maxAttempts = 10)
     {
         // Try to find a valid target
