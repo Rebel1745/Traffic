@@ -79,12 +79,13 @@ public abstract class WaypointManagerBase : MonoBehaviour
             target.Connections[source] = cost;
     }
 
-    private void RemoveCellWaypoints(GridCell cell)
+    public void RemoveCellWaypoints(GridCell cell)
     {
         // we are deleting this cell, remove any connections between this and its neighbours
         RemoveConnectionsToNeighbours(cell);
 
         List<WaypointNode> cellWaypoints = GetCellWaypoints(cell);
+
         if (cellWaypoints == null || cellWaypoints.Count == 0) return;
 
         // remove waypoints from cell in _allWaypoints

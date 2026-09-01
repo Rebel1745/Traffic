@@ -96,11 +96,18 @@ public class BuildingManager : MonoBehaviour, ISaveable
         // remove building relationships
         bb.RemoveRelationships();
 
-        // remove building model
-        Destroy(bb.transform.parent.gameObject);
+        // remove waypoints
+        VehicleWaypointManager.Instance.RemoveCellWaypoints(bb.Cell);
+        PedestrianWaypointManager.Instance.RemoveCellWaypoints(bb.Cell);
+
+        // reset the cell types to empty
+        GridManager.Instance.SetCells(bb.Cell.Position, bb.BuildingXCells, bb.BuildingZCells, CellType.Empty);
 
         // remove from buildings list
         _allBuildings.Remove(id);
+
+        // remove building model
+        Destroy(bb.transform.parent.gameObject);
     }
 
     public void RemoveBuildings(List<EntityId> buildings)

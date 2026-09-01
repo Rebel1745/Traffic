@@ -371,6 +371,22 @@ public class GridManager : MonoBehaviour, ISaveable
         SetCellType(gridPos, type);
     }
 
+    public void SetCells(Vector3Int startPos, int xCells, int zCells, CellType type)
+    {
+        for (int x = 0; x < xCells; x++)
+        {
+            for (int z = 0; z < zCells; z++)
+            {
+                Vector3Int pos = new(startPos.x + x, 0, startPos.z + z);
+
+                if (IsValidGridPosition(pos))
+                {
+                    SetCellType(pos, type, startPos);
+                }
+            }
+        }
+    }
+
     // Utility methods for other systems
     public bool HasRoadNeighbour(GridCell cell, RoadDirection direction)
     {

@@ -109,6 +109,10 @@ public class PedestrianManager : MonoBehaviour, ISaveable
     {
         RelationshipManager.Instance.RemoveAllRelationships(id);
 
+        AgentController pedestrian = _allPedestrians[id];
+
+        Destroy(pedestrian.transform.parent.gameObject);
+
         _allPedestrians.Remove(id);
     }
 

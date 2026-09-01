@@ -119,18 +119,7 @@ public class BuildingPlacementHandler : MonoBehaviour, IPlacementHandler
     {
         Vector3Int controlPos = GridManager.Instance.WorldToGridPosition(new Vector3(position.x, 0, position.z));
 
-        for (int x = 0; x < _buildingXCells; x++)
-        {
-            for (int z = 0; z < _buildingZCells; z++)
-            {
-                Vector3Int pos = GridManager.Instance.WorldToGridPosition(new Vector3(position.x + x, 0, position.z + z));
-
-                if (GridManager.Instance.IsValidGridPosition(pos))
-                {
-                    GridManager.Instance.SetCellType(pos, CellType.Building, controlPos);
-                }
-            }
-        }
+        GridManager.Instance.SetCells(controlPos, _buildingXCells, _buildingZCells, CellType.Building);
 
         EntityId newId = EntityId.New();
         BuildingBase bb = BuildingManager.Instance.PlaceAndRegisterBuilding(newId, _buildingPrefab, GridManager.Instance.WorldToGridPosition(position), _buildingXCells, _buildingZCells);

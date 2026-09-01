@@ -130,6 +130,10 @@ public class VehicleManager : MonoBehaviour, ISaveable
     {
         RelationshipManager.Instance.RemoveAllRelationships(id);
 
+        AgentController vehicle = _allVehicles[id];
+
+        Destroy(vehicle.transform.parent.gameObject);
+
         _allVehicles.Remove(id);
     }
 

@@ -19,7 +19,6 @@ public class WaitGoal : Goal
 
     public override void OnArrived(AgentController agent)
     {
-        Debug.Log($"We have waited for {_waitTime} seconds");
     }
 
     private IEnumerator Wait(AgentController agent)

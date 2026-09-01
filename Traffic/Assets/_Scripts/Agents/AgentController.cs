@@ -101,8 +101,6 @@ public class AgentController : MonoBehaviour, ISelectableObject
             // There is an active goal. Insert the new goal immediately after it.
             // This pushes all existing queued goals further down the list.
             _goalQueue.AddAfter(_currentNode, goal);
-
-            Debug.Log($"{gameObject.name} Inserted {goal.GoalName} after current goal.");
         }
         else
         {
@@ -119,7 +117,6 @@ public class AgentController : MonoBehaviour, ISelectableObject
 
     public void InterruptAndAddGoal(Goal goal)
     {
-        Debug.Log($"{gameObject.name} Interrupting to: {goal.GoalName}");
         ClearGoalQueue();
 
         // Add the new goal and start it
@@ -138,7 +135,6 @@ public class AgentController : MonoBehaviour, ISelectableObject
 
     public void SetGoalList(LinkedList<Goal> goals)
     {
-        Debug.Log($"Setting goal list {goals.Count}");
         _goalQueue = goals;
 
         if (goals != null && goals.Count > 0)
