@@ -79,10 +79,10 @@ public abstract class WaypointManagerBase : MonoBehaviour
             target.Connections[source] = cost;
     }
 
-    public void RemoveCellWaypoints(GridCell cell)
+    public void RemoveCellWaypoints(GridCell cell, List<GridCell> otherCells = null)
     {
         // we are deleting this cell, remove any connections between this and its neighbours
-        RemoveConnectionsToNeighbours(cell);
+        RemoveConnectionsToNeighbours(cell, otherCells);
 
         List<WaypointNode> cellWaypoints = GetCellWaypoints(cell);
 
@@ -99,12 +99,20 @@ public abstract class WaypointManagerBase : MonoBehaviour
     }
 
     // this function runs for each updated cell as an opposite function to connect cells
-    private void RemoveConnectionsToNeighbours(GridCell cell)
+    private void RemoveConnectionsToNeighbours(GridCell cell, List<GridCell> otherCells)
     {
         List<WaypointNode> cellWaypoints = GetCellWaypoints(cell);
         if (cellWaypoints == null || cellWaypoints.Count == 0) return;
 
+        // get cells neighbours
         List<GridCell> neighbours = GridManager.Instance.GetCellRoadNeighbours(cell);
+
+        // if we have other cells listed, add them to the list
+        foreach (GridCell c in otherCells)
+        {
+            if (!neighbours.Contains(c)) neighbours.Add(c);
+        }
+
         if (neighbours.Count == 0) return;
 
         List<WaypointNode> neighbourWaypoints;

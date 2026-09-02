@@ -19,6 +19,8 @@ public abstract class BuildingBase : MonoBehaviour, ISelectableObject
     public int BuildingZCells => _buildingZCells;
     protected GridCell _cell;
     public GridCell Cell => _cell;
+    protected List<GridCell> _linkedCells = new();
+    public List<GridCell> LinkedCells => _linkedCells;
     [SerializeField] protected string _buildingName;
     public string BuildingName => _buildingName;
     protected WaypointNode _insideBuildingWaypoint;

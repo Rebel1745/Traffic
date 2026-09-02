@@ -111,6 +111,11 @@ public class BuildingHouse : BuildingBase
 
     private void SetupRelationships()
     {
+        // add the cells that the building connects to
+        _linkedCells.Clear();
+        _linkedCells.Add(GridManager.Instance.GetCellAtWorldPosition(_pedestrianEntryExitWaypointPosition.position));
+        _linkedCells.Add(GridManager.Instance.GetCellAtWorldPosition(_vehicleCellCheckWaypointPosition.position));
+
         // add the relationship between the parking spot and the alight waypoint (i.e. where the person ends up when entering/exiting the vehicle)
         for (int i = 0; i < _entryExitVehicleWaypoints.Length; i++)
         {

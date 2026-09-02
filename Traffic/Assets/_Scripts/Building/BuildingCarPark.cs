@@ -126,6 +126,11 @@ public class BuildingCarPark : BuildingBase
 
     private void SetupRelationships()
     {
+        // add the cells that the building connects to
+        _linkedCells.Clear();
+        _linkedCells.Add(GridManager.Instance.GetCellAtWorldPosition(_cellCheckEntry.position));
+        _linkedCells.Add(GridManager.Instance.GetCellAtWorldPosition(_cellCheckExit.position));
+
         // add the relationship between the parking spot and the alight waypoint (i.e. where the person ends up when entering/exiting the vehicle)
         for (int i = 0; i < _allParkingSpotWaypointList.Count - 1; i++)
         {

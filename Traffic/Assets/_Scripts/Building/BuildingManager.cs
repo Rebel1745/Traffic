@@ -97,8 +97,8 @@ public class BuildingManager : MonoBehaviour, ISaveable
         bb.RemoveRelationships();
 
         // remove waypoints
-        VehicleWaypointManager.Instance.RemoveCellWaypoints(bb.Cell);
-        PedestrianWaypointManager.Instance.RemoveCellWaypoints(bb.Cell);
+        VehicleWaypointManager.Instance.RemoveCellWaypoints(bb.Cell, bb.LinkedCells);
+        PedestrianWaypointManager.Instance.RemoveCellWaypoints(bb.Cell, bb.LinkedCells);
 
         // reset the cell types to empty
         GridManager.Instance.SetCells(bb.Cell.Position, bb.BuildingXCells, bb.BuildingZCells, CellType.Empty);

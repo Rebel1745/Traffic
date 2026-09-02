@@ -18,6 +18,8 @@ public class BuildingStoreRoadside : BuildingBase
         _cell = cell;
 
         InitialisePedestrianWaypoints();
+
+        SetupRelationships();
     }
 
     public override void LoadBuilding(EntityId entityId, GridCell cell)
@@ -38,5 +40,12 @@ public class BuildingStoreRoadside : BuildingBase
             out _buildingEntranceWaypoint,
             out _propertyEntranceWaypoint
         );
+    }
+
+    private void SetupRelationships()
+    {
+        // add the cells that the building connects to
+        _linkedCells.Clear();
+        _linkedCells.Add(GridManager.Instance.GetCellAtWorldPosition(_checkCellPosition.position));
     }
 }
