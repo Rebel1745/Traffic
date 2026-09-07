@@ -38,6 +38,50 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
         SaveManager.Instance.UnregisterSaveable(this);
     }
 
+    public void PlaceTrafficLightsInCell(GridCell cell)
+    {
+        List<WaypointNode> validWaypoints = GetValidWaypointsForSubState(cell);
+
+        if (validWaypoints.Count == 0)
+        {
+            Debug.LogWarning("No valid waypoints found for traffic lights");
+            return;
+        }
+
+        WaypointNode lastWaypoint = null;
+
+        // Confirm all previewed lights for this cell
+        foreach (WaypointNode waypoint in validWaypoints)
+        {
+            if (waypoint.AssignedLight != null)
+                continue;
+
+            lastWaypoint = waypoint;
+
+            if (!cell.HasTrafficLights)
+                PlaceLightAtWaypoint(waypoint);
+        }
+
+        // if there are already traffic lights, load the settings screen then bail
+        if (cell.HasTrafficLights)
+        {
+            UIManager.Instance.LoadTrafficLightGroupDetails(FindGroupForWaypoint(lastWaypoint));
+            return;
+        }
+
+        cell.HasTrafficLights = true;
+
+        // update the road markings if we have created a ped x-ing
+        if (FindGroupForWaypoint(lastWaypoint).GroupType == TrafficLightGroupType.PedestrianCrossing)
+        {
+            cell.SetCustomUVs(RoadMarkingUVs.GetUVsForPedestrianCrossing(cell.RoadDirection));
+            RoadMeshRenderer.Instance.UpdateRoadMesh(false);
+        }
+
+        // hand off to the traffic light settings UI to allow for light timings and order to be changed
+        UIManager.Instance.LoadTrafficLightGroupDetails(FindGroupForWaypoint(lastWaypoint));
+    }
+
     public void PlaceLightAtWaypoint(WaypointNode waypoint)
     {
         if (waypoint == null || waypoint.AssignedLight != null)
@@ -102,17 +146,10 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
 
     public void RemoveTrafficLightGroupFromCell(GridCell cell)
     {
-        TrafficLightGroupController group = null;
+        TrafficLightGroupController group = FindGroupForCell(cell);
 
-        // find the group from the cell
-        foreach (WaypointNode node in VehicleWaypointManager.Instance.GetCellWaypoints(cell))
-        {
-            group = FindGroupForWaypoint(node);
-            if (group != null) break;
-        }
-
-        // we have the group, remove it from the groups list
-        if (group == null) { Debug.LogError("Can't find group"); return; }
+        // if we don't have a group, bail
+        if (group == null) return;
 
         if (group.GroupType == TrafficLightGroupType.PedestrianCrossing)
         {
@@ -120,6 +157,7 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
             RoadMeshRenderer.Instance.UpdateRoadMesh(false);
         }
 
+        // we have the group, remove it from the groups list
         _allGroups.Remove(group);
 
         Destroy(group.gameObject);
@@ -127,6 +165,82 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
         cell.HasTrafficLights = false;
 
         UIManager.Instance.CloseUIDetailsWindow();
+    }
+
+    public void ReconfigureNeighbouringTrafficLights(GridCell cell)
+    {
+        // we need to see if any cells neighbouring this removed cell have lights, if they do, we may need to change the number of lights in them
+        List<GridCell> neighbours = GridManager.Instance.GetCellRoadNeighbours(cell);
+        GridCell neighbour;
+
+        if (neighbours == null || neighbours.Count == 0) return;
+
+        for (int i = 0; i < neighbours.Count; i++)
+        {
+            neighbour = neighbours[i];
+            TrafficLightGroupController group = FindGroupForCell(neighbour);
+
+            // if we don't have a group, bail - no groups = no lights
+            if (group == null) continue;
+
+            // if the cell is now a dead end remove the lights
+            if (neighbour.RoadType == RoadType.DeadEnd)
+            {
+                Debug.Log("Removing lights in dead end, they shouldn't be here");
+                RemoveTrafficLightGroupFromCell(neighbour);
+                continue;
+            }
+
+            // if we have 4 lights at a T-junction, or 3 lights at a crossroad, remove the lights and re-add them
+            // TODO: the below state changing just to place traffic lights seems a bit hacky. Maybe try a cleaner way?
+            if (
+                neighbour.RoadType == RoadType.TJunction && group.RoadLightCount == 4 ||
+                neighbour.RoadType == RoadType.Crossroads && group.RoadLightCount == 3
+            )
+            {
+                if (neighbour.RoadType == RoadType.TJunction)
+                    Debug.Log("Replacing crossroad lights with T-junction lights");
+                else
+                    Debug.Log("Replacing T-junction lights with crossroad lights");
+
+                RemoveTrafficLightGroupFromCell(neighbour);
+                // save the current state
+                GameStateContext currentContext = SimulationManager.Instance.CurrentState;
+                // change it to the traffic light juntion state
+                SimulationManager.Instance.SetTrafficLightSubState(TrafficLightSubState.AddJunctionLights, false);
+                // place the lights
+                PlaceTrafficLightsInCell(neighbour);
+                // revert to previous state
+                SimulationManager.Instance.SetState(currentContext);
+                continue;
+            }
+
+            // if we have 3 lights and we are not a T-juntion, remove the lights
+            if (neighbour.RoadType != RoadType.TJunction && group.RoadLightCount == 3)
+            {
+                Debug.Log("Removing T-junction lights");
+                RemoveTrafficLightGroupFromCell(neighbour);
+                continue;
+            }
+        }
+
+    }
+
+    private TrafficLightGroupController FindGroupForCell(GridCell cell)
+    {
+        TrafficLightGroupController group = null;
+        List<WaypointNode> nodes = VehicleWaypointManager.Instance.GetCellWaypoints(cell);
+
+        if (nodes == null || nodes.Count == 0) return null;
+
+        // find the group from the cell
+        foreach (WaypointNode node in nodes)
+        {
+            group = FindGroupForWaypoint(node);
+            if (group != null) break;
+        }
+
+        return group;
     }
 
     public TrafficLightGroupController FindGroupForWaypoint(WaypointNode waypoint)
@@ -231,6 +345,27 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
                 return group;
         }
         return null;
+    }
+
+    public List<WaypointNode> GetValidWaypointsForSubState(GridCell cell)
+    {
+        TrafficLightSubState subState = SimulationManager.Instance.CurrentState.TrafficLightSubState;
+
+        // Filter waypoints by type and substate
+        return VehicleWaypointManager.Instance.GetCellWaypoints(cell).FindAll(w =>
+        {
+            if (w.Type != WaypointType.TrafficLightLocation)
+                return false;
+
+            return subState switch
+            {
+                TrafficLightSubState.AddJunctionLights =>
+                    cell.RoadType == RoadType.TJunction || cell.RoadType == RoadType.Crossroads,
+                TrafficLightSubState.AddPedestrianCrossings =>
+                    cell.RoadType == RoadType.Straight,
+                _ => false
+            };
+        });
     }
 
     public void PopulateSaveData(GameSaveData saveData)

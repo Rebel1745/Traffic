@@ -29,6 +29,7 @@ public class TrafficLightGroupController : MonoBehaviour
     {
         return _lights.Select(l => l.Clone()).ToList();
     }
+    public int RoadLightCount => _lights.Where(l => l.Light.IsPedestrianOnlyLight == false).Count();
     public int CurrentLightIndex => _currentLightIndex;
 
     private int _currentLightIndex = 0;

@@ -107,6 +107,8 @@ public abstract class WaypointManagerBase : MonoBehaviour
         // get cells neighbours
         List<GridCell> neighbours = GridManager.Instance.GetCellRoadNeighbours(cell);
 
+        otherCells ??= new();
+
         // if we have other cells listed, add them to the list
         foreach (GridCell c in otherCells)
         {
@@ -176,6 +178,7 @@ public abstract class WaypointManagerBase : MonoBehaviour
                 {
                     RemoveCellWaypoints(currentCell);
                     CreateAndConnectWaypoints(currentCell);
+                    TrafficLightManager.Instance.ReconfigureNeighbouringTrafficLights(currentCell);
                 }
             }
         }

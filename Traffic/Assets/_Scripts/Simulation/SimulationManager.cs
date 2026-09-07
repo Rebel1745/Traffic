@@ -24,6 +24,11 @@ public class SimulationManager : MonoBehaviour
     }
 
     // State management
+    public void SetState(GameStateContext newState)
+    {
+        CurrentState = newState;
+    }
+
     public void SetSimulationState(SimulationState state)
     {
         // Reset all sub-states when changing main state
@@ -38,7 +43,7 @@ public class SimulationManager : MonoBehaviour
         OnStateChanged?.Invoke(CurrentState);
     }
 
-    public void SetRoadSubState(RoadSubState subState)
+    public void SetRoadSubState(RoadSubState subState, bool triggerStateChange = false)
     {
         CurrentState = new GameStateContext
         {
@@ -48,10 +53,11 @@ public class SimulationManager : MonoBehaviour
             TrafficLightSubState = TrafficLightSubState.None
         };
 
-        OnStateChanged?.Invoke(CurrentState);
+        if (triggerStateChange)
+            OnStateChanged?.Invoke(CurrentState);
     }
 
-    public void SetVehicleSubState(VehicleSubState subState)
+    public void SetVehicleSubState(VehicleSubState subState, bool triggerStateChange = false)
     {
         CurrentState = new GameStateContext
         {
@@ -62,10 +68,11 @@ public class SimulationManager : MonoBehaviour
             PedestrianSubState = PedestrianSubState.None
         };
 
-        OnStateChanged?.Invoke(CurrentState);
+        if (triggerStateChange)
+            OnStateChanged?.Invoke(CurrentState);
     }
 
-    public void SetTrafficLightSubState(TrafficLightSubState subState)
+    public void SetTrafficLightSubState(TrafficLightSubState subState, bool triggerStateChange = false)
     {
         CurrentState = new GameStateContext
         {
@@ -76,10 +83,11 @@ public class SimulationManager : MonoBehaviour
             PedestrianSubState = PedestrianSubState.None
         };
 
-        OnStateChanged?.Invoke(CurrentState);
+        if (triggerStateChange)
+            OnStateChanged?.Invoke(CurrentState);
     }
 
-    public void SetPedestrianSubState(PedestrianSubState subState)
+    public void SetPedestrianSubState(PedestrianSubState subState, bool triggerStateChange = false)
     {
         CurrentState = new GameStateContext
         {
@@ -90,10 +98,11 @@ public class SimulationManager : MonoBehaviour
             PedestrianSubState = subState
         };
 
-        OnStateChanged?.Invoke(CurrentState);
+        if (triggerStateChange)
+            OnStateChanged?.Invoke(CurrentState);
     }
 
-    public void SetBuildingSubState(BuildingSubState subState)
+    public void SetBuildingSubState(BuildingSubState subState, bool triggerStateChange = false)
     {
         CurrentState = new GameStateContext
         {
@@ -105,6 +114,7 @@ public class SimulationManager : MonoBehaviour
             BuildingSubState = subState
         };
 
-        OnStateChanged?.Invoke(CurrentState);
+        if (triggerStateChange)
+            OnStateChanged?.Invoke(CurrentState);
     }
 }

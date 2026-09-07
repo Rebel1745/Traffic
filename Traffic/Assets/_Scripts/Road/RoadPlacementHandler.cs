@@ -113,12 +113,18 @@ public class RoadPlacementHandler : MonoBehaviour, IPlacementHandler
     {
         Vector3 snappedStart = GridManager.Instance.SnapToGrid(hitPoint);
         Vector3Int gridPos = GridManager.Instance.WorldToGridPosition(snappedStart);
+        GridCell cell = GridManager.Instance.GetCell(gridPos);
+
         if (GridManager.Instance.IsValidGridPosition(gridPos))
         {
             GridManager.Instance.SetCellType(gridPos, CellType.Empty);
+            // remove traffic lights
+            TrafficLightManager.Instance.RemoveTrafficLightGroupFromCell(cell);
             GridManager.Instance.UpdateRoadTypes(gridPos);
             GridManager.Instance.UpdateRoadDirections();
             GridManager.Instance.UpdateRoadGrid();
+            // reconfigure traffic lights in neighbouring cells
+            TrafficLightManager.Instance.ReconfigureNeighbouringTrafficLights(cell);
         }
     }
 

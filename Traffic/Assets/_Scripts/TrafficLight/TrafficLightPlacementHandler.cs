@@ -69,7 +69,7 @@ public class TrafficLightPlacementHandler : MonoBehaviour, IPlacementHandler
         ClearPreviewLights();
 
         // Get valid TrafficLightLocation waypoints for the current substate
-        List<WaypointNode> validWaypoints = GetValidWaypointsForSubState(cell);
+        List<WaypointNode> validWaypoints = TrafficLightManager.Instance.GetValidWaypointsForSubState(cell);
 
         // Spawn a preview light at each valid waypoint
         foreach (WaypointNode waypoint in validWaypoints)
@@ -113,46 +113,7 @@ public class TrafficLightPlacementHandler : MonoBehaviour, IPlacementHandler
         if (cell == null || cell.CellType != CellType.Road)
             return;
 
-        List<WaypointNode> validWaypoints = GetValidWaypointsForSubState(cell);
-
-        if (validWaypoints.Count == 0)
-        {
-            Debug.LogWarning("No valid waypoints found for traffic lights");
-            return;
-        }
-
-        WaypointNode lastWaypoint = null;
-
-        // Confirm all previewed lights for this cell
-        foreach (WaypointNode waypoint in validWaypoints)
-        {
-            if (waypoint.AssignedLight != null)
-                continue;
-
-            lastWaypoint = waypoint;
-
-            if (!cell.HasTrafficLights)
-                TrafficLightManager.Instance.PlaceLightAtWaypoint(waypoint);
-        }
-
-        // if there are already traffic lights, load the settings screen then bail
-        if (cell.HasTrafficLights)
-        {
-            UIManager.Instance.LoadTrafficLightGroupDetails(TrafficLightManager.Instance.FindGroupForWaypoint(lastWaypoint));
-            return;
-        }
-
-        cell.HasTrafficLights = true;
-
-        // update the road markings if we have created a ped x-ing
-        if (TrafficLightManager.Instance.FindGroupForWaypoint(lastWaypoint).GroupType == TrafficLightGroupType.PedestrianCrossing)
-        {
-            cell.SetCustomUVs(RoadMarkingUVs.GetUVsForPedestrianCrossing(cell.RoadDirection));
-            RoadMeshRenderer.Instance.UpdateRoadMesh(false);
-        }
-
-        // hand off to the traffic light settings UI to allow for light timings and order to be changed
-        UIManager.Instance.LoadTrafficLightGroupDetails(TrafficLightManager.Instance.FindGroupForWaypoint(lastWaypoint));
+        TrafficLightManager.Instance.PlaceTrafficLightsInCell(cell);
 
         // Refresh preview for the same cell (to hide confirmed previews)
         _lastPreviewCell = null;
@@ -173,27 +134,6 @@ public class TrafficLightPlacementHandler : MonoBehaviour, IPlacementHandler
 
         // Refresh preview
         _lastPreviewCell = null;
-    }
-
-    private List<WaypointNode> GetValidWaypointsForSubState(GridCell cell)
-    {
-        TrafficLightSubState subState = SimulationManager.Instance.CurrentState.TrafficLightSubState;
-
-        // Filter waypoints by type and substate
-        return VehicleWaypointManager.Instance.GetCellWaypoints(cell).FindAll(w =>
-        {
-            if (w.Type != WaypointType.TrafficLightLocation)
-                return false;
-
-            return subState switch
-            {
-                TrafficLightSubState.AddJunctionLights =>
-                    cell.RoadType == RoadType.TJunction || cell.RoadType == RoadType.Crossroads,
-                TrafficLightSubState.AddPedestrianCrossings =>
-                    cell.RoadType == RoadType.Straight,
-                _ => false
-            };
-        });
     }
 
     private void SetPreviewTransparency(GameObject previewObj, float alpha)
