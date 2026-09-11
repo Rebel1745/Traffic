@@ -765,7 +765,8 @@ public class PedestrianWaypointManager : WaypointManagerBase, ISaveable
                 ParentCellZ = node.ParentCell.Position.z,
                 PairedCrossingWaypointId = node.PairedCrossingWaypoint?.Id.ToString(),
                 LaneNodeForTrafficLightId = node.LaneNodeForTrafficLight?.Id.ToString(),
-                LightPosition = node.LightPosition
+                LightPosition = node.LightPosition,
+                PedestrianOnlyTrafficLight = node.PedestrianOnlyTrafficLight
             };
 
             foreach (var connection in node.Connections)
@@ -794,14 +795,14 @@ public class PedestrianWaypointManager : WaypointManagerBase, ISaveable
         _allWaypoints = new();
         _cellWaypoints = new List<WaypointNode>[_gridWidth, _gridHeight];
 
-        var nodeLookup = new Dictionary<string, WaypointNode>();
+        Dictionary<string, WaypointNode> nodeLookup = new();
         int connectionCount = 0;
 
         // First pass — create all nodes
-        foreach (var nodeData in saveData.PedestrianWaypoints.Nodes)
+        foreach (WaypointNodeSaveData nodeData in saveData.PedestrianWaypoints.Nodes)
         {
             // Retrieve the parent cell from the grid
-            var parentCell = GridManager.Instance.GetCell(nodeData.ParentCellX, nodeData.ParentCellZ);
+            GridCell parentCell = GridManager.Instance.GetCell(nodeData.ParentCellX, nodeData.ParentCellZ);
             if (parentCell == null)
             {
                 Debug.LogWarning($"[PedestrianWaypointManager] Parent cell ({nodeData.ParentCellX}, {nodeData.ParentCellZ}) not found for node {nodeData.Id}.");
@@ -813,7 +814,7 @@ public class PedestrianWaypointManager : WaypointManagerBase, ISaveable
                 _cellWaypoints[parentCell.Position.x, parentCell.Position.z] = new List<WaypointNode>();
             }
 
-            var node = CreateWaypoint(
+            WaypointNode node = CreateWaypoint(
                 parentCell,
                 new Vector3(nodeData.X, 0f, nodeData.Z),
                 nodeData.Type,
@@ -828,14 +829,14 @@ public class PedestrianWaypointManager : WaypointManagerBase, ISaveable
         }
 
         // Second pass — restore connections
-        foreach (var nodeData in saveData.PedestrianWaypoints.Nodes)
+        foreach (WaypointNodeSaveData nodeData in saveData.PedestrianWaypoints.Nodes)
         {
-            if (!nodeLookup.TryGetValue(nodeData.Id, out var node))
+            if (!nodeLookup.TryGetValue(nodeData.Id, out WaypointNode node))
                 continue;
 
-            foreach (var connectionData in nodeData.Connections)
+            foreach (WaypointConnectionSaveData connectionData in nodeData.Connections)
             {
-                if (nodeLookup.TryGetValue(connectionData.TargetNodeId, out var targetNode))
+                if (nodeLookup.TryGetValue(connectionData.TargetNodeId, out WaypointNode targetNode))
                 {
                     AddWaypointConnection(node, targetNode, connectionData.Cost);
                     connectionCount++;
@@ -844,6 +845,21 @@ public class PedestrianWaypointManager : WaypointManagerBase, ISaveable
                 {
                     Debug.LogWarning($"[WaypointManager] Target node {connectionData.TargetNodeId} not found for connection.");
                 }
+            }
+        }
+
+        // Third pass — resolve paired crossing waypoints (after all nodes are created)
+        foreach (WaypointNode node in _allWaypoints.Values)
+        {
+            if (!string.IsNullOrEmpty(node.PairedCrossingWaypointId) &&
+                nodeLookup.TryGetValue(node.PairedCrossingWaypointId, out WaypointNode pairedNode))
+            {
+                node.PairedCrossingWaypoint = pairedNode;
+            }
+            if (!string.IsNullOrEmpty(node.LaneNodeForTrafficLightId) &&
+                nodeLookup.TryGetValue(node.LaneNodeForTrafficLightId, out WaypointNode laneNode))
+            {
+                node.LaneNodeForTrafficLight = laneNode;
             }
         }
 

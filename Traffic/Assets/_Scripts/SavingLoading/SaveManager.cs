@@ -62,9 +62,9 @@ public class SaveManager : MonoBehaviour
         LoadByKey(saveData, "PedestrianWaypoints");
         LoadByKey(saveData, "TrafficLights");
         LoadByKey(saveData, "Buildings");
+        LoadByKey(saveData, "Relationships");
         LoadByKey(saveData, "Vehicles");
         LoadByKey(saveData, "Pedestrians");
-        LoadByKey(saveData, "Relationships");
 
         Debug.Log("[SaveManager] Loaded successfully.");
     }

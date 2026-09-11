@@ -24,14 +24,14 @@ public class ExitVehicleGoal : Goal
         agent.ShowHideAgent(true);
 
         // we need to get the alight waypoint from the parking space waypoint using its id from the relationship manager
-        EntityId alightId = RelationshipManager.Instance.GetAlightForParkingSpot(_vm.CurrentWaypoint.Id).First();
-        if (!alightId.IsValid)
+        List<EntityId> alightId = RelationshipManager.Instance.GetAlightForParkingSpot(_vm.CurrentWaypoint.Id);
+        if (alightId.Count == 0 || !alightId.First().IsValid)
         {
             Debug.LogError("An alight Id for this parking space cannot be found");
             return;
         }
 
-        WaypointNode alightWaypoint = PedestrianWaypointManager.Instance.GetWaypointFromId(alightId);
+        WaypointNode alightWaypoint = PedestrianWaypointManager.Instance.GetWaypointFromId(alightId.First());
 
         List<WaypointNode> path = new()
         {

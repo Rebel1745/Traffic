@@ -8,6 +8,8 @@ public class SimulationManager : MonoBehaviour
 
     public GameStateContext CurrentState { get; private set; }
 
+    private float _simulationSpeed;
+
     // Events
     public event Action<GameStateContext> OnStateChanged;
 
@@ -21,6 +23,13 @@ public class SimulationManager : MonoBehaviour
         Instance = this;
 
         SetSimulationState(SimulationState.Running);
+    }
+
+    public void SetSimulationSpeed(float speed)
+    {
+        _simulationSpeed = speed;
+
+        Time.timeScale = speed;
     }
 
     // State management
@@ -43,7 +52,7 @@ public class SimulationManager : MonoBehaviour
         OnStateChanged?.Invoke(CurrentState);
     }
 
-    public void SetRoadSubState(RoadSubState subState, bool triggerStateChange = false)
+    public void SetRoadSubState(RoadSubState subState, bool triggerStateChange = true)
     {
         CurrentState = new GameStateContext
         {
@@ -57,7 +66,7 @@ public class SimulationManager : MonoBehaviour
             OnStateChanged?.Invoke(CurrentState);
     }
 
-    public void SetVehicleSubState(VehicleSubState subState, bool triggerStateChange = false)
+    public void SetVehicleSubState(VehicleSubState subState, bool triggerStateChange = true)
     {
         CurrentState = new GameStateContext
         {
@@ -72,7 +81,7 @@ public class SimulationManager : MonoBehaviour
             OnStateChanged?.Invoke(CurrentState);
     }
 
-    public void SetTrafficLightSubState(TrafficLightSubState subState, bool triggerStateChange = false)
+    public void SetTrafficLightSubState(TrafficLightSubState subState, bool triggerStateChange = true)
     {
         CurrentState = new GameStateContext
         {
@@ -87,7 +96,7 @@ public class SimulationManager : MonoBehaviour
             OnStateChanged?.Invoke(CurrentState);
     }
 
-    public void SetPedestrianSubState(PedestrianSubState subState, bool triggerStateChange = false)
+    public void SetPedestrianSubState(PedestrianSubState subState, bool triggerStateChange = true)
     {
         CurrentState = new GameStateContext
         {
@@ -102,7 +111,7 @@ public class SimulationManager : MonoBehaviour
             OnStateChanged?.Invoke(CurrentState);
     }
 
-    public void SetBuildingSubState(BuildingSubState subState, bool triggerStateChange = false)
+    public void SetBuildingSubState(BuildingSubState subState, bool triggerStateChange = true)
     {
         CurrentState = new GameStateContext
         {

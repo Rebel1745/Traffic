@@ -201,7 +201,9 @@ public class BuildingCarPark : BuildingBase
 
     public IEnumerator SetParkingSpotOccupationAfterDelay(WaypointNode spot, bool isOccupied)
     {
-        yield return new WaitForSeconds(1f);
+        if (!isOccupied)
+            yield return new WaitForSeconds(1f);
+
         _parkingSpotOccupation[spot] = isOccupied;
     }
 

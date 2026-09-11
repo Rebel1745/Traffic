@@ -13,5 +13,6 @@ public class WaypointNodeSaveData
     public WaypointNetworkType NetworkType;
     public string PairedCrossingWaypointId;
     public string LaneNodeForTrafficLightId;
+    public bool PedestrianOnlyTrafficLight;
     public RoadDirection LightPosition;
 }

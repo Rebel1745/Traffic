@@ -10,7 +10,8 @@ public class PedestrianBrain : MonoBehaviour, IAgentBrain
         goalList.AddLast(new WaitGoal(Random.Range(2f, 7f)));
 
         float rand = Random.Range(0f, 1f);
-        Goal backupGoal = new WalkToWaypointGoal(PedestrianManager.Instance.GetRandomPedestrianWaypoint(WaypointType.PedestrianWalkway));
+        Goal backupGoalWalking = new WalkToWaypointGoal(PedestrianManager.Instance.GetRandomPedestrianWaypoint(WaypointType.PedestrianWalkway));
+        Goal backupGoalDriving = new DriveToWaypointGoal(VehicleManager.Instance.GetRandomVehicleWaypoint(WaypointType.Entry));
         BuildingBase target = null;
         WaypointNode targetNode = null;
         bool goHome = false;
@@ -19,30 +20,29 @@ public class PedestrianBrain : MonoBehaviour, IAgentBrain
         if (rand < 0.1f)
         {
             goHome = true;
-            var homeId = RelationshipManager.Instance.GetHomeBuildingsForPerson(agent.Id).First();
-            target = BuildingManager.Instance.GetBuilding(homeId);
+            List<EntityId> homeId = RelationshipManager.Instance.GetHomeBuildingsForPerson(agent.Id);
+            if (homeId.Count == 0 || !homeId.First().IsValid)
+            {
+                goalList.AddLast(backupGoalWalking);
+                agent.SetGoalList(goalList);
+                return;
+            }
+            target = BuildingManager.Instance.GetBuilding(homeId.First());
             targetNode = target?.InsideBuildingWaypoint;
         }
         else if (rand < 0.65f)
         {
-            var stores = BuildingManager.Instance.GetBuildingsByFunction(BuildingFunction.Store);
+            List<EntityId> stores = BuildingManager.Instance.GetBuildingsByFunction(BuildingFunction.Store);
             if (stores.Count > 0) target = BuildingManager.Instance.GetBuilding(stores[Random.Range(0, stores.Count)]);
         }
         else
         {
-            var food = BuildingManager.Instance.GetBuildingsByFunction(BuildingFunction.Food);
-            var drink = BuildingManager.Instance.GetBuildingsByFunction(BuildingFunction.Drink);
-            var options = new List<EntityId>(food).Concat(drink).ToList();
+            List<EntityId> food = BuildingManager.Instance.GetBuildingsByFunction(BuildingFunction.Food);
+            List<EntityId> drink = BuildingManager.Instance.GetBuildingsByFunction(BuildingFunction.Drink);
+            List<EntityId> options = new List<EntityId>(food).Concat(drink).ToList();
             if (options.Count > 0) target = BuildingManager.Instance.GetBuilding(options[Random.Range(0, options.Count)]);
         }
         if (target != null) targetNode = target.InsideBuildingWaypoint;
-
-        if (targetNode == null)
-        {
-            goalList.AddLast(backupGoal);
-            agent.SetGoalList(goalList);
-            return;
-        }
 
         // Vehicle Handling
         EntityId vehicleId = PedestrianManager.Instance.GetPersonsVehicle(agent.Id);
@@ -55,6 +55,13 @@ public class PedestrianBrain : MonoBehaviour, IAgentBrain
         }
 
         AgentController vehicle = VehicleManager.Instance.GetVehicle(vehicleId);
+
+        if (targetNode == null)
+        {
+            goalList.AddLast(backupGoalWalking);
+            agent.SetGoalList(goalList);
+            return;
+        }
 
         if (goHome)
         {
@@ -78,9 +85,9 @@ public class PedestrianBrain : MonoBehaviour, IAgentBrain
 
         EntityId closestCarParkId = carParks.Count == 1 ? carParks[0] : BuildingManager.Instance.GetClosestBuildingToPosition(carParks, targetNode.Position);
         BuildingCarPark carPark = BuildingManager.Instance.GetBuilding(closestCarParkId) as BuildingCarPark;
-        EntityId currentBuildingId = RelationshipManager.Instance.GetBuildingFromParkingSpot(vehicle.Mover.CurrentWaypoint.Id).First();
+        List<EntityId> currentBuildingId = RelationshipManager.Instance.GetBuildingFromParkingSpot(vehicle.Mover.CurrentWaypoint.Id);
 
-        if (closestCarParkId.Equals(currentBuildingId))
+        if (currentBuildingId.Count == 0 || !currentBuildingId.First().IsValid || closestCarParkId.Equals(currentBuildingId))
         {
             goalList.AddLast(new WalkToWaypointGoal(targetNode));
             agent.SetGoalList(goalList);

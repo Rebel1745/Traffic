@@ -90,6 +90,7 @@ public class AgentController : MonoBehaviour, ISelectableObject
         // If the queue was empty, start this goal immediately
         if (_goalQueue.Count == 1 && _currentGoal == null)
         {
+            Debug.Log("Starting goal");
             StartGoal(goal);
         }
     }
@@ -131,6 +132,8 @@ public class AgentController : MonoBehaviour, ISelectableObject
 
         // Clear all pending goals (Dance, Wait, etc. are gone)
         _goalQueue.Clear();
+        _currentGoal = null;
+        _currentNode = null;
     }
 
     public void SetGoalList(LinkedList<Goal> goals)
@@ -190,7 +193,7 @@ public class AgentController : MonoBehaviour, ISelectableObject
 
     public void LoadQueue(List<GoalSaveData> json)
     {
-        _goalQueue.Clear();
+        ClearGoalQueue();
 
         AgentController vehicle;
         WaypointNode targetNode;

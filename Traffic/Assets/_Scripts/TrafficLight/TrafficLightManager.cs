@@ -38,7 +38,7 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
         SaveManager.Instance.UnregisterSaveable(this);
     }
 
-    public void PlaceTrafficLightsInCell(GridCell cell)
+    public void PlaceTrafficLightsInCell(GridCell cell, bool showUI = true)
     {
         List<WaypointNode> validWaypoints = GetValidWaypointsForSubState(cell);
 
@@ -63,7 +63,7 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
         }
 
         // if there are already traffic lights, load the settings screen then bail
-        if (cell.HasTrafficLights)
+        if (cell.HasTrafficLights && showUI)
         {
             UIManager.Instance.LoadTrafficLightGroupDetails(FindGroupForWaypoint(lastWaypoint));
             return;
@@ -79,7 +79,8 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
         }
 
         // hand off to the traffic light settings UI to allow for light timings and order to be changed
-        UIManager.Instance.LoadTrafficLightGroupDetails(FindGroupForWaypoint(lastWaypoint));
+        if (showUI)
+            UIManager.Instance.LoadTrafficLightGroupDetails(FindGroupForWaypoint(lastWaypoint));
     }
 
     public void PlaceLightAtWaypoint(WaypointNode waypoint)
@@ -90,7 +91,7 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
         GameObject lightObj = Instantiate(_trafficLightPrefab, waypoint.Position, Quaternion.identity);
         TrafficLightController light = lightObj.GetComponent<TrafficLightController>();
 
-        if (waypoint.PedestiranOnlyTrafficLight)
+        if (waypoint.PedestrianOnlyTrafficLight)
             light.SetPedestrianOnlyLight();
 
         light.AssignedWaypoint = waypoint;
@@ -430,6 +431,42 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
 
         foreach (TrafficLightGroupSaveData groupData in saveData.TrafficLights.Groups)
         {
+            // we are still going to loop through the groups, but instead of making them the same as the save data, we are just going to create a new group
+            // we can then update it with the details from the saveData, but the Ids will be different (which will have no ill effects)
+            WaypointNode waypoint = VehicleWaypointManager.Instance.GetWaypointFromId(groupData.Lights[0].LightWaypointNodeId);
+            waypoint.ParentCell.HasTrafficLights = false;
+
+            // save the current state
+            GameStateContext currentContext = SimulationManager.Instance.CurrentState;
+            // change it to the traffic light juntion state
+            if (groupData.GroupType == TrafficLightGroupType.Junction)
+                SimulationManager.Instance.SetTrafficLightSubState(TrafficLightSubState.AddJunctionLights, false);
+            else
+                SimulationManager.Instance.SetTrafficLightSubState(TrafficLightSubState.AddPedestrianCrossings, false);
+            // place the lights
+            PlaceTrafficLightsInCell(waypoint.ParentCell, showUI: false);
+            // revert to previous state
+            SimulationManager.Instance.SetState(currentContext);
+        }
+    }
+
+    /*public void LoadFromSaveData(GameSaveData saveData)
+    {
+        if (saveData.TrafficLights == null)
+        {
+            Debug.LogWarning("[TrafficLightManager] No traffic light data in save file.");
+            return;
+        }
+
+        // clear the groups and delete all traffic light game objects from the world
+        _allGroups.Clear();
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            Destroy(transform.GetChild(i).gameObject);
+        }
+
+        foreach (TrafficLightGroupSaveData groupData in saveData.TrafficLights.Groups)
+        {
             // Create group GameObject
             GameObject groupObj = new GameObject($"LightGroup_{groupData.JunctionName}");
             groupObj.transform.position = Vector3.zero;  // Will be set later
@@ -452,32 +489,60 @@ public class TrafficLightManager : MonoBehaviour, ISaveable
                     continue;
                 }
 
-                // Create light prefab at waypoint position
+                // // Create light prefab at waypoint position
+                // GameObject lightObj = Instantiate(_trafficLightPrefab, waypoint.Position, Quaternion.identity);
+                // lightObj.transform.rotation = Quaternion.Euler(0, GetYRotationFromLightPosition(waypoint.LightPosition), 0);
+                // TrafficLightController newLight = lightObj.GetComponent<TrafficLightController>();
+
+                // if (waypoint.PedestiranOnlyTrafficLight)
+                //     newLight.SetPedestrianOnlyLight();
+
+                // newLight.AssignedWaypoint = waypoint;
+
+                // // Assign to waypoint
+                // waypoint.LaneNodeForTrafficLight.AssignedLight = newLight;
+
+                // // Register in group
+                // group.RegisterLight(newLight, light.LightPosition, light.LightPosition.ToString(), light.GreenDuration, light.YellowDuration, light.RedDuration, light.AllRedDuration, light.PedestrianCrossingDuration, light.OriginalLabel, light.OriginalGreenDuration, light.OriginalYellowDuration, light.OriginalRedDuration, light.OriginalAllRedDuration, light.OriginalPedestrianCrossingDuration);
+
+                // // Set group position to first light's position (or junction center)
+                // if (groupObj.transform.position == Vector3.zero)
+                // {
+                //     groupObj.transform.position = waypoint.Position;
+                // }
+
+                // lightObj.transform.parent = groupObj.transform;
+                if (waypoint == null || waypoint.AssignedLight != null)
+                    return;
+
                 GameObject lightObj = Instantiate(_trafficLightPrefab, waypoint.Position, Quaternion.identity);
-                lightObj.transform.rotation = Quaternion.Euler(0, GetYRotationFromLightPosition(waypoint.LightPosition), 0);
-                TrafficLightController newLight = lightObj.GetComponent<TrafficLightController>();
-                newLight.AssignedWaypoint = waypoint;
+                TrafficLightController tlc = lightObj.GetComponent<TrafficLightController>();
 
-                // Assign to waypoint
-                waypoint.LaneNodeForTrafficLight.AssignedLight = newLight;
+                if (waypoint.PedestiranOnlyTrafficLight)
+                    tlc.SetPedestrianOnlyLight();
 
-                // Register in group
-                group.RegisterLight(newLight, light.LightPosition, light.LightPosition.ToString(), light.GreenDuration, light.YellowDuration, light.RedDuration, light.AllRedDuration, light.PedestrianCrossingDuration, light.OriginalLabel, light.OriginalGreenDuration, light.OriginalYellowDuration, light.OriginalRedDuration, light.OriginalAllRedDuration, light.OriginalPedestrianCrossingDuration);
+                tlc.AssignedWaypoint = waypoint;
 
-                // Set group position to first light's position (or junction center)
-                if (groupObj.transform.position == Vector3.zero)
+                WaypointNode laneNode = VehicleWaypointManager.Instance.GetWaypointFromId(waypoint.LaneNodeForTrafficLightId);
+                if (laneNode == null)
                 {
-                    groupObj.transform.position = waypoint.Position;
+                    Debug.LogWarning("This lane Id is null. Why?");
+                    continue;
                 }
+                laneNode.AssignedLight = tlc;
 
-                lightObj.transform.parent = groupObj.transform;
+                lightObj.transform.parent = group.gameObject.transform;
+                lightObj.transform.rotation = Quaternion.Euler(0, GetYRotationFromLightPosition(waypoint.LightPosition), 0);
+
+                // Register with default timings (can be adjusted via UI later)
+                group.RegisterLight(tlc, waypoint.LightPosition, waypoint.LightPosition.ToString(), _greenDuration, _yellowDuration, _redDuration, _allRedDuration, _pedestrianCrossingDuration, waypoint.LightPosition.ToString(), _greenDuration, _yellowDuration, _redDuration, _allRedDuration, _pedestrianCrossingDuration);
             }
 
             _allGroups.Add(group);
         }
 
         Debug.Log($"[TrafficLightManager] Loaded {saveData.TrafficLights.Groups.Count} traffic light groups.");
-    }
+    }*/
 }
 
 public enum LightState { Red, Yellow, Green }

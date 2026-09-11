@@ -270,7 +270,7 @@ public class VehicleWaypointManager : WaypointManagerBase, ISaveable
             // Lane 6: West to East (straight through)
             AddWaypointConnection(westEntry, eastExit);
 
-            trafficLight3.PedestiranOnlyTrafficLight = true;
+            trafficLight3.PedestrianOnlyTrafficLight = true;
         }
         // T-Junction with North, East, and South (missing West)
         else if (_hasNorth && _hasEast && _hasSouth && !_hasWest)
@@ -297,7 +297,7 @@ public class VehicleWaypointManager : WaypointManagerBase, ISaveable
             AddWaypointConnection(southEntry, midpointNW);
             AddWaypointConnection(midpointNW, eastExit);
 
-            trafficLight1.PedestiranOnlyTrafficLight = true;
+            trafficLight1.PedestrianOnlyTrafficLight = true;
         }
         // T-Junction with North, South, and West (missing East)
         else if (_hasNorth && _hasSouth && _hasWest && !_hasEast)
@@ -325,7 +325,7 @@ public class VehicleWaypointManager : WaypointManagerBase, ISaveable
             AddWaypointConnection(westEntry, midpointNE);
             AddWaypointConnection(midpointNE, southExit);
 
-            trafficLight4.PedestiranOnlyTrafficLight = true;
+            trafficLight4.PedestrianOnlyTrafficLight = true;
         }
         // T-Junction with East, South, and West (missing North)
         else if (_hasEast && _hasSouth && _hasWest && !_hasNorth)
@@ -352,17 +352,25 @@ public class VehicleWaypointManager : WaypointManagerBase, ISaveable
             AddWaypointConnection(westEntry, midpointNE);
             AddWaypointConnection(midpointNE, southExit);
 
-            trafficLight2.PedestiranOnlyTrafficLight = true;
+            trafficLight2.PedestrianOnlyTrafficLight = true;
         }
 
-        if (_hasNorth) AddWaypoint(cell, northEntry);
-        if (_hasSouth) AddWaypoint(cell, southEntry);
-        if (_hasWest) AddWaypoint(cell, westEntry);
-        if (_hasEast) AddWaypoint(cell, eastEntry);
-        if (_hasNorth) AddWaypoint(cell, northExit);
-        if (_hasSouth) AddWaypoint(cell, southExit);
-        if (_hasWest) AddWaypoint(cell, westExit);
-        if (_hasEast) AddWaypoint(cell, eastExit);
+        /*if (_hasNorth)*/
+        AddWaypoint(cell, northEntry);
+        /*if (_hasSouth)*/
+        AddWaypoint(cell, southEntry);
+        /*if (_hasWest)*/
+        AddWaypoint(cell, westEntry);
+        /*if (_hasEast)*/
+        AddWaypoint(cell, eastEntry);
+        /*if (_hasNorth)*/
+        AddWaypoint(cell, northExit);
+        /*if (_hasSouth)*/
+        AddWaypoint(cell, southExit);
+        /*if (_hasWest)*/
+        AddWaypoint(cell, westExit);
+        /*if (_hasEast)*/
+        AddWaypoint(cell, eastExit);
     }
 
     protected override void CreateCrossroadsWaypoints(GridCell cell)
@@ -741,7 +749,8 @@ public class VehicleWaypointManager : WaypointManagerBase, ISaveable
                 ParentCellZ = node.ParentCell.Position.z,
                 PairedCrossingWaypointId = node.PairedCrossingWaypoint?.Id.ToString(),
                 LaneNodeForTrafficLightId = node.LaneNodeForTrafficLight?.Id.ToString(),
-                LightPosition = node.LightPosition
+                LightPosition = node.LightPosition,
+                PedestrianOnlyTrafficLight = node.PedestrianOnlyTrafficLight
             };
 
             foreach (var connection in node.Connections)
@@ -795,6 +804,8 @@ public class VehicleWaypointManager : WaypointManagerBase, ISaveable
                 nodeData.NetworkType
             );
 
+            node.PedestrianOnlyTrafficLight = nodeData.PedestrianOnlyTrafficLight;
+
             // Restore the saved ID rather than using the new GUID generated in the constructor
             node.Id = EntityId.FromString(nodeData.Id);
 
@@ -838,15 +849,14 @@ public class VehicleWaypointManager : WaypointManagerBase, ISaveable
         // Third pass — resolve paired crossing waypoints (after all nodes are created)
         foreach (WaypointNode node in _allWaypoints.Values)
         {
-            if (!string.IsNullOrEmpty(node.PairedCrossingWaypointId) &&
-                nodeLookup.TryGetValue(node.PairedCrossingWaypointId, out WaypointNode pairedNode))
+            if (!string.IsNullOrEmpty(node.PairedCrossingWaypointId))
             {
-                node.PairedCrossingWaypoint = pairedNode;
+                node.PairedCrossingWaypoint = GetWaypointFromId(node.PairedCrossingWaypointId);
             }
-            if (!string.IsNullOrEmpty(node.LaneNodeForTrafficLightId) &&
-                nodeLookup.TryGetValue(node.LaneNodeForTrafficLightId, out WaypointNode laneNode))
+            if (!string.IsNullOrEmpty(node.LaneNodeForTrafficLightId))
             {
-                node.LaneNodeForTrafficLight = laneNode;
+                Debug.Log($"Updated lane node for traffic light {GetWaypointFromId(node.LaneNodeForTrafficLightId)}");
+                node.LaneNodeForTrafficLight = GetWaypointFromId(node.LaneNodeForTrafficLightId);
             }
         }
 
